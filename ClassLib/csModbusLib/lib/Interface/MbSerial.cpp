@@ -13,7 +13,7 @@ namespace csModbusLib {
 		Init();
 	}
 
-	MbSerial::MbSerial(const char* PortName, int BaudRate, int databits, Parity parity, StopBits stopbits)
+	MbSerial::MbSerial(const char* PortName, int BaudRate, int databits, SerialPort::Parity parity, SerialPort::StopBits stopbits)
 	{
 		SetComParms(PortName, BaudRate, databits, parity, stopbits);
 		Init();
@@ -21,10 +21,10 @@ namespace csModbusLib {
 
 	void MbSerial::SetComParms(const char*  PortName, int BaudRate)
 	{
-		SetComParms(PortName, BaudRate, 8, Parity::NoParity, StopBits::One);
+		SetComParms(PortName, BaudRate, 8, SerialPort::Parity::NoParity, SerialPort::StopBits::One);
 	}
 
-	void MbSerial::SetComParms(const char*  PortName, int BaudRate, int DataBits, Parity parity, StopBits stopbits)
+	void MbSerial::SetComParms(const char*  PortName, int BaudRate, int DataBits, SerialPort::Parity parity, SerialPort::StopBits stopbits)
 	{
 		sp.SetComParms(PortName, BaudRate, DataBits, parity, stopbits);
 	}
@@ -53,7 +53,7 @@ namespace csModbusLib {
 	{
 		if (IsConnected) {
 			IsConnected = false;
-			Sleep(50);    // wait until DataReceivedHandler has finisched
+			MbSleep(50);    // wait until DataReceivedHandler has finisched
 			sp.Close();
 		}
 	}
@@ -104,8 +104,7 @@ namespace csModbusLib {
 	void MbSerial::SendData(const uint8_t * Data, int offs, int count)
 	{
 		try {
-			sp.DiscardOutBuffer();
-			sp.DiscardInBuffer();
+			sp.DiscardInOut();
 			sp.Write(Data, offs, count);
 
 		} catch (int) {

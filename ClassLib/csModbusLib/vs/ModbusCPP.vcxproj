@@ -14,10 +14,14 @@
     <ClCompile Include="..\lib\Interface\MbASCII.cpp" />
     <ClCompile Include="..\lib\Interface\MbRTU.cpp" />
     <ClCompile Include="..\lib\Interface\MbSerial.cpp" />
+    <ClCompile Include="..\lib\Interface\SerialPort.cpp" />
     <ClCompile Include="..\lib\Interface\UdpClient.cpp" />
     <ClCompile Include="..\lib\Modbus\MbFrame.cpp" />
     <ClCompile Include="..\lib\Modbus\MbMaster.cpp" />
     <ClCompile Include="..\lib\Modbus\MbSlave.cpp" />
+    <ClCompile Include="..\platform\boost\SerialBoost.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\platform\win32\SerialWin32.cpp" />
     <ClCompile Include="..\Test\ModbusCPP.cpp" />
   </ItemGroup>
@@ -36,6 +40,9 @@
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveDataServer.h" />
     <ClInclude Include="..\lib\Utils\Stopwatch.h" />
     <ClInclude Include="..\lib\Utils\ThreadUtils.h" />
+    <ClInclude Include="..\platform\boost\SerialBoost.h" />
+    <ClInclude Include="..\platform\win32\platform.h" />
+    <ClInclude Include="..\platform\win32\SerialWin32.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DC024F3B-42FB-4672-AA09-743F6A777320}</ProjectGuid>
@@ -79,7 +86,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\lib\Modbus;..\lib\Interface;..\lib\SlaveDataServer;..\lib\Utils;C:\GNUcollection\boost_1_75_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\lib\Modbus;..\lib\Interface;..\lib\SlaveDataServer;..\lib\Utils;..\platform\win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>

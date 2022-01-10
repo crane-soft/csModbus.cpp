@@ -1,6 +1,6 @@
 ﻿#pragma once
+#include "platform.h"
 #include "MbInterface.h"
-#include "SerialPort.h"
 
 namespace csModbusLib {
 
@@ -16,10 +16,10 @@ namespace csModbusLib {
 
 	public:
 		MbSerial();
-		MbSerial(const char* PortName, int BaudRate, int databits, Parity _Parity, StopBits _StopBits);
+		MbSerial(const char* PortName, int BaudRate, int databits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits);
 
 		void SetComParms(const char*  PortName, int BaudRate);
-		void SetComParms(const char*  PortName, int BaudRate, int DataBits, Parity _Parity, StopBits _StopBits);
+		void SetComParms(const char*  PortName, int BaudRate, int DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits);
 		bool Connect();
 		void DisConnect();
 		bool ReceiveHeader(MbRawData *RxData);
@@ -27,7 +27,7 @@ namespace csModbusLib {
 		void EndOfFrame(MbRawData *RxData);
 
 	protected:
-		SerialPort sp;
+		PlatformSerial sp;
 		virtual bool Check_EndOfFrame(MbRawData * RxData) = 0;
 		virtual bool StartOfFrameFound() = 0;
 		virtual void ReceiveBytes(uint8_t *RxData, int offset, int count);

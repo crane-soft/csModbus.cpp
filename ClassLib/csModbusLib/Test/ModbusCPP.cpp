@@ -8,15 +8,14 @@
 
 using namespace csModbusLib;
 
-//MbRTU MyInterface = MbRTU("COM6", 19200);
-MbASCII MyInterface = MbASCII("COM6", 19200);
+MbRTU MyInterface = MbRTU("COM9", 19200);
+//MbASCII MyInterface = MbASCII("COM9", 19200);
 MbMaster MyMaster;
 
 MbSlave MySlave;
 
 void TestSlave()
 {
-
 	MySlave.StartListen();
 }
 

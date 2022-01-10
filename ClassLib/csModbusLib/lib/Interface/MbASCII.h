@@ -10,9 +10,9 @@ namespace csModbusLib {
 	public:
 		MbASCII() {};
 		MbASCII(const char * port, int baudrate)
-			: MbSerial(port, baudrate, 8, Parity::NoParity, StopBits::One) {}
+			: MbSerial(port, baudrate, 8, SerialPort::Parity::NoParity, SerialPort::StopBits::One) {}
 
-		MbASCII(const char *port, int baudrate, int databits, Parity parity, StopBits stopbits)
+		MbASCII(const char *port, int baudrate, int databits, SerialPort::Parity parity, SerialPort::StopBits stopbits)
 			: MbSerial(port, baudrate, databits, parity, stopbits) {}
 
 		void SendFrame(MbRawData *TransmitData, int Length);

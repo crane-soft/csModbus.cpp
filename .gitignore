@@ -3,3 +3,4 @@
 /ClassLib/csModbusLib/vs/*.db
 /ClassLib/csModbusLib/vs/*.opendb
 /ClassLib/csModbusLib/vs/*.user
+*.bak

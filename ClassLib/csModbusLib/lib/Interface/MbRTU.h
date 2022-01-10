@@ -28,7 +28,7 @@ namespace csModbusLib {
 	public: 
 		MbRTU();
 		MbRTU(const char * port, int baudrate);
-		MbRTU(const char *port, int baudrate, int databits, Parity parity, StopBits stopbits);
+		MbRTU(const char *port, int baudrate, int databits, SerialPort::Parity parity, SerialPort::StopBits stopbits);
 		void SendFrame(MbRawData *TransmitData, int Length);
 	protected:
 		bool StartOfFrameFound();

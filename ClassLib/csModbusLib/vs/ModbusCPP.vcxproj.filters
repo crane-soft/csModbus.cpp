@@ -20,6 +20,12 @@
     <Filter Include="platform">
       <UniqueIdentifier>{04f15fa8-f0ae-4c6f-880c-ce904b533e3f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="platform\Win32">
+      <UniqueIdentifier>{9d0c2563-3163-486e-8b69-583b055502af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\Boost">
+      <UniqueIdentifier>{e1de8ee9-b0fc-477c-abef-8b51eb06e600}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lib\Interface\MbASCII.cpp">
@@ -46,8 +52,14 @@
     <ClCompile Include="..\Test\ModbusCPP.cpp">
       <Filter>lib</Filter>
     </ClCompile>
+    <ClCompile Include="..\lib\Interface\SerialPort.cpp">
+      <Filter>lib\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\platform\boost\SerialBoost.cpp">
+      <Filter>platform\Boost</Filter>
+    </ClCompile>
     <ClCompile Include="..\platform\win32\SerialWin32.cpp">
-      <Filter>platform</Filter>
+      <Filter>platform\Win32</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +104,15 @@
     </ClInclude>
     <ClInclude Include="..\lib\Utils\ThreadUtils.h">
       <Filter>lib\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\platform\boost\SerialBoost.h">
+      <Filter>platform\Boost</Filter>
+    </ClInclude>
+    <ClInclude Include="..\platform\win32\SerialWin32.h">
+      <Filter>platform\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\platform\win32\platform.h">
+      <Filter>platform\Win32</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

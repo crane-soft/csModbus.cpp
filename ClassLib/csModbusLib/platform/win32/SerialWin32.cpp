@@ -1,36 +1,19 @@
 #pragma once
 #include <string>
-#include "SerialPort.h"
+#include "SerialWin32.h"
 
 // Serial Communication for WIN32
 // https://www.tetraedre.com/advanced/serial2.php
 // https://docs.microsoft.com/en-us/previous-versions/ff802693(v=msdn.10)?redirectedfrom=MSDN
 
 
-SerialPort::SerialPort()
+SerialWin32::SerialWin32()
 {
 	comhdle = 0;
 }
 
-void SerialPort::SetComParms(const char* _PortName, int _BaudRate, int _DataBits, Parity _Parity, StopBits _StopBits)
-{
-	PortName = _PortName;
-	BaudRate = _BaudRate;
-	DataBits = _DataBits;
-	mParity = _Parity;
-	mStopBits = _StopBits;
-}
 
-void SerialPort::Open()
-{
-	if (OpenWin32Port() == false)
-		throw - 1;
-	ReadTimeout = 1;
-	WriteTimeout = 200;
-	SetTheTimeouts();
-}
-
-bool SerialPort::OpenWin32Port()
+bool SerialWin32::OpenPort()
 {
 	HANDLE chdle;
 	comhdle = 0;
@@ -85,59 +68,40 @@ bool SerialPort::OpenWin32Port()
 	return true;
 }
 
-bool SerialPort::IsOpen()
+bool SerialWin32::IsOpen()
 {
 	return comhdle != 0;
 }
 
-void SerialPort::Close()
+void SerialWin32::Close()
 {
 	CloseHandle(comhdle);
 	comhdle = 0;
 }
 
-void SerialPort::SetWriteTimeout(int ms)
-{
-	WriteTimeout = ms;
-	SetTheTimeouts();
-}
-
-void SerialPort::SetReadTimeout(int ms)
-{
-	ReadTimeout = ms;
-	SetTheTimeouts();
-}
-
-void SerialPort::SetTheTimeouts()
+void SerialWin32::SetTimeouts()
 {
 	if (comhdle > 0) {
 		COMMTIMEOUTS CommTimeouts = {
-			0,		// ReadIntervalTimeout; 
-			0,		// ReadTotalTimeoutMultiplier; 
-			0,		// ReadTotalTimeoutConstant; 
-			0,		// WriteTotalTimeoutMultiplier; 
-			200 };	// WriteTotalTimeoutConstant; 
+			ReadTimeout,	// ReadIntervalTimeout; 
+			0,				// ReadTotalTimeoutMultiplier; 
+			ReadTimeout,	// ReadTotalTimeoutConstant; 
+			0,				// WriteTotalTimeoutMultiplier; 
+			WriteTimeout };	// WriteTotalTimeoutConstant; 
 
 		SetCommTimeouts(comhdle, &CommTimeouts);
 	}
 }
 
-void SerialPort::DiscardOutBuffer()
+void SerialWin32::DiscardInOut()
 {
 	if (comhdle > 0) {
 		PurgeComm(comhdle, PURGE_TXABORT | PURGE_TXCLEAR);
-	}
-}
-
-void SerialPort::DiscardInBuffer()
-{
-	if (comhdle > 0) {
 		PurgeComm(comhdle, PURGE_RXABORT | PURGE_RXCLEAR);
 	}
-
 }
 
-void SerialPort::Write(const uint8_t * Data, int offs, int count)
+void SerialWin32::Write(const uint8_t * Data, int offs, int count)
 {
 	DWORD lpNumberOfBytesWritten;
 	WriteFile(comhdle, &Data[offs], count, &lpNumberOfBytesWritten, NULL);
@@ -146,7 +110,7 @@ void SerialPort::Write(const uint8_t * Data, int offs, int count)
 	}
 }
 
-int SerialPort::Read(uint8_t * Data, int offs, int count)
+int SerialWin32::Read(uint8_t * Data, int offs, int count)
 {
 	DWORD dwRead;
 
@@ -155,18 +119,13 @@ int SerialPort::Read(uint8_t * Data, int offs, int count)
 	return 0;
 }
 
-int SerialPort::ReadByte()
-{
-	uint8_t Data;
-	Read(&Data, 0, 1);
-	return Data;
-}
 
-int SerialPort::BytesToRead()
+int SerialWin32::BytesToRead()
 {
 	DWORD comError;
 	COMSTAT comStat;
 	if (ClearCommError(comhdle, &comError, &comStat) == TRUE)
 		return comStat.cbInQue;
 	return 0;
-};
+}; 
+
