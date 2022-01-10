@@ -1,0 +1,5 @@
+/ClassLib/csModbusLib/vs/.vs
+/ClassLib/csModbusLib/vs/Debug
+/ClassLib/csModbusLib/vs/*.db
+/ClassLib/csModbusLib/vs/*.opendb
+/ClassLib/csModbusLib/vs/*.user

@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="lib">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="lib\Modbus">
+      <UniqueIdentifier>{04c9f1cc-315a-4f33-b9b0-3e61ce9f40a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\Interface">
+      <UniqueIdentifier>{e62ba663-8589-4f68-b0ca-9710cfe01823}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\Utils">
+      <UniqueIdentifier>{3d32a30f-2a9e-4dc0-b747-07e87ccb4b54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\SlaveDataServer">
+      <UniqueIdentifier>{f14914b9-c5d1-4cf9-bc2d-b2c4bf49eafd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform">
+      <UniqueIdentifier>{04f15fa8-f0ae-4c6f-880c-ce904b533e3f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\lib\Interface\MbASCII.cpp">
+      <Filter>lib\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\Interface\MbRTU.cpp">
+      <Filter>lib\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\Interface\MbSerial.cpp">
+      <Filter>lib\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\Interface\UdpClient.cpp">
+      <Filter>lib\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\Modbus\MbFrame.cpp">
+      <Filter>lib\Modbus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\Modbus\MbMaster.cpp">
+      <Filter>lib\Modbus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\Modbus\MbSlave.cpp">
+      <Filter>lib\Modbus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Test\ModbusCPP.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\platform\win32\SerialWin32.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\lib\Interface\MbASCII.h">
+      <Filter>lib\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Interface\MbEthernet.h">
+      <Filter>lib\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Interface\MbInterface.h">
+      <Filter>lib\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Interface\MbRTU.h">
+      <Filter>lib\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Interface\MbSerial.h">
+      <Filter>lib\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Interface\MbUDP.h">
+      <Filter>lib\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Interface\SerialPort.h">
+      <Filter>lib\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Modbus\MbBase.h">
+      <Filter>lib\Modbus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Modbus\MbFrame.h">
+      <Filter>lib\Modbus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Modbus\MbMaster.h">
+      <Filter>lib\Modbus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Modbus\mbslave.h">
+      <Filter>lib\Modbus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\SlaveDataServer\MbSlaveDataServer.h">
+      <Filter>lib\SlaveDataServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Utils\Stopwatch.h">
+      <Filter>lib\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Utils\ThreadUtils.h">
+      <Filter>lib\Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
