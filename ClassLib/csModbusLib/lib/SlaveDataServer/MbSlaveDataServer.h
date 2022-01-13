@@ -3,7 +3,6 @@
 namespace csModbusLib {
 
     class MbSlaveDataServer {
-
         public:
 			MbSlaveDataServer *NextDataServer;   
 	private:
@@ -12,34 +11,29 @@ namespace csModbusLib {
 		MBSFrame *Frame;
 
 	public: 
-		MbSlaveDataServer()
-        {
+		MbSlaveDataServer()  {
             gSlaveID = 0;
             NextDataServer = 0;
         }
 
-        MbSlaveDataServer(int SlaveID)
-        {
+        MbSlaveDataServer(int SlaveID)  {
             gSlaveID = SlaveID;
 			NextDataServer = 0;
 		}
 
-        void Add (MbSlaveDataServer *NewServer)
-        {
+        void Add (MbSlaveDataServer *NewServer)  {
             NextDataServer = NewServer;
         }
 
-		int Get_SlaveID()
-        {
+		int Get_SlaveID()  {
            return gSlaveID; 
 		}
-		void Set_SlaveID (int value)
-		{ 
+
+		void Set_SlaveID (int value) { 
 			gSlaveID = value; 
 		}
-        
 
-        virtual void DataServices(MBSFrame *aFrame)
+        void DataServices(MBSFrame *aFrame)
         {
             Frame = aFrame;
             if (Frame->SlaveId == gSlaveID) {
@@ -57,8 +51,7 @@ namespace csModbusLib {
                         if (ReadInputRegisters()) return;
                         break;
                     case ModbusCodes::WRITE_SINGLE_COIL:
-                        if (WriteSingleCoil())
-                            return;
+                        if (WriteSingleCoil()) return;
                         break;
                     case ModbusCodes::WRITE_SINGLE_REGISTER:
                         if (WriteSingleRegister()) return;
@@ -77,9 +70,11 @@ namespace csModbusLib {
                             }
                         }
                         break;
-
+					default:
+						Frame->ExceptionCode = ExceptionCodes::ILLEGAL_FUNCTION;
+						return;
                 }
-                Frame->ExceptionCode = ExceptionCodes::ILLEGAL_FUNCTION;
+				Frame->ExceptionCode = ExceptionCodes::ILLEGAL_DATA_ADDRESS;
             }
         }
 

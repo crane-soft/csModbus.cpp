@@ -5,12 +5,15 @@
 #include "Stopwatch.h"
 #include "MbSlave.h"
 #include "ThreadUtils.h"
-
+#include "platform.h"
 
 namespace csModbusLib {
 
 	MbSlave::MbSlave()
 	{
+		gInterface = 0;
+		gDataServer = NULL;
+		ListenThread = NULL;
 	}
 
 	MbSlave::MbSlave(MbInterface *Interface)
@@ -24,6 +27,7 @@ namespace csModbusLib {
 	{
 		gInterface = Interface;
 		gDataServer = DataServer;
+		ListenThread = NULL;
 	}
 
 	MbSlaveDataServer * MbSlave::Get_DataServer()
@@ -36,46 +40,6 @@ namespace csModbusLib {
 		gDataServer = DataServer;
 	}
 	
-	void MbSlave::StartListen()
-	{
-		if (gInterface != 0) {
-			if (running) {
-				StopListen();
-				MbSleep(100);
-			}
-
-			if (ListenThread == 0) {
-				ListenThread = new std::thread(&MbSlave::HandleRequestMessages,this);
-			}
-		}
-	}
-
-	void MbSlave::StartListen(MbSlaveDataServer *DataServer)
-	{
-		gDataServer = DataServer;
-		StartListen();
-	}
-
-	void MbSlave::StartListen(MbInterface *Interface, MbSlaveDataServer *DataServer)
-	{
-		gInterface = Interface;
-		gDataServer = DataServer;
-		StartListen();
-	}
-
-	void MbSlave::StopListen()
-	{
-		running = false;
-		if (gInterface != 0) {
-			gInterface->DisConnect();
-		}
-		if (ListenThread != NULL) {
-			ListenThread->join();
-			ListenThread = NULL;
-		}
-
-	}
-
 	void MbSlave::HandleRequestMessages()
 	{
 		running = true;
@@ -122,5 +86,45 @@ namespace csModbusLib {
 			DataServer->DataServices(&Frame);
 			DataServer = DataServer->NextDataServer;
 		}
+	}
+
+	void MbSlaveServer::StartListen()
+	{
+		if (gInterface != 0) {
+			if (running) {
+				StopListen();
+				MbSleep(100);
+			}
+
+			if (ListenThread == 0) {
+				ListenThread = new std::thread(&MbSlave::HandleRequestMessages, this);
+			}
+		}
+	}
+
+	void MbSlaveServer::StartListen(MbSlaveDataServer *DataServer)
+	{
+		gDataServer = DataServer;
+		StartListen();
+	}
+
+	void MbSlaveServer::StartListen(MbInterface *Interface, MbSlaveDataServer *DataServer)
+	{
+		gInterface = Interface;
+		gDataServer = DataServer;
+		StartListen();
+	}
+
+	void MbSlaveServer::StopListen()
+	{
+		running = false;
+		if (gInterface != 0) {
+			gInterface->DisConnect();
+		}
+		if (ListenThread != NULL) {
+			ListenThread->join();
+			ListenThread = NULL;
+		}
+
 	}
 }

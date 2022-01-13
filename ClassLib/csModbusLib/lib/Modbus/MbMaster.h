@@ -24,6 +24,7 @@ namespace csModbusLib {
 		bool Connect(uint8_t newSlaveID);
 		bool Connect(MbInterface *Interface, uint8_t newSlaveID);
 		void Close();
+		ExceptionCodes GetModusException();
 		ErrorCodes ReadCoils(uint16_t Address, uint16_t Length, coil_t* DestData, int DestOffs = 0);
 		ErrorCodes ReadDiscreteInputs(uint16_t Address, uint16_t Length, coil_t* DestData, int DestOffs = 0);
 		ErrorCodes ReadHoldingRegisters(uint16_t Address, uint16_t Length, uint16_t* DestData, int DestOffs = 0);

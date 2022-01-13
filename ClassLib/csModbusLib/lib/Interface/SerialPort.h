@@ -3,8 +3,6 @@
 
 #define MAX_RX_BUFF	256
 
-
-
 class SerialPort {
 
 public:

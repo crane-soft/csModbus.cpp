@@ -260,12 +260,12 @@ namespace csModbusLib
 		return RawData.GetUInt16(REQST_SINGLE_DATA_IDX);
 	}
 
-	bool MBSFrame::GetRequestSingleBit()
+	coil_t MBSFrame::GetRequestSingleBit()
 	{
 		return RawData.Data[REQST_SINGLE_DATA_IDX] != 0;
 	}
 
-	void MBSFrame::PutResponseBits(int BaseAddr, coil_t* SrcBits)
+	void MBSFrame::PutResponseValues(int BaseAddr, coil_t* SrcBits)
 	{
 		PutBitData(SrcBits, DataAddress - BaseAddr, RESPNS_DATA_IDX);
 	}
@@ -349,7 +349,15 @@ namespace csModbusLib
 	void MBMFrame::ReceiveSlaveResponse(MbInterface *Interface)
 	{
 		SlaveId = RawData.Data[REQST_UINIT_ID_IDX];
-		FunctionCode = (ModbusCodes)RawData.Data[REQST_FCODE_IDX];
+		uint8_t RetCode = RawData.Data[REQST_FCODE_IDX];
+		if ((RetCode & 0x80) != 0) {
+			// Slave reports exception error
+			Interface->ReceiveBytes(&RawData, 1);
+			ExceptionCode = (ExceptionCodes)RawData.Data[RESPNS_ERR_IDX];
+			throw ErrorCodes::MODBUS_EXCEPTION;
+		}
+
+		FunctionCode = (ModbusCodes)RetCode;
 
 		int Bytes2Read;
 		if ((FunctionCode <= ModbusCodes::READ_INPUT_REGISTERS) || (FunctionCode == ModbusCodes::READ_WRITE_MULTIPLE_REGISTERS)) {

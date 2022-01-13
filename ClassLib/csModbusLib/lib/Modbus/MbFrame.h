@@ -100,8 +100,8 @@ namespace csModbusLib
 		int ToMasterResponseMessageLength();
 		bool MatchAddress(int BaseAddr, int Size);
 		uint16_t GetRequestSingleUInt16();
-		bool GetRequestSingleBit();
-		void PutResponseBits(int BaseAddr, coil_t* SrcBits);
+		coil_t GetRequestSingleBit();
+		void PutResponseValues(int BaseAddr, coil_t* SrcBits);
 		void PutResponseValues(int BaseAddr, uint16_t * RegisterArray);
 		void GetRequestValues(int BaseAddr, coil_t* DestBits);
 		void GetRequestValues(int BaseAddr, uint16_t *DestArray);

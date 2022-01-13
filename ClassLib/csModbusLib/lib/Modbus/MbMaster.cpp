@@ -68,6 +68,11 @@ namespace csModbusLib {
 		}
 	}
 
+	ExceptionCodes MbMaster::GetModusException()
+	{
+		return Frame.ExceptionCode;
+	}
+
 	ErrorCodes MbMaster::ReadCoils(uint16_t Address, uint16_t Length, coil_t* DestData, int DestOffs)
 	{
 		if (SendSingleRequest(ModbusCodes::READ_COILS, Address, Length))
@@ -199,7 +204,7 @@ namespace csModbusLib {
 			ReceiveSlaveResponseWithTimeout();
 		}
 		catch (ErrorCodes errCode) {
-			if (errCode != ErrorCodes::CONNECTION_CLOSED)
+			if ((errCode != ErrorCodes::CONNECTION_CLOSED) && (errCode != ErrorCodes::MODBUS_EXCEPTION))
 				gInterface->ReConnect();
 			LastError = errCode;
 			return false;
@@ -224,8 +229,4 @@ namespace csModbusLib {
 		}
 		throw ErrorCodes::CONNECTION_CLOSED;
 	}
-
 }
-
-
-

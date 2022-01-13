@@ -11,9 +11,6 @@
     <Filter Include="lib\Interface">
       <UniqueIdentifier>{e62ba663-8589-4f68-b0ca-9710cfe01823}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\Utils">
-      <UniqueIdentifier>{3d32a30f-2a9e-4dc0-b747-07e87ccb4b54}</UniqueIdentifier>
-    </Filter>
     <Filter Include="lib\SlaveDataServer">
       <UniqueIdentifier>{f14914b9-c5d1-4cf9-bc2d-b2c4bf49eafd}</UniqueIdentifier>
     </Filter>
@@ -25,6 +22,9 @@
     </Filter>
     <Filter Include="platform\Boost">
       <UniqueIdentifier>{e1de8ee9-b0fc-477c-abef-8b51eb06e600}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform\std">
+      <UniqueIdentifier>{77827d7e-8cae-4fbc-bcda-a2427e62f472}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -52,14 +52,17 @@
     <ClCompile Include="..\Test\ModbusCPP.cpp">
       <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\lib\Interface\SerialPort.cpp">
-      <Filter>lib\Interface</Filter>
-    </ClCompile>
     <ClCompile Include="..\platform\boost\SerialBoost.cpp">
       <Filter>platform\Boost</Filter>
     </ClCompile>
     <ClCompile Include="..\platform\win32\SerialWin32.cpp">
       <Filter>platform\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\SlaveDataServer\MbSlaveData.cpp">
+      <Filter>lib\SlaveDataServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\Interface\SerialPort.cpp">
+      <Filter>lib\Interface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -99,20 +102,23 @@
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveDataServer.h">
       <Filter>lib\SlaveDataServer</Filter>
     </ClInclude>
-    <ClInclude Include="..\lib\Utils\Stopwatch.h">
-      <Filter>lib\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lib\Utils\ThreadUtils.h">
-      <Filter>lib\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\platform\boost\SerialBoost.h">
       <Filter>platform\Boost</Filter>
     </ClInclude>
     <ClInclude Include="..\platform\win32\SerialWin32.h">
       <Filter>platform\Win32</Filter>
     </ClInclude>
-    <ClInclude Include="..\platform\win32\platform.h">
-      <Filter>platform\Win32</Filter>
+    <ClInclude Include="..\platform\std\Stopwatch.h">
+      <Filter>platform\std</Filter>
+    </ClInclude>
+    <ClInclude Include="..\platform\std\ThreadUtils.h">
+      <Filter>platform\std</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\SlaveDataServer\MbSlaveData.h">
+      <Filter>lib\SlaveDataServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\SlaveDataServer\MbSlaveStdServer.h">
+      <Filter>lib\SlaveDataServer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
