@@ -150,47 +150,27 @@ void NetStream::BeginRcv(uint8_t *Data, int maxLength, void * context)
 	RcvLengt = maxLength;
 }
 
-int NetStream::Receive(uint8_t *Data, int Length)
-{
-	int retCode = recv(Sock, (char*)Data, Length, 0);
-	if (retCode == 0) {
-		// connection has closed
-		throw csModbusLib::ErrorCodes::CONNECTION_CLOSED;
-	} else {
-		if (retCode == SOCKET_ERROR) {
-			int wsaError = WSAGetLastError();
-			if (wsaError == WSAETIMEDOUT) {
-				throw csModbusLib::ErrorCodes::RX_TIMEOUT;
-			} else {
-				DebugPrint("WSA-error %d", wsaError);
-				throw csModbusLib::ErrorCodes::CONNECTION_ERROR;
-			}
-		}
-	}
-	return retCode;
-}
-
 //-----------------------------------------------------------------------
-// Class csFdSet
+// Class SocketSet
 //-----------------------------------------------------------------------
-csFdSet::csFdSet() {
+SocketSet::SocketSet() {
 	clearClients();
 }
 
-csFdSet::~csFdSet()
+SocketSet::~SocketSet()
 {
 	deleteClients();
 }
 
-void csFdSet::SetMaster(SOCKET master) {
+void SocketSet::SetMaster(SOCKET master) {
 	masterSock = master;
 }
 
-bool csFdSet::isMaster() {
+bool SocketSet::isMaster() {
 	return (FD_ISSET(masterSock, &readfds) != 0);
 }
 
-void csFdSet::fill_fd()
+void SocketSet::fill_fd()
 {
 	FD_ZERO(&readfds);
 	FD_SET(masterSock, &readfds);
@@ -202,7 +182,7 @@ void csFdSet::fill_fd()
 	}
 }
 
-bool csFdSet::add(NetStream *client)
+bool SocketSet::add(NetStream *client)
 {
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		NetStream *ns = clients[i];
@@ -214,14 +194,14 @@ bool csFdSet::add(NetStream *client)
 	return false;
 }
 
-void csFdSet::removeClient()
+void SocketSet::removeClient()
 {
 	if (ClientIdx >= 0) {
 		deleteClient(ClientIdx);
 	}
 }
 
-NetStream *csFdSet::getClient()
+NetStream *SocketSet::getClient()
 {
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		NetStream *ns = clients[i];
@@ -234,7 +214,7 @@ NetStream *csFdSet::getClient()
 	return 0;
 }
 
-void csFdSet::clearClients()
+void SocketSet::clearClients()
 {
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		clients[i] = 0;
@@ -242,7 +222,7 @@ void csFdSet::clearClients()
 	ClientIdx = -1;
 }
 
-void csFdSet::deleteClients()
+void SocketSet::deleteClients()
 {
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		deleteClient(i);
@@ -250,7 +230,7 @@ void csFdSet::deleteClients()
 	ClientIdx = -1;
 }
 
-void csFdSet::deleteClient(int i)
+void SocketSet::deleteClient(int i)
 {
 	NetStream *ns = clients[i];
 	if (ns != 0) {
