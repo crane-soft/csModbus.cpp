@@ -49,19 +49,13 @@ namespace csModbusLib {
 	}
 
 
-	MbRTU::MbRTU()
+	MbRTU::MbRTU() : MbSerial()
 	{
 		Init();
 	}
 
 	MbRTU::MbRTU(const char * port, int baudrate)
-		: MbSerial(port, baudrate, 8, SerialPort::Parity::NoParity, SerialPort::StopBits::One)
-	{
-		Init();
-	}
-
-	MbRTU::MbRTU(const char *port, int baudrate, int databits, SerialPort::Parity parity, SerialPort::StopBits stopbits)
-		: MbSerial(port, baudrate, databits, parity, stopbits)
+		: MbSerial(port, baudrate)
 	{
 		Init();
 	}
@@ -70,7 +64,7 @@ namespace csModbusLib {
 	{
 	}
 
-	bool MbRTU::StartOfFrameFound()
+	bool MbRTU::StartOfFrameDetected() 
 	{
 		return (sp.BytesToRead() >= 2);
 	}
@@ -94,6 +88,4 @@ namespace csModbusLib {
 		Length += 2;
 		SendData(TransmitData->Data, MbRawData::ADU_OFFS, Length);
 	}
-		
-
 }

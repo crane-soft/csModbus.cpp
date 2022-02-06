@@ -10,15 +10,13 @@ namespace csModbusLib {
 	public:
 		MbASCII() {};
 		MbASCII(const char * port, int baudrate)
-			: MbSerial(port, baudrate, 8, SerialPort::Parity::NoParity, SerialPort::StopBits::One) {}
-
-		MbASCII(const char *port, int baudrate, int databits, SerialPort::Parity parity, SerialPort::StopBits stopbits)
-			: MbSerial(port, baudrate, databits, parity, stopbits) {}
+			: MbSerial(port, baudrate) {}
 
 		void SendFrame(MbRawData *TransmitData, int Length);
 
 	protected:
-		bool StartOfFrameFound();
+		bool StartOfFrameDetected();
+		int GetTimeOut_ms(int NumBytes);
 		bool Check_EndOfFrame(MbRawData *RxData);
 		void ReceiveBytes(uint8_t *RxData, int offset, int count);
 
@@ -26,7 +24,6 @@ namespace csModbusLib {
 		const char ASCII_START_FRAME = ':';
 		int ASCII2Hex(uint8_t * hexchars);
 		int ASCII2nibble(int hexchar);
-
 
 		static uint8_t CalcLRC(uint8_t * buffer, int offset, int length);
 		static uint8_t ByteToHexChar(int b);

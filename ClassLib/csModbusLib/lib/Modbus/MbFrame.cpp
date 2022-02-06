@@ -9,16 +9,20 @@ namespace csModbusLib
 {
 	MbRawData::MbRawData()
 	{
-		Data = 0;
-		EndIdx = 0;
+		Init(MbBase::MAX_FRAME_LEN);
 	}
 
 	MbRawData::MbRawData(int Size)
 	{
+		Init(Size);
+	}
+	void MbRawData::Init(int Size)
+	{
+		BuffSize = Size;
 		Data = new uint8_t[Size];
 		EndIdx = 0;
-	}
 
+	}
 	void MbRawData::IniADUoffs()
 	{
 		EndIdx = ADU_OFFS;
@@ -30,10 +34,15 @@ namespace csModbusLib
 		EndIdx = source->EndIdx;
 	}
 
-	void MbRawData::CopyFrom(uint8_t *source, int srcIdx, int count)
+	void MbRawData::CopyFrom(uint8_t *source, int srcIdx, int length)
 	{
-		memcpy(&Data[EndIdx], &source[srcIdx], count);
-		EndIdx += count;
+		int maxLength = BuffSize - EndIdx;
+		if (length > maxLength) {
+			length = maxLength;
+		}
+
+		memcpy(&Data[EndIdx], &source[srcIdx], length);
+		EndIdx += length;
 	}
 
 	uint16_t MbRawData::GetUInt16(int ByteOffs)
@@ -57,6 +66,18 @@ namespace csModbusLib
 	{
 		for (int i = 0; i < Length; ++i)
 			PutUInt16(DestOffs + i * 2, SrcArray[i]);
+	}
+
+	int MbRawData::CheckEthFrameLength()
+	{
+		int frameLength = GetUInt16(ADU_OFFS - 2);
+		int bytesleft = (frameLength + ADU_OFFS) - EndIdx;
+		return bytesleft;
+
+	}
+
+	uint8_t * MbRawData::GetBuffTail() {
+		return &Data[EndIdx];
 	}
 
 	MbFrame::MbFrame()
@@ -236,8 +257,7 @@ namespace csModbusLib
 
 		if ((FunctionCode <= ModbusCodes::READ_INPUT_REGISTERS) || (FunctionCode == ModbusCodes::READ_WRITE_MULTIPLE_REGISTERS)) {
 			return 3 + RawData.Data[RESPNS_LEN_IDX];
-		}
-		else {
+		} else {
 			return ResponseMessageLength();
 		}
 	}
@@ -324,11 +344,9 @@ namespace csModbusLib
 			NumDataBytes = Length * 2; // TODO überflow
 			RawData.Data[REQST_DATA_LEN_IDX] = (uint8_t)NumDataBytes;
 			RawData.FillUInt16((uint16_t*)SrcData, SrcOffs, REQST_DATA_IDX, Length);
-		}
-		else if (FuncCode == ModbusCodes::WRITE_MULTIPLE_COILS) {
+		} else if (FuncCode == ModbusCodes::WRITE_MULTIPLE_COILS) {
 			NumDataBytes = PutBitData((coil_t*)SrcData, SrcOffs, REQST_DATA_IDX);
-		}
-		else {
+		} else {
 			return 0;
 		}
 		return 7 + NumDataBytes;

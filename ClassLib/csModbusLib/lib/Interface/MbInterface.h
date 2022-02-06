@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Stopwatch.h"
 
 namespace csModbusLib
 {
@@ -7,20 +6,15 @@ namespace csModbusLib
 
 	class MbInterface
 	{
-	const int DEFAULT_RX_TIMEOUT = 600;
-	protected: int rx_timeout;
-			   Stopwatch timeoutTmer;
-			   bool IsConnected;
-
 	public:
-		MbInterface()
-		{
-			rx_timeout = DEFAULT_RX_TIMEOUT;
-		}
+		static const int InfiniteTimeout = -1;
+		static const int ResponseTimeout = 200;
+
+		MbInterface()	{}
 
 		virtual bool Connect() = 0;
 		virtual void DisConnect() = 0;
-		virtual bool ReceiveHeader(MbRawData *MbData) = 0;
+		virtual void ReceiveHeader(int timeOut, MbRawData *MbData) = 0;
 		virtual void SendFrame(MbRawData *TransmitData, int Length) = 0;
 
 		virtual void ReceiveBytes(MbRawData *RxData, int count) { }
@@ -30,8 +24,10 @@ namespace csModbusLib
 		{
 			DisConnect();
 			return Connect();
-			// TODO im Aufruf error abfangen
 		}
+
+	protected:
+		bool IsConnected = false;
 
 	};
 }

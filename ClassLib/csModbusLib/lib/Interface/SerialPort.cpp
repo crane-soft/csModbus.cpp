@@ -42,3 +42,20 @@ int SerialPort::ReadByte()
 	Read(&Data, 0, 1);
 	return Data;
 }
+
+int SerialPort::GetCharTime()
+{
+	int nbits = 1 + DataBits;
+	nbits += mParity == SerialPort::NoParity ? 0 : 1;
+	switch (mStopBits) {
+	case SerialPort::One:
+		nbits += 1;
+		break;
+
+	case SerialPort::OnePointFive: // Ceiling
+	case SerialPort::Two:
+		nbits += 2;
+		break;
+	}
+	return (1000000L * nbits) / BaudRate;
+}

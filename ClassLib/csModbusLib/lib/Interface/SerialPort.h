@@ -16,6 +16,7 @@ public:
 	void SetWriteTimeout(int ms);
 	void SetReadTimeout(int ms);
 	int ReadByte();
+	int GetCharTime();
 
 	virtual bool IsOpen() = 0;
 	virtual void Close() = 0;

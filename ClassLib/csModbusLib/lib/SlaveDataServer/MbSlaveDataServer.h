@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "MbFrame.h"
 
 namespace csModbusLib {
 

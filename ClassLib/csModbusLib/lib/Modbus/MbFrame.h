@@ -41,19 +41,22 @@ namespace csModbusLib
 	{
 	public:
 		static const int ADU_OFFS = 6;
+		int BuffSize;
 		int EndIdx;
 		uint8_t *Data;
 
 		MbRawData();
 		MbRawData(int Size);
-
+		void Init(int Size);
 		void IniADUoffs();
 		void CopyFrom(MbRawData *source);
-		void CopyFrom(uint8_t *source, int srcIdx, int count);
+		void CopyFrom(uint8_t *source, int srcIdx, int length);
 		uint16_t GetUInt16(int ByteOffs);
 		void PutUInt16(int ByteOffs, uint16_t Value);
 		void CopyUInt16(uint16_t *DestArray, int SrcOffs, int DestOffs, int Length);
 		void FillUInt16(uint16_t *SrcArray, int SrcOffs, int DestOffs, int Length);
+		int CheckEthFrameLength();
+		uint8_t * GetBuffTail();
 	};
 
 	class MbFrame {

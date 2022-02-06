@@ -1,33 +1,22 @@
-﻿#include "MbInterface.h"
-#include "MbBase.h"
+﻿#include "MbBase.h"
 #include "MbFrame.h"
 #include "MbSlaveDataServer.h"
-#include "Stopwatch.h"
 #include "MbSlave.h"
-#include "ThreadUtils.h"
 #include "platform.h"
 
 namespace csModbusLib {
 
-	MbSlave::MbSlave()
-	{
-		gInterface = 0;
-		gDataServer = NULL;
-		ListenThread = NULL;
-	}
+	MbSlave::MbSlave() {}
 
 	MbSlave::MbSlave(MbInterface *Interface)
 	{
-		gInterface = Interface;
-		gDataServer = NULL;
-		ListenThread = NULL;
+		InitInterface(Interface);
 	}
 
 	MbSlave::MbSlave(MbInterface *Interface, MbSlaveDataServer *DataServer)
 	{
-		gInterface = Interface;
+		InitInterface(Interface);
 		gDataServer = DataServer;
-		ListenThread = NULL;
 	}
 
 	MbSlaveDataServer * MbSlave::Get_DataServer()
@@ -43,34 +32,27 @@ namespace csModbusLib {
 	void MbSlave::HandleRequestMessages()
 	{
 		running = true;
-		gInterface->Connect();
+		stopped = false;
 		while (running) {
 			try {
-				if (ReceiveMasterRequestMessage()) {
-					DataServices();
-					SendResponseMessage();
-					MbSleep(1);
-				}
+				ReceiveMasterRequestMessage();
+				DataServices();
+				SendResponseMessage();
 			}
 			catch (ErrorCodes errCode) {
-				//Console.WriteLine("ModbusException  {0}", errCode);
-				std::printf("ModbusException  %d", errCode);
-				gInterface->ReConnect();
+				if (running) {
+					DebugPrint("ModbusException  %d", errCode);
+					gInterface->ReConnect();
+				}
 			}
-			//Console.WriteLine("");
 		}
+		stopped = true;
 	}
 
-	bool MbSlave::ReceiveMasterRequestMessage()
+	void MbSlave::ReceiveMasterRequestMessage()
 	{
-		while (running) {
-			if (gInterface->ReceiveHeader(&Frame.RawData)) {
-				Frame.ReceiveMasterRequest(gInterface);
-				return true;
-			}
-			MbSleep(1);
-		}
-		return false;
+			gInterface->ReceiveHeader(MbInterface::InfiniteTimeout, &Frame.RawData);
+			Frame.ReceiveMasterRequest(gInterface);
 	}
 
 	void MbSlave::SendResponseMessage()
@@ -88,43 +70,49 @@ namespace csModbusLib {
 		}
 	}
 
-	void MbSlaveServer::StartListen()
+	bool MbSlaveServer::StartListen()
 	{
 		if (gInterface != 0) {
 			if (running) {
 				StopListen();
-				MbSleep(100);
 			}
 
-			if (ListenThread == 0) {
-				ListenThread = new std::thread(&MbSlave::HandleRequestMessages, this);
+			if (gInterface->Connect()) {
+				if (ListenThread == 0) {
+					ListenThread = new std::thread(&MbSlave::HandleRequestMessages, this);
+				}
+				return true;
 			}
 		}
+		return false;
 	}
 
-	void MbSlaveServer::StartListen(MbSlaveDataServer *DataServer)
+	bool MbSlaveServer::StartListen(MbSlaveDataServer *DataServer)
 	{
 		gDataServer = DataServer;
-		StartListen();
+		return StartListen();
 	}
 
-	void MbSlaveServer::StartListen(MbInterface *Interface, MbSlaveDataServer *DataServer)
+	bool MbSlaveServer::StartListen(MbInterface *Interface, MbSlaveDataServer *DataServer)
 	{
-		gInterface = Interface;
+		InitInterface(Interface);
 		gDataServer = DataServer;
-		StartListen();
+		return StartListen();
 	}
 
 	void MbSlaveServer::StopListen()
 	{
+		stopped = false;
 		running = false;
 		if (gInterface != 0) {
 			gInterface->DisConnect();
 		}
 		if (ListenThread != NULL) {
+			while ( stopped == false) {
+				MbSleep(1);
+			}
 			ListenThread->join();
 			ListenThread = NULL;
 		}
-
 	}
 }

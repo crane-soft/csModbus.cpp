@@ -12,10 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lib\Interface\MbASCII.cpp" />
+    <ClCompile Include="..\lib\Interface\MbEthernet.cpp" />
+    <ClCompile Include="..\lib\Interface\MbEthMaster.cpp" />
+    <ClCompile Include="..\lib\Interface\MbEthSlave.cpp" />
     <ClCompile Include="..\lib\Interface\MbRTU.cpp" />
     <ClCompile Include="..\lib\Interface\MbSerial.cpp" />
     <ClCompile Include="..\lib\Interface\SerialPort.cpp" />
-    <ClCompile Include="..\lib\Interface\UdpClient.cpp" />
     <ClCompile Include="..\lib\Modbus\MbFrame.cpp" />
     <ClCompile Include="..\lib\Modbus\MbMaster.cpp" />
     <ClCompile Include="..\lib\Modbus\MbSlave.cpp" />
@@ -24,15 +26,19 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\platform\win32\SerialWin32.cpp" />
+    <ClCompile Include="..\platform\win32\TcpClient.cpp" />
+    <ClCompile Include="..\platform\win32\TcpListener.cpp" />
+    <ClCompile Include="..\platform\win32\UdpClient.cpp" />
     <ClCompile Include="..\Test\ModbusCPP.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\lib\Interface\MbASCII.h" />
     <ClInclude Include="..\lib\Interface\MbEthernet.h" />
+    <ClInclude Include="..\lib\Interface\MbEthMaster.h" />
+    <ClInclude Include="..\lib\Interface\MbEthSlave.h" />
     <ClInclude Include="..\lib\Interface\MbInterface.h" />
     <ClInclude Include="..\lib\Interface\MbRTU.h" />
     <ClInclude Include="..\lib\Interface\MbSerial.h" />
-    <ClInclude Include="..\lib\Interface\MbUDP.h" />
     <ClInclude Include="..\lib\Interface\SerialPort.h" />
     <ClInclude Include="..\lib\Modbus\MbBase.h" />
     <ClInclude Include="..\lib\Modbus\MbFrame.h" />
@@ -42,9 +48,13 @@
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveDataServer.h" />
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveStdServer.h" />
     <ClInclude Include="..\platform\boost\SerialBoost.h" />
+    <ClInclude Include="..\platform\std\Semaphore.h" />
     <ClInclude Include="..\platform\std\Stopwatch.h" />
     <ClInclude Include="..\platform\std\ThreadUtils.h" />
     <ClInclude Include="..\platform\win32\SerialWin32.h" />
+    <ClInclude Include="..\platform\win32\TcpClient.h" />
+    <ClInclude Include="..\platform\win32\TcpListener.h" />
+    <ClInclude Include="..\platform\win32\UdpClient.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DC024F3B-42FB-4672-AA09-743F6A777320}</ProjectGuid>

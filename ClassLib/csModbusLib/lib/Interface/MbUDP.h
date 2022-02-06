@@ -1,12 +1,12 @@
 ﻿#include "MbEthernet.h"
-
+#include "UdpClient.h"
 
 namespace csModbusLib
 {
     class MbUDPMaster : public MbETHMaster
     {
 	public:
-		MbUDPMaster(char * host_name, int port);
+		MbUDPMaster(const char * host_name, int port);
 
 		// overrides MbIterface Functions
 		bool Connect();
@@ -14,32 +14,34 @@ namespace csModbusLib
 		void SendFrame(MbRawData TransmitData, int Length);
 		void ReceiveBytes(MbRawData *RxData, int count);
 
-		// overides MbETHMaster::RecvDataAvailable()
+
 		bool RecvDataAvailable();
 
 	private:
 		int BytesReaded;
 	};
 
-
+	/*
     class MbUDPSlave : public MbETHSlave
     {
 	private:
 		class UdpContext : EthContext
         {
-            public UdpContext (UdpClient client)
-            {
+		public:
+             UdpContext (UdpClient client)  {
                 udpc = client;
                 Frame_Buffer = new MbRawData();
             }
-            public IPEndPoint EndPoint;
-            public UdpClient udpc;
-            public override void SendFrame (byte[] data, int Length)
-            {
+
+            IPEndPoint EndPoint;
+            UdpClient udpc;
+            
+			void SendFrame (char * data, int Length)  {
                 udpc.Send(data, Length, EndPoint);
             }
 
-            public bool EndReceive (IAsyncResult ar)
+			
+            bool EndReceive (IAsyncResult ar)
             {
                 Frame_Buffer.Data = udpc.EndReceive(ar, ref EndPoint);
                 if (Frame_Buffer.Data != null) {
@@ -48,7 +50,7 @@ namespace csModbusLib
                     return true;
                 }
                 return false;
-            }
+            } 
 		};
 
 	private:
@@ -66,6 +68,6 @@ namespace csModbusLib
 		void DisConnect();
 
 	private:
-		void OnClientRead(IAsyncResult ar);
-	};
+		//void OnClientRead(IAsyncResult ar);
+	}; */
 }

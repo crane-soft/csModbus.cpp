@@ -26,6 +26,9 @@
     <Filter Include="platform\std">
       <UniqueIdentifier>{77827d7e-8cae-4fbc-bcda-a2427e62f472}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Test">
+      <UniqueIdentifier>{82141c7c-a704-4833-a8d7-82b75f59314f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lib\Interface\MbASCII.cpp">
@@ -37,9 +40,6 @@
     <ClCompile Include="..\lib\Interface\MbSerial.cpp">
       <Filter>lib\Interface</Filter>
     </ClCompile>
-    <ClCompile Include="..\lib\Interface\UdpClient.cpp">
-      <Filter>lib\Interface</Filter>
-    </ClCompile>
     <ClCompile Include="..\lib\Modbus\MbFrame.cpp">
       <Filter>lib\Modbus</Filter>
     </ClCompile>
@@ -48,9 +48,6 @@
     </ClCompile>
     <ClCompile Include="..\lib\Modbus\MbSlave.cpp">
       <Filter>lib\Modbus</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Test\ModbusCPP.cpp">
-      <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\platform\boost\SerialBoost.cpp">
       <Filter>platform\Boost</Filter>
@@ -63,6 +60,27 @@
     </ClCompile>
     <ClCompile Include="..\lib\Interface\SerialPort.cpp">
       <Filter>lib\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\platform\win32\UdpClient.cpp">
+      <Filter>platform\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Test\ModbusCPP.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\Interface\MbEthMaster.cpp">
+      <Filter>lib\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\Interface\MbEthSlave.cpp">
+      <Filter>lib\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\Interface\MbEthernet.cpp">
+      <Filter>lib\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\platform\win32\TcpClient.cpp">
+      <Filter>platform\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\platform\win32\TcpListener.cpp">
+      <Filter>platform\Win32</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -79,9 +97,6 @@
       <Filter>lib\Interface</Filter>
     </ClInclude>
     <ClInclude Include="..\lib\Interface\MbSerial.h">
-      <Filter>lib\Interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lib\Interface\MbUDP.h">
       <Filter>lib\Interface</Filter>
     </ClInclude>
     <ClInclude Include="..\lib\Interface\SerialPort.h">
@@ -119,6 +134,24 @@
     </ClInclude>
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveStdServer.h">
       <Filter>lib\SlaveDataServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\platform\win32\UdpClient.h">
+      <Filter>platform\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Interface\MbEthMaster.h">
+      <Filter>lib\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Interface\MbEthSlave.h">
+      <Filter>lib\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\platform\win32\TcpClient.h">
+      <Filter>platform\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\platform\win32\TcpListener.h">
+      <Filter>platform\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\platform\std\Semaphore.h">
+      <Filter>platform\std</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

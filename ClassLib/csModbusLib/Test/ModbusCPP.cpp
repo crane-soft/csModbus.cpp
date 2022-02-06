@@ -4,14 +4,15 @@
 #include "MbInterface.h"
 #include "MbRTU.h"
 #include "MbASCII.h"
+#include "MbEthMaster.h"
+#include "MbEthSlave.h"
 
 #include "stdafx.h"
 #include "conio.h"
 
 using namespace csModbusLib;
 
-MbRTU MyInterface = MbRTU("COM9", 19200);
-//MbASCII MyInterface = MbASCII("COM9", 19200);
+
 MbMaster MyMaster;
 MbSlaveServer MySlave;
 
@@ -46,7 +47,7 @@ void TestSlave()
 	printf("CPP Modbus Slave Test\r\n");
 	StdDataServer MyDataServer = StdDataServer(1);
 
-	/* EventClasse übergen
+	/* EventClasse übergeben
 	ModbusRegsData *HoldinRegs = new ModbusRegsData(BASE_ADDR, ModbusRegs, NUM_REGS);
 	HoldinRegs->RegisterEvents(&ModbusEvent);
 	*/
@@ -55,14 +56,28 @@ void TestSlave()
 	MyHoldingRegs.AddData(BASE_ADDR, ModbusRegs, NUM_REGS);
 
 	MyDataServer.AddHoldingRegisters(&MyHoldingRegs);
+
+	uint16_t holding20[5] = {0};
+	MyDataServer.AddHoldingRegisters(20, holding20, 5);
+	coil_t coils10[20] = { 0 };
+	MyDataServer.AddCoils(10, coils10, 20);
+	coil_t inputs20[20] = { 0 };
+	MyDataServer.AddDiscreteInputs(20, inputs20, 20);
+
+	MbTCPSlave MyInterface = MbTCPSlave(502);
+
 	MySlave.StartListen(&MyInterface, &MyDataServer);
 	while (_kbhit() == 0) {
 		printf("RdCount %d Regdata %04d,%04d,%04d\r", ReadCount, ModbusRegs[0], ModbusRegs[1], ModbusRegs[2]);
+		for (int i = 0; i < 20; ++i) {
+			inputs20[i] = coils10[i];
+		}
 		ModbusRegs[7] += 1;
 		if (ModbusRegs[6] == 42)
 			break;
 		MbSleep(100);
 	}
+	MySlave.StopListen();
 }
 
 
@@ -70,28 +85,29 @@ void TestMaster()
 {
 	printf("CPP Modbus Master Test\r\n");
 	uint16_t tstCount = 0;
+	int errCount = 0;
+
+	MbTCPMaster MyInterface = MbTCPMaster("127.0.0.1", 502);
 	MyMaster.Connect(&MyInterface, 1);
 	while (_kbhit() == 0) {
-		MyMaster.ReadHoldingRegisters(BASE_ADDR, 3, ModbusRegs, 0);
-		printf("RdRegister %04d,%04d,%04d\r", ModbusRegs[0], ModbusRegs[1], ModbusRegs[2]);
+		int retCode = MyMaster.ReadHoldingRegisters(BASE_ADDR, 3, ModbusRegs, 0);
+		if (retCode == ErrorCodes::MB_NO_ERROR) {
+			printf("RdRegister %04d,%04d,%04d\r", ModbusRegs[0], ModbusRegs[1], ModbusRegs[2]);
+		} else {
+			++errCount;
+			printf("Error:%d, count:%d\r", retCode,errCount);
+		}
 		MyMaster.WriteSingleRegister(12, tstCount++);
+		MbSleep(100);
+
 	}
 	MyMaster.Close();
 }
 
-bool palindrome(char arr[], int size)
-{
-	for (int i = 0; i < size; ++i) {
-		if (arr[i] != arr[size-1-i])
-			return false;
-	}
-	return true;
-}
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	palindrome("ABBA",4);
-
+	//TestMaster();
 	TestSlave();
 	return 0;
 }

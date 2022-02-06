@@ -1,9 +1,6 @@
 ﻿#pragma once
 #include <stdint.h>
-#include <thread>
-
 #include "MbInterface.h"
-using namespace std;
 
 typedef uint8_t coil_t;
 
@@ -25,16 +22,18 @@ namespace csModbusLib
  
 	enum ConnectionType
 	{
-		SERIAL_RTU = 0,
-		SERIAL_ASCII = 1,
-		TCP_IP = 2,
-		UDP_IP = 3
+		NO_CONNECTION = 0,
+		SERIAL_RTU = 1,
+		SERIAL_ASCII = 2,
+		TCP_IP = 3,
+		UDP_IP = 4
 	};
 
 	enum DeviceType
 	{
-		MASTER = 0,
-		SLAVE = 1
+		NO_TYPE = 0,
+		MASTER = 1,
+		SLAVE = 2
 	};
 
 
@@ -90,28 +89,17 @@ namespace csModbusLib
 
     class MbBase
     {
-	protected:
-		MbInterface * gInterface;
-		thread * ListenThread;
-        bool running;
-        ConnectionType connection_type;
-        DeviceType device_type;
-
 	public:
 		static const uint16_t MAX_FRAME_LEN = 256 + 6;
+		MbBase()  {}
 
-		MbBase()  {
-            gInterface = 0;
-        }
-
-		 MbInterface * Get_Interface()
-		 {
-			 return gInterface;
-		 }
-
-		 void Set_Interface(MbInterface * Interface)
-		 {
-			 gInterface = Interface;
+	protected:
+		void InitInterface(MbInterface * Interface)	{
+			gInterface = Interface;
 		}
+
+		MbInterface * gInterface = NULL;
+		bool running = false;
+		ConnectionType connection_type;
 	};
 }
