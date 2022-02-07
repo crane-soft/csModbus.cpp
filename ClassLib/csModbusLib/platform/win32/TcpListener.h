@@ -7,9 +7,8 @@
 #include "TcpClient.h"
 #include <stdint.h>
 #include <thread>
+#include <list>
 
-
-#define MAX_CLIENTS	10
 
 class NetStream {
 public:
@@ -29,26 +28,27 @@ private:
 	SOCKET Sock;
 };
 
-class SocketSet {
+class ClientList {
 public:
-	SocketSet();
-	~SocketSet();
+	ClientList();
+	~ClientList();
 
 	void SetMaster(SOCKET master);
-	void fill_fd();
-	fd_set * get() { return &readfds;	}
+	void fill_fds();
+	fd_set * get_fds() { return &readfds;	}
 	bool isMaster();
-	bool add(NetStream *client);
+	void addClient(NetStream *client);
+	void setFirst();
 	NetStream * getClient();
 	void removeClient();
 	void deleteClients();
 private:
 	SOCKET masterSock;
 	fd_set readfds;
-	int ClientIdx;
-	NetStream *clients[MAX_CLIENTS];
-	void clearClients();
-	void deleteClient(int i);
+	
+	std::list <NetStream*> clients;
+	typedef std::list <NetStream*>::iterator client_it;
+	client_it currentClient, nextClient;
 };
 
 class TcpListener {
@@ -72,6 +72,5 @@ private:
 	bool running = false;
 	int wsaResult;
 	SOCKET tcpSocket;
-	SocketSet FdSet;
-	char buffer[MAX_BUFFER];
+	ClientList clientList;
 };

@@ -25,6 +25,7 @@
     <ClCompile Include="..\platform\boost\SerialBoost.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\platform\win32\NetSocket.cpp" />
     <ClCompile Include="..\platform\win32\SerialWin32.cpp" />
     <ClCompile Include="..\platform\win32\TcpClient.cpp" />
     <ClCompile Include="..\platform\win32\TcpListener.cpp" />
@@ -51,6 +52,7 @@
     <ClInclude Include="..\platform\std\Semaphore.h" />
     <ClInclude Include="..\platform\std\Stopwatch.h" />
     <ClInclude Include="..\platform\std\ThreadUtils.h" />
+    <ClInclude Include="..\platform\win32\NetSocket.h" />
     <ClInclude Include="..\platform\win32\SerialWin32.h" />
     <ClInclude Include="..\platform\win32\TcpClient.h" />
     <ClInclude Include="..\platform\win32\TcpListener.h" />

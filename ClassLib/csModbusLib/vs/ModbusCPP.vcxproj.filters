@@ -82,6 +82,9 @@
     <ClCompile Include="..\platform\win32\TcpListener.cpp">
       <Filter>platform\Win32</Filter>
     </ClCompile>
+    <ClCompile Include="..\platform\win32\NetSocket.cpp">
+      <Filter>platform\Win32</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\lib\Interface\MbASCII.h">
@@ -152,6 +155,9 @@
     </ClInclude>
     <ClInclude Include="..\platform\std\Semaphore.h">
       <Filter>platform\std</Filter>
+    </ClInclude>
+    <ClInclude Include="..\platform\win32\NetSocket.h">
+      <Filter>platform\Win32</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -19,8 +19,6 @@ TcpListener::~TcpListener()
 #endif
 }
 
-// https://www.binarytides.com/code-tcp-socket-server-winsock/
-
 void TcpListener::StartListen(int port)
 {
 	if (wsaResult != 0)
@@ -51,27 +49,28 @@ void TcpListener::Stop()
 		ListenThread->join();
 		delete ListenThread;
 	}
-	FdSet.deleteClients();
+	clientList.deleteClients();
 }
 
 void TcpListener::HandleClientRequest()
 {
-	FdSet.SetMaster(tcpSocket);
+	clientList.SetMaster(tcpSocket);
 
 	while (running) {
-		FdSet.fill_fd();
-		int activity = select(0, FdSet.get(), NULL, NULL, NULL);
+		clientList.fill_fds();
+		int activity = select(0, clientList.get_fds(), NULL, NULL, NULL);
 		if (activity == SOCKET_ERROR) {
 			int wsaError = WSAGetLastError();
 			DebugPrint("WSA-error %d", wsaError);
 			break;
 		}
 			
-		if (FdSet.isMaster()) {
+		if (clientList.isMaster()) {
 			acceptNewConnection();
 		} else {
-			NetStream *client = FdSet.getClient();
-			if (client != 0) {
+			clientList.setFirst();
+			NetStream *client;
+			while ((client = clientList.getClient()) != 0) {
 				HanndleConnection(client);
 			}
 		}
@@ -86,7 +85,7 @@ void TcpListener::acceptNewConnection()
 	SOCKET newSocket = accept(tcpSocket, (struct sockaddr *)&clientAddr, (int *)&addrlen);
 	if (newSocket != INVALID_SOCKET) {
 		client = new NetStream(newSocket);
-		FdSet.add(client);
+		clientList.addClient(client);
 		OnClientAccepted(client);
 	}
 }
@@ -96,7 +95,7 @@ void TcpListener::HanndleConnection(NetStream *client)
 	int retCode = client->ClientRead();
 	OnClientRead(client->GetContext());
 	if (retCode == 0) {
-		FdSet.removeClient();
+		clientList.removeClient();
 	}
 }
 
@@ -151,90 +150,72 @@ void NetStream::BeginRcv(uint8_t *Data, int maxLength, void * context)
 }
 
 //-----------------------------------------------------------------------
-// Class SocketSet
+// Class ClientList
 //-----------------------------------------------------------------------
-SocketSet::SocketSet() {
-	clearClients();
+ClientList::ClientList() {
 }
 
-SocketSet::~SocketSet()
+ClientList::~ClientList()
 {
 	deleteClients();
 }
 
-void SocketSet::SetMaster(SOCKET master) {
+void ClientList::SetMaster(SOCKET master) {
 	masterSock = master;
 }
 
-bool SocketSet::isMaster() {
+bool ClientList::isMaster() {
 	return (FD_ISSET(masterSock, &readfds) != 0);
 }
 
-void SocketSet::fill_fd()
+void ClientList::fill_fds()
 {
 	FD_ZERO(&readfds);
 	FD_SET(masterSock, &readfds);
-	for (int i = 0; i < MAX_CLIENTS; i++) {
-		NetStream *s = clients[i];
-		if (s != 0) {
-			FD_SET(s->getSock(), &readfds);
-		}
+
+	for (NetStream *cl : clients) {
+		FD_SET(cl->getSock(), &readfds);
 	}
 }
 
-bool SocketSet::add(NetStream *client)
+void ClientList::addClient(NetStream *client)
 {
-	for (int i = 0; i < MAX_CLIENTS; i++) {
-		NetStream *ns = clients[i];
-		if (ns == 0) {
-			clients[i] = client;
-			return true;
-		}
-	}
-	return false;
+	clients.push_back(client);
 }
 
-void SocketSet::removeClient()
+void ClientList::removeClient()
 {
-	if (ClientIdx >= 0) {
-		deleteClient(ClientIdx);
+	if (currentClient != clients.end()) {
+		delete *currentClient;
+		clients.erase(currentClient);
 	}
 }
 
-NetStream *SocketSet::getClient()
+void ClientList::setFirst()
 {
-	for (int i = 0; i < MAX_CLIENTS; i++) {
-		NetStream *ns = clients[i];
-		if (FD_ISSET(ns->getSock(), &readfds)) {
-			ClientIdx = i;
-			return ns;
+	nextClient = clients.begin();
+}
+
+NetStream *ClientList::getClient()
+{
+	for (auto it = nextClient; it != clients.end(); ++it) {
+		++nextClient;
+		NetStream *cl = *it;
+		if (FD_ISSET(cl->getSock(), &readfds)) {
+			currentClient = it;
+			return cl;
 		}
 	}
-	ClientIdx = -1;
+
+	currentClient = clients.end();
 	return 0;
 }
 
-void SocketSet::clearClients()
+void ClientList::deleteClients()
 {
-	for (int i = 0; i < MAX_CLIENTS; i++) {
-		clients[i] = 0;
+	for (NetStream *cl : clients) {
+		delete cl;
 	}
-	ClientIdx = -1;
-}
-
-void SocketSet::deleteClients()
-{
-	for (int i = 0; i < MAX_CLIENTS; i++) {
-		deleteClient(i);
-	}
-	ClientIdx = -1;
-}
-
-void SocketSet::deleteClient(int i)
-{
-	NetStream *ns = clients[i];
-	if (ns != 0) {
-		delete ns;
-	}
-	clients[i] = 0;
+	clients.clear();
+	currentClient = clients.end();
 }
