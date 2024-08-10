@@ -5,7 +5,8 @@
 
 
 namespace csModbusLib {
-	MbEthernet::MbEthernet() {
+	MbEthernet::MbEthernet() 
+	{
 		TransactionIdentifier = 0;
 		mUdpClient = NULL;
 	}
@@ -15,32 +16,32 @@ namespace csModbusLib {
 		remote_port = port;
 	}
 
-	void MbEthernet::FillMBAPHeader(MbRawData *TransmitData, int Length)
+	void MbEthernet::FillMBAPHeader(int Length)
 	{
 		++TransactionIdentifier;
-		TransmitData->PutUInt16(0, TransactionIdentifier);
-		TransmitData->PutUInt16(2, 0);
-		TransmitData->PutUInt16(4, (uint16_t)Length);
+		MbData->PutUInt16(0, TransactionIdentifier);
+		MbData->PutUInt16(2, 0);
+		MbData->PutUInt16(4, (uint16_t)Length);
 	}
 
-	void MbEthernet::CheckTransactionIdentifier(MbRawData *ReceivMessage)
+	void MbEthernet::CheckTransactionIdentifier()
 	{
-		uint16_t RxIdentifier = ReceivMessage->GetUInt16(0);
+		uint16_t RxIdentifier = MbData->GetUInt16(0);
 		if (RxIdentifier != TransactionIdentifier) {
 			throw  ErrorCodes::WRONG_IDENTIFIER;
 		}
 	}
 
 
-	void MbEthernet::UdpReceiveHeaderData(int timeOut, MbRawData *RxData)
+	void MbEthernet::UdpReceiveHeaderData(int timeOut)
 	{
-		RxData->EndIdx = 0;
+		MbData->EndIdx = 0;
 		mUdpClient->SetReceiveTimeout(timeOut);
 		try {
-			int readed = mUdpClient->Receive(RxData->Data, MbBase::MAX_FRAME_LEN);
-			RxData->EndIdx = readed;
+			int readed = mUdpClient->Receive(MbData->Data, MbBase::MAX_FRAME_LEN);
+			MbData->EndIdx = readed;
 
-			if (RxData->CheckEthFrameLength() > 0) {
+			if (MbData->CheckEthFrameLength() > 0) {
 				// we assume all framedata in one datagram
 				throw  ErrorCodes::MESSAGE_INCOMPLETE;
 			}

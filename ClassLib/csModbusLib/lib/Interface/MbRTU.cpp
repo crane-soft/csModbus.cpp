@@ -69,23 +69,28 @@ namespace csModbusLib {
 		return (sp.BytesToRead() >= 2);
 	}
 
-	bool MbRTU::Check_EndOfFrame(MbRawData *RxData)
+	int MbRTU::EndOffFrameLenthth()
 	{
-		int crc_idx = RxData->EndIdx;
-		ReceiveBytes(RxData, 2);
+		return 2;
+	}
+
+	bool MbRTU::Check_EndOfFrame()
+	{
+		int crc_idx = MbData->EndIdx;
+		ReceiveBytes(2);
 
 		// Check CRC
-		uint16_t msg_crc = RxData->GetUInt16(crc_idx);
-		uint16_t calc_crc = crc16.CalcCRC16(RxData->Data, MbRawData::ADU_OFFS, crc_idx - MbRawData::ADU_OFFS);
+		uint16_t msg_crc = MbData->GetUInt16(crc_idx);
+		uint16_t calc_crc = crc16.CalcCRC16(MbData->Data, MbRawData::ADU_OFFS, crc_idx - MbRawData::ADU_OFFS);
 
 		return (msg_crc == calc_crc);
 	}
 
-	void MbRTU::SendFrame(MbRawData *TransmitData, int Length)
+	void MbRTU::SendFrame(int Length)
 	{
-		uint16_t calc_crc = crc16.CalcCRC16(TransmitData->Data, MbRawData::ADU_OFFS, Length);
-		TransmitData->PutUInt16(MbRawData::ADU_OFFS + Length, calc_crc);
+		uint16_t calc_crc = crc16.CalcCRC16(MbData->Data, MbRawData::ADU_OFFS, Length);
+		MbData->PutUInt16(MbRawData::ADU_OFFS + Length, calc_crc);
 		Length += 2;
-		SendData(TransmitData->Data, MbRawData::ADU_OFFS, Length);
+		SendData(MbData->Data, MbRawData::ADU_OFFS, Length);
 	}
 }

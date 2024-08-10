@@ -13,9 +13,9 @@ namespace csModbusLib
         return false;
 	}
 
-	int MbASCII::GetTimeOut_ms(int NumBytes)
+	int MbASCII::NumOfSerialBytes(int count)
 	{
-		return MbSerial::GetTimeOut_ms(NumBytes * 2);
+		return 2 * count;
 	}
 
 	void MbASCII::ReceiveBytes(uint8_t* RxData, int offset, int count)
@@ -46,15 +46,20 @@ namespace csModbusLib
 		}
 	}
 
-	bool MbASCII::Check_EndOfFrame(MbRawData *RxData)
+	int MbASCII::EndOffFrameLenthth()
 	{
-		MbSerial::ReceiveBytes(RxData, 1);   // Read LRC
+		return 4;   // 2 chars LRC  + CRLF
+	}
+
+	bool MbASCII::Check_EndOfFrame()
+	{
+		MbSerial::ReceiveBytes(1);   // Read LRC
 
 		uint8_t crlf[2];// Read CR/LF
 		MbSerial::ReceiveBytes(crlf, 0, 2);
 
 		// Check LRC
-		uint8_t calc_lrv = CalcLRC(RxData->Data, MbRawData::ADU_OFFS, RxData->EndIdx - MbRawData::ADU_OFFS);
+		uint8_t calc_lrv = CalcLRC(MbData->Data, MbRawData::ADU_OFFS, MbData->EndIdx - MbRawData::ADU_OFFS);
 		return (calc_lrv == 0);
 	}
 
@@ -69,11 +74,11 @@ namespace csModbusLib
 		return (uint8_t)lrc_result;
 	}
 
-	void MbASCII::SendFrame(MbRawData *TransmitData, int Length)
+	void MbASCII::SendFrame(int Length)
 	{
-		uint8_t lrc_value = CalcLRC(TransmitData->Data, MbRawData::ADU_OFFS, Length);
+		uint8_t lrc_value = CalcLRC(MbData->Data, MbRawData::ADU_OFFS, Length);
 
-		TransmitData->Data[MbRawData::ADU_OFFS + Length] = lrc_value;
+		MbData->Data[MbRawData::ADU_OFFS + Length] = lrc_value;
 		Length += 1;
 
 		int hexbuff_Length = Length * 2 + 3;
@@ -81,8 +86,8 @@ namespace csModbusLib
 		hexbuff[0] = (uint8_t)':';
 
 		for (int i = 0; i < Length; ++i) {
-			hexbuff[1 + 2 * i] = ByteToHexChar(TransmitData->Data[MbRawData::ADU_OFFS + i] >> 4);
-			hexbuff[2 + 2 * i] = ByteToHexChar(TransmitData->Data[MbRawData::ADU_OFFS + i]);
+			hexbuff[1 + 2 * i] = ByteToHexChar(MbData->Data[MbRawData::ADU_OFFS + i] >> 4);
+			hexbuff[2 + 2 * i] = ByteToHexChar(MbData->Data[MbRawData::ADU_OFFS + i]);
 		}
 		hexbuff[hexbuff_Length - 2] = 0x0d;
 		hexbuff[hexbuff_Length - 1] = 0x0a;
@@ -96,5 +101,4 @@ namespace csModbusLib
 		int hexChar = b < 10 ? (b + 48) : (b + 55);
 		return (uint8_t)hexChar;
 	}
-    
 }

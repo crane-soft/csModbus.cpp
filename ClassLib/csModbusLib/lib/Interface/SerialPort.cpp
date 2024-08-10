@@ -1,6 +1,4 @@
-#pragma once
 #include "SerialPort.h"
-
 
 SerialPort::SerialPort()
 {
@@ -43,18 +41,20 @@ int SerialPort::ReadByte()
 	return Data;
 }
 
-int SerialPort::GetCharTime()
+int SerialPort::SerialByteTime()
 {
 	int nbits = 1 + DataBits;
-	nbits += mParity == SerialPort::NoParity ? 0 : 1;
+	nbits += mParity == Parity::NoParity ? 0 : 1;
 	switch (mStopBits) {
-	case SerialPort::One:
+	case StopBits::One:
 		nbits += 1;
 		break;
 
-	case SerialPort::OnePointFive: // Ceiling
-	case SerialPort::Two:
+	case StopBits::OnePointFive: // Ceiling
+	case StopBits::Two:
 		nbits += 2;
+		break;
+	default:
 		break;
 	}
 	return (1000000L * nbits) / BaudRate;

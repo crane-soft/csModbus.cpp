@@ -12,11 +12,11 @@ namespace csModbusLib {
 		SetPort(port);
 	}
 
-	void MbETHSlave::SendFrame(MbRawData *TransmitData, int Length)
+	void MbETHSlave::SendFrame(int Length)
 	{
-		TransmitData->PutUInt16(4, (uint16_t)Length);
+		MbData->PutUInt16(4, (uint16_t)Length);
 		try {
-			SendFrameData(TransmitData->Data, Length + MBAP_Header_Size);
+			SendFrameData(Length + MBAP_Header_Size);
 			FreeMessage();
 		} catch (int errCode) {
 			throw errCode;
@@ -28,8 +28,9 @@ namespace csModbusLib {
 	// -------------------------------------------------------------------
 	MbUDPSlave::MbUDPSlave(int port) : MbETHSlave(port) { }
 
-	bool MbUDPSlave::Connect()
+	bool MbUDPSlave::Connect(MbRawData* Data)
 	{
+		MbInterface::Connect(Data);
 		try {
 			mUdpClient = new UdpClient(0, remote_port);
 			IsConnected = true;
@@ -51,14 +52,14 @@ namespace csModbusLib {
 		}
 	}
 
-	void MbUDPSlave::ReceiveHeader(int timeOut, MbRawData *RxData)
+	void MbUDPSlave::ReceiveHeader(int timeOut)
 	{
-		UdpReceiveHeaderData(timeOut, RxData);
+		UdpReceiveHeaderData(timeOut);
 	}
 
-	void MbUDPSlave::SendFrameData(uint8_t *data, int Length)
+	void MbUDPSlave::SendFrameData(int Length)
 	{
-		mUdpClient->SendResponse(data, Length);
+		mUdpClient->SendResponse(MbData->Data, Length);
 	}
 
 	// -------------------------------------------------------------------
@@ -66,10 +67,12 @@ namespace csModbusLib {
 	// -------------------------------------------------------------------
 	MbTCPSlave::MbTCPSlave(int port) : MbETHSlave(port)
 	{
+		ConnectionContext = 0;
 	}
 
-	bool MbTCPSlave::Connect()
+	bool MbTCPSlave::Connect(MbRawData *Data)
 	{
+		MbInterface::Connect(Data);
 		smRxProcess->TryRelease();
 
 		try {
@@ -92,23 +95,18 @@ namespace csModbusLib {
 		}
 	}
 
-	void MbTCPSlave::ReceiveHeader(int timeOut, MbRawData *RxData)
+	void MbTCPSlave::ReceiveHeader(int timeOut)
 	{
 		smRxDataAvail->Wait();
 		if (IsConnected == false)
 			throw ErrorCodes::CONNECTION_CLOSED;
-		ConnectionContext->CopyRxData(RxData);
+		ConnectionContext->CopyRxData(MbData);
 	}
 
-	void MbTCPSlave::SendFrameData(uint8_t *data, int Length)
+	void MbTCPSlave::SendFrameData(int Length)
 	{
-		ConnectionContext->SendFrame(data, Length);
+		ConnectionContext->SendFrame(MbData->Data, Length);
 
-	}
-
-	void MbTCPSlave::FreeMessage()
-	{
-		smRxProcess->Release();
 	}
 
 	void MbTCPSlave::OnClientAccepted(NetStream *stream)
@@ -137,6 +135,11 @@ namespace csModbusLib {
 		smRxProcess->Wait();
 		ConnectionContext = newContext;
 		smRxDataAvail->Release();
+	}
+
+	void MbTCPSlave::FreeMessage()
+	{
+		smRxProcess->Release();
 	}
 
 	// -------------------------------------------------------------------

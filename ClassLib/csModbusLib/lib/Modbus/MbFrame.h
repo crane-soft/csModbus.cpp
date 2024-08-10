@@ -48,7 +48,7 @@ namespace csModbusLib
 		MbRawData();
 		MbRawData(int Size);
 		void Init(int Size);
-		void IniADUoffs();
+		void Clear();
 		void CopyFrom(MbRawData *source);
 		void CopyFrom(uint8_t *source, int srcIdx, int length);
 		uint16_t GetUInt16(int ByteOffs);
@@ -87,7 +87,6 @@ namespace csModbusLib
 		static const int RESPNS_DATA_IDX = MbRawData::ADU_OFFS + 3;           // Response for Read Functions
 		static const int RESPNS_LEN_IDX = MbRawData::ADU_OFFS + 2;
 
-		int GetNumBytesOfBits();
 		int ResponseMessageLength();
 	};
 
@@ -98,15 +97,18 @@ namespace csModbusLib
 	{
 	public:
 		MBSFrame();
+		int ParseMasterRequest();
+		int ParseDataCount();
+
 		void ReceiveMasterRequest(MbInterface *Interface);
 		void GetRwWriteAddress();
 		int ToMasterResponseMessageLength();
 		bool MatchAddress(int BaseAddr, int Size);
 		uint16_t GetRequestSingleUInt16();
 		coil_t GetRequestSingleBit();
-		void PutResponseValues(int BaseAddr, coil_t* SrcBits);
+		void PutResponseBitValues(int BaseAddr, coil_t* SrcBits);
 		void PutResponseValues(int BaseAddr, uint16_t * RegisterArray);
-		void GetRequestValues(int BaseAddr, coil_t* DestBits);
+		void GetRequestBitValues(int BaseAddr, coil_t* DestBits);
 		void GetRequestValues(int BaseAddr, uint16_t *DestArray);
 
 	private:

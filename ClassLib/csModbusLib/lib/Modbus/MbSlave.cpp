@@ -1,8 +1,4 @@
-﻿#include "MbBase.h"
-#include "MbFrame.h"
-#include "MbSlaveDataServer.h"
-#include "MbSlave.h"
-#include "platform.h"
+﻿#include "MbSlave.h"
 
 namespace csModbusLib {
 
@@ -41,8 +37,8 @@ namespace csModbusLib {
 			}
 			catch (ErrorCodes errCode) {
 				if (running) {
-					DebugPrint("ModbusException  %d", errCode);
-					gInterface->ReConnect();
+					//DebugPrint("ModbusException  %d", errCode);
+					//gInterface->ReConnect();
 				}
 			}
 		}
@@ -51,14 +47,14 @@ namespace csModbusLib {
 
 	void MbSlave::ReceiveMasterRequestMessage()
 	{
-			gInterface->ReceiveHeader(MbInterface::InfiniteTimeout, &Frame.RawData);
+			gInterface->ReceiveHeader(MbInterface::InfiniteTimeout);
 			Frame.ReceiveMasterRequest(gInterface);
 	}
 
 	void MbSlave::SendResponseMessage()
 	{
 		int MsgLen = Frame.ToMasterResponseMessageLength();
-		gInterface->SendFrame(&Frame.RawData, MsgLen);
+		gInterface->SendFrame(MsgLen);
 	}
 
 	void MbSlave::DataServices()
@@ -70,49 +66,41 @@ namespace csModbusLib {
 		}
 	}
 
-	bool MbSlaveServer::StartListen()
+	bool MbSlave::StartListen()
 	{
 		if (gInterface != 0) {
 			if (running) {
 				StopListen();
 			}
 
-			if (gInterface->Connect()) {
-				if (ListenThread == 0) {
-					ListenThread = new std::thread(&MbSlave::HandleRequestMessages, this);
-				}
+			if (gInterface->Connect(&Frame.RawData)) {
+				StartListener();
 				return true;
 			}
 		}
 		return false;
 	}
 
-	bool MbSlaveServer::StartListen(MbSlaveDataServer *DataServer)
+	bool MbSlave::StartListen(MbSlaveDataServer *DataServer)
 	{
 		gDataServer = DataServer;
 		return StartListen();
 	}
 
-	bool MbSlaveServer::StartListen(MbInterface *Interface, MbSlaveDataServer *DataServer)
+	bool MbSlave::StartListen(MbInterface *Interface, MbSlaveDataServer *DataServer)
 	{
 		InitInterface(Interface);
 		gDataServer = DataServer;
 		return StartListen();
 	}
 
-	void MbSlaveServer::StopListen()
+	void MbSlave::StopListen()
 	{
 		stopped = false;
 		running = false;
 		if (gInterface != 0) {
 			gInterface->DisConnect();
 		}
-		if (ListenThread != NULL) {
-			while ( stopped == false) {
-				MbSleep(1);
-			}
-			ListenThread->join();
-			ListenThread = NULL;
-		}
+		StopListener();
 	}
 }

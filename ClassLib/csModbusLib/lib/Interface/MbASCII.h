@@ -12,12 +12,13 @@ namespace csModbusLib {
 		MbASCII(const char * port, int baudrate)
 			: MbSerial(port, baudrate) {}
 
-		void SendFrame(MbRawData *TransmitData, int Length);
-
+		void SendFrame(int Length);
+		int NumOfSerialBytes(int count);
+		int EndOffFrameLenthth();
 	protected:
 		bool StartOfFrameDetected();
-		int GetTimeOut_ms(int NumBytes);
-		bool Check_EndOfFrame(MbRawData *RxData);
+
+		bool Check_EndOfFrame();
 		void ReceiveBytes(uint8_t *RxData, int offset, int count);
 
 	private:

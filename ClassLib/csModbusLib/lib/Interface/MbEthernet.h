@@ -8,7 +8,7 @@ namespace csModbusLib {
 	class MbEthernet : public MbInterface {
 	public:
 		static const int MBAP_Header_Size = 6;
-		enum ModbusEthernetType {
+		enum class ModbusEthernetType {
 			TCP = 0,
 			UDP = 1
 		};
@@ -18,10 +18,10 @@ namespace csModbusLib {
 
 	protected:
 		void SetPort(int port);
-		void FillMBAPHeader(MbRawData *TransmitData, int Length);
-		void CheckTransactionIdentifier(MbRawData *ReceivMessage);
-		virtual void ReceiveHeaderData(int timeOut, MbRawData *MbData) {}
-		void UdpReceiveHeaderData(int timeOut, MbRawData *RxData);
+		void FillMBAPHeader(int Length);
+		void CheckTransactionIdentifier();
+		virtual void ReceiveHeaderData(int timeOut) {}
+		void UdpReceiveHeaderData(int timeOut);
 
 		int remote_port;
 		UdpClient *mUdpClient = NULL;

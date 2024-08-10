@@ -10,7 +10,7 @@ namespace csModbusLib {
 
 	public:
 		MbETHMaster(const char * host_name, int port);
-		void ReceiveHeader(int timeOut, MbRawData *MbData);
+		void ReceiveHeader(int timeOut);
 
 	protected:
 		const char *remote_host;
@@ -20,22 +20,22 @@ namespace csModbusLib {
 	class MbUDPMaster : public MbETHMaster {
 	public:
 		MbUDPMaster(const char * host_name, int port);
-		bool Connect();
+		bool Connect(MbRawData *Data);
 		void DisConnect();
-		void SendFrame(MbRawData *TransmitData, int Length);
-		void ReceiveHeaderData(int timeOut, MbRawData *RxData);
+		void SendFrame(int Length);
+		void ReceiveHeaderData(int timeOut);
 	};
 
 	class MbTCPMaster : public MbETHMaster {
 	public:
 		MbTCPMaster(const char * host_name, int port);
-		bool Connect();
+		bool Connect(MbRawData* Data);
 		void DisConnect();
-		void SendFrame(MbRawData *TransmitData, int Length);
+		void SendFrame(int Length);
 
 	protected:
-		void ReceiveHeaderData(int timeOut, MbRawData *RxData);
-		void ReadData(int timeOut, MbRawData *RxData, int length);
+		void ReceiveHeaderData(int timeOut);
+		void ReadData(int timeOut, int length);
 	private:
 		TcpClient *tcpc = NULL;
 	};

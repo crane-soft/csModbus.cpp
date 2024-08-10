@@ -6,8 +6,8 @@
 class SerialPort {
 
 public:
-	typedef enum { NoParity, Odd, Even } Parity;
-	typedef enum { NoStopBits, One, Two, OnePointFive } StopBits;
+	enum class Parity { NoParity, Odd, Even } ;
+	enum class StopBits { NoStopBits, One, Two, OnePointFive } ;
 
 	SerialPort();
 	void SetComParms(const char* _PortName, int _BaudRate, int _DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits);
@@ -16,7 +16,7 @@ public:
 	void SetWriteTimeout(int ms);
 	void SetReadTimeout(int ms);
 	int ReadByte();
-	int GetCharTime();
+	int SerialByteTime();
 
 	virtual bool IsOpen() = 0;
 	virtual void Close() = 0;

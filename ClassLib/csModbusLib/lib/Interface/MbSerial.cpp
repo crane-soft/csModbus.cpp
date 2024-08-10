@@ -1,9 +1,6 @@
-﻿#pragma once
 #include "MbInterface.h"
 #include "MbFrame.h"
-#include "ThreadUtils.h"
 #include "MbSerial.h"
-
 
 namespace csModbusLib {
 
@@ -23,18 +20,25 @@ namespace csModbusLib {
 	void MbSerial::SetComParms(const char*  PortName, int BaudRate, int DataBits, SerialPort::Parity parity, SerialPort::StopBits stopbits)
 	{
 		sp.SetComParms(PortName, BaudRate, DataBits, parity, stopbits);
-		oneByteTime_us = sp.GetCharTime();
+		oneByteTime_us = sp.SerialByteTime();
 	}
 
-	int MbSerial::GetTimeOut_ms(int NumBytes)
+	PlatformSerial* MbSerial::getSerialPort()
 	{
-		int timeOut = (NumBytes * oneByteTime_us) / 1000;
-		return timeOut + 50;    // 
+		return &sp;
 	}
 
-	bool MbSerial::Connect()
+	int MbSerial::GetTimeOut_ms(int serialBytesCnt)
 	{
-		IsConnected = false;
+		if (serialBytesCnt == 0)
+			return 0;
+		int timeOut = (serialBytesCnt * oneByteTime_us) / 1000;
+		return timeOut + 50;    // we need more timeout in a Windoww environement
+	}
+
+	bool MbSerial::Connect(MbRawData *Data)
+	{
+		MbInterface::Connect(Data);
 
 		try {
 			sp.Open();
@@ -74,18 +78,18 @@ namespace csModbusLib {
 		}
 	}
 
-	void MbSerial::ReceiveHeader(int timeOut, MbRawData *RxData)
+	void MbSerial::ReceiveHeader(int timeOut)
 	{
-		RxData->IniADUoffs();
+		MbData->Clear();
 		WaitFrameStart(timeOut);
-		ReceiveBytes(RxData, 2); // Node-ID + Function-Byte
+		ReceiveBytes(2); // Node-ID + Function-Byte
 	}
 
-	void MbSerial::ReceiveBytes(MbRawData *RxData, int count)
+	void MbSerial::ReceiveBytes(int count)
 	{
-		sp.SetReadTimeout(GetTimeOut_ms(count));
-		ReceiveBytes(RxData->Data, RxData->EndIdx, count);
-		RxData->EndIdx += count;
+		sp.SetReadTimeout(GetTimeOut_ms(NumOfSerialBytes(count)));
+		ReceiveBytes(MbData->Data, MbData->EndIdx, count);
+		MbData->EndIdx += count;
 	}
 
 	void MbSerial::ReceiveBytes(uint8_t *RxData, int offset, int count)
@@ -103,9 +107,9 @@ namespace csModbusLib {
 		}
 	}
 
-	void MbSerial::EndOfFrame(MbRawData *RxData)
+	void MbSerial::EndOfFrame()
 	{
-		if (Check_EndOfFrame(RxData) == false) {
+		if (Check_EndOfFrame() == false) {
 			// If the server receives the request, but detects a communication error (parity, LRC, CRC,  ...),
 			// no response is returned. The client program will eventually process a timeout condition for the request.
 			throw ErrorCodes::WRONG_CRC;
@@ -125,4 +129,8 @@ namespace csModbusLib {
 		}
 	}
 
+	int MbSerial::NumOfSerialBytes(int count)
+	{
+		return count;   // Default (RTU) , ASCI will have double of count
+	}
 }

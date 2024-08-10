@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 #include <stdint.h>
 #include "MbInterface.h"
 
 typedef uint8_t coil_t;
-
+	
 namespace csModbusLib
 {
 	enum ErrorCodes
@@ -98,8 +98,7 @@ namespace csModbusLib
 			gInterface = Interface;
 		}
 
-		MbInterface * gInterface = NULL;
+		MbInterface * gInterface = 0;
 		bool running = false;
-		ConnectionType connection_type;
 	};
 }

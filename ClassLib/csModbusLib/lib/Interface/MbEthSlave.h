@@ -12,21 +12,21 @@ namespace csModbusLib {
 
 	public:
 		MbETHSlave(int port);
-		virtual void SendFrame(MbRawData *TransmitData, int Length);
+		void SendFrame(int Length);
 
 	protected:
-		virtual void SendFrameData(uint8_t *data, int Length) = 0;
+		virtual void SendFrameData(int Length) = 0;
 		virtual void FreeMessage() {}
 	};
 
 	class MbUDPSlave : public MbETHSlave {
 	public:
 		MbUDPSlave(int port);
-		bool Connect();
+		bool Connect(MbRawData *Data);
 		void DisConnect();
-		void ReceiveHeader(int timeOut, MbRawData *RxData);
+		void ReceiveHeader(int timeOut);
 	protected:
-		void SendFrameData(uint8_t *data, int Length);
+		void SendFrameData(int Length);
 	};
 
 	class TcpContext;
@@ -35,11 +35,11 @@ namespace csModbusLib {
 	public:
 		MbTCPSlave(int port);
 		
-		bool Connect();
+		bool Connect(MbRawData *Data);
 		void DisConnect();
-		void ReceiveHeader(int timeOut, MbRawData *RxData);
+		void ReceiveHeader(int timeOut);
 	protected:
-		void SendFrameData(uint8_t *data, int Length);
+		void SendFrameData(int Length);
 		void FreeMessage();
 
 		// overrides TcpListener callbacks
@@ -50,7 +50,7 @@ namespace csModbusLib {
 		void RequestReceived(TcpContext *newContext);
 		Semaphore *smRxProcess = new Semaphore();
 		Semaphore *smRxDataAvail = new Semaphore();
-		TcpContext *ConnectionContext;
+		TcpContext *ConnectionContext = 0;
 	};
 
 	class TcpContext {

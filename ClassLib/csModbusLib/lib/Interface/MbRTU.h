@@ -16,7 +16,6 @@ namespace csModbusLib {
 
 		void InitCRC16Tab();
 		uint16_t UpdateCRC16(uint16_t crc, uint8_t bt);
-
 	public:
 		uint16_t CalcCRC16(uint8_t *buffer, int offset, int length);
 		CRC16();
@@ -28,10 +27,12 @@ namespace csModbusLib {
 	public: 
 		MbRTU();
 		MbRTU(const char * port, int baudrate);
-		void SendFrame(MbRawData *TransmitData, int Length);
+		void SendFrame(int Length);
+		int EndOffFrameLenthth();
+
 	protected:
 		bool StartOfFrameDetected();
-		bool Check_EndOfFrame(MbRawData *RxData);
+		bool Check_EndOfFrame();
 
 	private: 
 		CRC16 crc16;

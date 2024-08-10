@@ -12,22 +12,23 @@ namespace csModbusLib
 
 		MbInterface()	{}
 
-		virtual bool Connect() = 0;
-		virtual void DisConnect() = 0;
-		virtual void ReceiveHeader(int timeOut, MbRawData *MbData) = 0;
-		virtual void SendFrame(MbRawData *TransmitData, int Length) = 0;
-
-		virtual void ReceiveBytes(MbRawData *RxData, int count) { }
-		virtual void EndOfFrame(MbRawData *RxData) { }
-
-		bool ReConnect()
+		virtual bool Connect(MbRawData* Data)
 		{
-			DisConnect();
-			return Connect();
+			this->MbData = Data;
+			IsConnected = false;
+			return IsConnected;
 		}
+
+		virtual void DisConnect() = 0;
+		virtual void ReceiveHeader(int timeOut) = 0;
+		virtual void SendFrame(int Length) = 0;
+
+		virtual void ReceiveBytes(int count) { }
+		virtual void EndOfFrame() { }
 
 	protected:
 		bool IsConnected = false;
+		MbRawData *MbData;
 
 	};
 }

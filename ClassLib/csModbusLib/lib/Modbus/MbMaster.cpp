@@ -41,7 +41,7 @@ namespace csModbusLib {
 			if (running) {
 				Close();
 			}
-			if (gInterface->Connect()) {
+			if (gInterface->Connect(&Frame.RawData)) {
 				running = true;
 				return true;
 			}
@@ -97,12 +97,12 @@ namespace csModbusLib {
 	{   // TODO check if connected
 		LastError = ErrorCodes::MB_NO_ERROR;
 		try {
-			gInterface->SendFrame(&Frame.RawData, MsgLen);
+			gInterface->SendFrame(MsgLen);
 		} catch (ErrorCodes errCode) {
 			LastError = errCode;
-			if (running) {
-				gInterface->ReConnect();
-			}
+			//if (running) {
+			//	gInterface->ReConnect();
+			//}
 			return false;
 		} catch (int errCode) {
 			LastError = ErrorCodes::CONNECTION_ERROR;
@@ -133,11 +133,11 @@ namespace csModbusLib {
 	bool MbMasterBase::ReceiveSlaveResponse()
 	{
 		try {
-			gInterface->ReceiveHeader(MbInterface::ResponseTimeout, &Frame.RawData);
+			gInterface->ReceiveHeader(MbInterface::ResponseTimeout);
 			Frame.ReceiveSlaveResponse(gInterface);
 		} catch (ErrorCodes errCode) {
-			if ((errCode != ErrorCodes::CONNECTION_CLOSED) && (errCode != ErrorCodes::MODBUS_EXCEPTION))
-				gInterface->ReConnect();
+			//if ((errCode != ErrorCodes::CONNECTION_CLOSED) && (errCode != ErrorCodes::MODBUS_EXCEPTION))
+			//	gInterface->ReConnect();
 			LastError = errCode;
 			return false;
 		}

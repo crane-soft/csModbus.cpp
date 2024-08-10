@@ -6,7 +6,7 @@ namespace csModbusLib {
 
 	class MbSerial : public MbInterface {
 	public:
-		enum ModbusSerialType {
+		enum class ModbusSerialType {
 			RTU = 0,
 			ASCII = 1
 		};
@@ -17,20 +17,22 @@ namespace csModbusLib {
 
 		void SetComParms(const char*  PortName, int BaudRate);
 		void SetComParms(const char*  PortName, int BaudRate, int DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits);
+		PlatformSerial * getSerialPort();
 
-		bool Connect();
+		bool Connect(MbRawData* Data);
 		void DisConnect();
-		void ReceiveHeader(int timeOut, MbRawData *RxData);
-		void ReceiveBytes(MbRawData *RxData, int count);
-		void EndOfFrame(MbRawData *RxData);
+		void ReceiveHeader(int timeOut);
+		void ReceiveBytes(int count);
+		void EndOfFrame();
+		virtual int NumOfSerialBytes(int count);
+		virtual bool StartOfFrameDetected() = 0;
+		virtual int EndOffFrameLenthth() = 0;
+		virtual int GetTimeOut_ms(int NumBytes);
 
 	protected:
 		PlatformSerial sp;
 
-
-		virtual bool StartOfFrameDetected() = 0;
-		virtual bool Check_EndOfFrame(MbRawData * RxData) = 0;
-		virtual int GetTimeOut_ms(int NumBytes);
+		virtual bool Check_EndOfFrame() = 0;
 		virtual void ReceiveBytes(uint8_t *RxData, int offset, int count);
 		void SendData(const uint8_t * Data, int offs, int count);
 

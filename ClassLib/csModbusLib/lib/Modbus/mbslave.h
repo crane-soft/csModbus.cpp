@@ -1,7 +1,6 @@
-﻿#pragma once
-#include "MbFrame.h"
+#pragma once
+#include "MbBase.h"
 #include "MbSlaveDataServer.h"
-#include <thread>
 
 namespace csModbusLib {
 
@@ -12,31 +11,25 @@ namespace csModbusLib {
 		MbSlave(MbInterface *Interface);
 		MbSlave(MbInterface *Interface, MbSlaveDataServer *DataServer);
 
+		bool StartListen();
+		bool StartListen(MbSlaveDataServer* DataServer);
+		bool StartListen(MbInterface* Interface, MbSlaveDataServer* DataServer);
+		void StopListen();
+
 		MbSlaveDataServer * Get_DataServer();
 		void Set_DataServer(MbSlaveDataServer *DataServer);
 		void HandleRequestMessages();
 
 	protected:
-		MbSlaveDataServer *gDataServer = NULL;
+		MbSlaveDataServer *gDataServer = 0;
 		bool stopped = false;
+		MBSFrame Frame = MBSFrame();
+		virtual void StartListener() {}
+		virtual void StopListener() {}
 
 	private:
-		MBSFrame Frame = MBSFrame();
 		void ReceiveMasterRequestMessage();
 		void SendResponseMessage();
 		void DataServices();
-	};
-
-	class MbSlaveServer : public MbSlave {
-	public:
-		MbSlaveServer() : MbSlave() {}
-		MbSlaveServer(MbInterface *Interface) : MbSlave(Interface) {}
-		MbSlaveServer(MbInterface *Interface, MbSlaveDataServer *DataServer) : MbSlave(Interface, DataServer) {}
-		bool StartListen();
-		bool StartListen(MbSlaveDataServer *DataServer);
-		bool StartListen(MbInterface *Interface, MbSlaveDataServer *DataServer);
-		void StopListen();
-	private:
-		std::thread *ListenThread = NULL;
 	};
 }

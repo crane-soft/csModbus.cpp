@@ -21,6 +21,8 @@
     <ClCompile Include="..\lib\Modbus\MbFrame.cpp" />
     <ClCompile Include="..\lib\Modbus\MbMaster.cpp" />
     <ClCompile Include="..\lib\Modbus\MbSlave.cpp" />
+    <ClCompile Include="..\lib\Modbus\MbSlaveServer.cpp" />
+    <ClCompile Include="..\lib\Modbus\MbSlaveStateMachine.cpp" />
     <ClCompile Include="..\lib\SlaveDataServer\MbSlaveData.cpp" />
     <ClCompile Include="..\platform\boost\SerialBoost.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -57,23 +59,25 @@
     <ClInclude Include="..\platform\win32\TcpClient.h" />
     <ClInclude Include="..\platform\win32\TcpListener.h" />
     <ClInclude Include="..\platform\win32\UdpClient.h" />
+    <ClInclude Include="MbSlaveStateMachine.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DC024F3B-42FB-4672-AA09-743F6A777320}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>ModbusCPP</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

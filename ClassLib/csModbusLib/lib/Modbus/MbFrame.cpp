@@ -1,4 +1,4 @@
-﻿#include "MbBase.h"
+#include "MbBase.h"
 #include "MbInterface.h"
 #include "MbFrame.h"
 
@@ -23,7 +23,7 @@ namespace csModbusLib
 		EndIdx = 0;
 
 	}
-	void MbRawData::IniADUoffs()
+	void MbRawData::Clear()
 	{
 		EndIdx = ADU_OFFS;
 	}
@@ -84,31 +84,23 @@ namespace csModbusLib
 	{
 		ExceptionCode = ExceptionCodes::NO_EXCEPTION;
 	}
-
-	int MbFrame::GetNumBytesOfBits()
-	{
-		int numBytes = DataCount / 8;
-		if ((DataCount % 8) > 0)
-			++numBytes;
-		return numBytes;
-	}
-
+	
 	void MbFrame::GetBitData(coil_t * DestBits, int DestIdx, int FrameIdx)
 	{
 		DestBits += DestIdx;
 		uint8_t * SrcByte = &RawData.Data[FrameIdx];
-		uint16_t BitCount = DataCount;
-		int NumBytes = GetNumBytesOfBits();
-		for (int byte = 0; byte < NumBytes; ++byte) {
-			uint8_t BitMask = 1;
-			for (int bitNo = 0; bitNo < 8; ++bitNo) {
-				*DestBits = (*SrcByte & BitMask) != 0;
-				++DestBits;
-				BitMask <<= 1;
-				if (--BitCount == 0)
-					break;
+
+		int bitCnt = 0;
+		uint8_t dataByte = 0;
+
+		for (int i = 0; i < DataCount; ++i) {
+			if (bitCnt == 0) {
+				dataByte = *SrcByte++;
 			}
-			++SrcByte;
+			int b = dataByte & 1;
+			*DestBits++ = (uint16_t)b;
+			dataByte >>= 1;
+			bitCnt = (bitCnt + 1) & 0x07;
 		}
 	}
 
@@ -116,25 +108,32 @@ namespace csModbusLib
 	{
 		SrcBits += SrcIdx;
 		uint8_t * DestData = &RawData.Data[FrameIdx];
-		uint16_t BitCount = DataCount;
-		int NumBytes = GetNumBytesOfBits();
-		for (int byte = 0; byte < NumBytes; ++byte) {
-			uint8_t BitMask = 1;
-			uint8_t FrameByte = *DestData;
-			for (int bit = 0; bit < 8; ++bit) {
-				FrameByte = FrameByte & ~BitMask;
-				if (*SrcBits != 0)
-					FrameByte |= BitMask;
-				++SrcBits;
-				BitMask <<= 1;
-				if (--BitCount == 0)
-					break;
-			}
-			*DestData = FrameByte;
-			++DestData;
-		}
 
-		RawData.Data[FrameIdx - 1] = (uint8_t)(NumBytes);
+		int bitCnt = 8;
+		uint8_t dataByte = 0;
+		int NumBytes = 0;
+
+		for (int i = 0; i < DataCount; ++i) {
+			dataByte >>= 1;
+			if (*SrcBits++ != 0) {
+				dataByte |= 0x80;
+			}
+
+			if (--bitCnt == 0) {
+				DestData[NumBytes] = dataByte;
+				bitCnt = 8;
+				dataByte = 0;
+				++NumBytes;
+			}
+		}
+		if (bitCnt != 0) {
+			dataByte >>= bitCnt;
+			DestData[NumBytes] = dataByte;
+			++NumBytes;
+		} else {
+			bitCnt = 1;
+		}
+		RawData.Data[FrameIdx - 1] = (uint8_t)NumBytes;
 		return NumBytes;
 	}
 
@@ -150,8 +149,9 @@ namespace csModbusLib
 		case ModbusCodes::WRITE_MULTIPLE_COILS:
 		case ModbusCodes::WRITE_MULTIPLE_REGISTERS:
 			return 6;
+		default:
+			throw ErrorCodes::ILLEGAL_FUNCTION_CODE;
 		}
-		throw ErrorCodes::ILLEGAL_FUNCTION_CODE;
 	}
 
 
@@ -184,47 +184,63 @@ namespace csModbusLib
 		case ModbusCodes::READ_WRITE_MULTIPLE_REGISTERS:
 			WrMultipleData = true;
 			return 9;
+		default:
+			throw ErrorCodes::ILLEGAL_FUNCTION_CODE;
 		}
 
-		throw ErrorCodes::ILLEGAL_FUNCTION_CODE;
 	}
 
-	void MBSFrame::ReceiveMasterRequest(MbInterface *Interface)
+	int MBSFrame::ParseMasterRequest()
 	{
 		ExceptionCode = ExceptionCodes::NO_EXCEPTION;
-
 		SlaveId = RawData.Data[REQST_UINIT_ID_IDX];
 		FunctionCode = (ModbusCodes)RawData.Data[REQST_FCODE_IDX];
-
 		int MsgLen = FromMasterRequestMessageLen();
-		Interface->ReceiveBytes(&RawData, MsgLen);
+		return MsgLen;
+	}
 
+	int MBSFrame::ParseDataCount()
+	{
 		DataAddress = RawData.GetUInt16(REQST_ADDR_IDX);
+
+		int AdditionalData = 0;
 
 		if (WrSingleData == true) {
 			DataCount = 1;
 		} else {
 			DataCount = RawData.GetUInt16(REQST_DATA_CNT_IDX);
 			if (WrMultipleData) {
-				int DataLength;
 				if (FunctionCode == ModbusCodes::READ_WRITE_MULTIPLE_REGISTERS) {
-					DataLength = RawData.Data[REQST_DATA_LEN_IDX + 4];
+					AdditionalData = RawData.Data[REQST_DATA_LEN_IDX + 4];
 
 					// Create extra RawData for Write request
-					WriteData = new MbRawData(REQST_DATA_IDX + DataLength);
+					WriteData = new MbRawData(REQST_DATA_IDX + AdditionalData);
 					// Copy Head NodeID and Function Code
 					WriteData->CopyFrom(RawData.Data, 0, REQST_ADDR_IDX);
 					// Copy  the write data
-					WriteData->CopyFrom(RawData.Data, REQST_WRADDR_IDX, DataLength + 5);
+					WriteData->CopyFrom(RawData.Data, REQST_WRADDR_IDX, AdditionalData + 5);
 
 				} else {
-					DataLength = RawData.Data[REQST_DATA_LEN_IDX];
-					Interface->ReceiveBytes(&RawData, DataLength);
+					AdditionalData = RawData.Data[REQST_DATA_LEN_IDX];
 				}
 			}
 		}
+		return AdditionalData;
 
-		Interface->EndOfFrame(&RawData);
+	}
+
+	void MBSFrame::ReceiveMasterRequest(MbInterface *Interface)
+	{
+		int MsgLen = ParseMasterRequest();
+		Interface->ReceiveBytes(MsgLen);
+
+		int AdditionalData = ParseDataCount();
+		if (AdditionalData != 0) {
+			Interface->ReceiveBytes(AdditionalData);
+		}
+
+		Interface->EndOfFrame();
+	
 	}
 
 	void MBSFrame::GetRwWriteAddress()
@@ -282,10 +298,10 @@ namespace csModbusLib
 
 	coil_t MBSFrame::GetRequestSingleBit()
 	{
-		return RawData.Data[REQST_SINGLE_DATA_IDX] != 0;
+		return RawData.Data[REQST_SINGLE_DATA_IDX];
 	}
 
-	void MBSFrame::PutResponseValues(int BaseAddr, coil_t* SrcBits)
+	void MBSFrame::PutResponseBitValues(int BaseAddr, coil_t* SrcBits)
 	{
 		PutBitData(SrcBits, DataAddress - BaseAddr, RESPNS_DATA_IDX);
 	}
@@ -300,7 +316,7 @@ namespace csModbusLib
 		RawData.Data[RESPNS_LEN_IDX] = (uint8_t)(DataCount * 2);
 	}
 	
-	void MBSFrame::GetRequestValues(int BaseAddr, coil_t* DestBits)
+	void MBSFrame::GetRequestBitValues(int BaseAddr, coil_t* DestBits)
 	{
 		GetBitData(DestBits, DataAddress - BaseAddr, REQST_DATA_IDX);
 	}
@@ -319,7 +335,7 @@ namespace csModbusLib
 	/* ------------------------------------------------------------
 	 * Modbus Frame Master Functions
 	 -------------------------------------------------------------- */
-	void MBMFrame::SetSlaveID(uint8_t Slave_ID)
+/*	void MBMFrame::SetSlaveID(uint8_t Slave_ID)
 	{
 		Current_SlaveID = Slave_ID;
 	}
@@ -370,7 +386,7 @@ namespace csModbusLib
 		uint8_t RetCode = RawData.Data[REQST_FCODE_IDX];
 		if ((RetCode & 0x80) != 0) {
 			// Slave reports exception error
-			Interface->ReceiveBytes(&RawData, 1);
+			Interface->ReceiveBytes(1);
 			ExceptionCode = (ExceptionCodes)RawData.Data[RESPNS_ERR_IDX];
 			throw ErrorCodes::MODBUS_EXCEPTION;
 		}
@@ -379,15 +395,14 @@ namespace csModbusLib
 
 		int Bytes2Read;
 		if ((FunctionCode <= ModbusCodes::READ_INPUT_REGISTERS) || (FunctionCode == ModbusCodes::READ_WRITE_MULTIPLE_REGISTERS)) {
-			Interface->ReceiveBytes(&RawData, 1);
+			Interface->ReceiveBytes(1);
 			Bytes2Read = RawData.Data[RESPNS_LEN_IDX];
-		}
-		else {
+		} else {
 			Bytes2Read = ResponseMessageLength() - 2;
 		}
 		if (Bytes2Read > 0)
-			Interface->ReceiveBytes(&RawData, Bytes2Read);
-		Interface->EndOfFrame(&RawData);
+			Interface->ReceiveBytes(Bytes2Read);
+		Interface->EndOfFrame();
 	}
 
 	void MBMFrame::ReadSlaveRegisterValues(uint16_t* DestArray, int DestOffs)
@@ -403,5 +418,5 @@ namespace csModbusLib
 	uint16_t MBMFrame::GetTransactionIdentifier()
 	{
 		return RawData.GetUInt16(0);
-	}
+	} */
 }

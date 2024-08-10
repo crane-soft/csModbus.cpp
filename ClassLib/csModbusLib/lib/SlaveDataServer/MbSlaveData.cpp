@@ -3,7 +3,7 @@ namespace csModbusLib {
 
 	template<> void ModbusDataT<coil_t>::ReadMultiple(MBSFrame *Frame)
 	{
-		Frame->PutResponseValues(MyBaseAddr, Data);
+		Frame->PutResponseBitValues(MyBaseAddr, Data);
 	}
 	template<> void ModbusDataT<uint16_t>::ReadMultiple(MBSFrame *Frame)
 	{
@@ -11,7 +11,7 @@ namespace csModbusLib {
 	}
 	template<> void ModbusDataT<coil_t>::WriteMultiple(MBSFrame *Frame)
 	{
-		Frame->GetRequestValues(MyBaseAddr, Data);
+		Frame->GetRequestBitValues(MyBaseAddr, Data);
 	}
 	template<> void ModbusDataT<uint16_t>::WriteMultiple(MBSFrame *Frame)
 	{

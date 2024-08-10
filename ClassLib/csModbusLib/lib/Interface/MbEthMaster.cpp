@@ -11,11 +11,11 @@ namespace csModbusLib {
 		SetPort(port);
 	}
 
-	void MbETHMaster::ReceiveHeader(int timeOut, MbRawData *MbData)
+	void MbETHMaster::ReceiveHeader(int timeOut)
 	{
 		MbData->EndIdx = 0;
-		ReceiveHeaderData(timeOut, MbData);
-		CheckTransactionIdentifier(MbData);
+		ReceiveHeaderData(timeOut);
+		CheckTransactionIdentifier();
 	}
 
 	// -------------------------------------------------------------------
@@ -26,8 +26,9 @@ namespace csModbusLib {
 	{
 	}
 
-	bool MbUDPMaster::Connect()
+	bool MbUDPMaster::Connect(MbRawData *Data)
 	{
+		MbInterface::Connect(Data);
 		try {
 			if (mUdpClient == 0) {
 				mUdpClient = new UdpClient(remote_host, remote_port);
@@ -48,15 +49,15 @@ namespace csModbusLib {
 		IsConnected = false;
 	}
 
-	void MbUDPMaster::SendFrame(MbRawData *TransmitData, int Length)
+	void MbUDPMaster::SendFrame(int Length)
 	{
-		FillMBAPHeader(TransmitData, Length);
-		mUdpClient->Send(TransmitData->Data, Length + MBAP_Header_Size);
+		FillMBAPHeader(Length);
+		mUdpClient->Send(MbData->Data, Length + MBAP_Header_Size);
 	}
 
-	void MbUDPMaster::ReceiveHeaderData(int timeOut, MbRawData *RxData)
+	void MbUDPMaster::ReceiveHeaderData(int timeOut)
 	{
-		UdpReceiveHeaderData(timeOut, RxData);
+		UdpReceiveHeaderData(timeOut);
 	}
 
 	// -------------------------------------------------------------------
@@ -68,8 +69,9 @@ namespace csModbusLib {
 		tcpc = new TcpClient();
 	}
 
-	bool MbTCPMaster::Connect()
+	bool MbTCPMaster::Connect(MbRawData* Data)
 	{
+		MbInterface::Connect(Data);
 		if (tcpc == NULL)
 			tcpc = new TcpClient();
 		try {
@@ -94,27 +96,27 @@ namespace csModbusLib {
 
 	}
 
-	void MbTCPMaster::SendFrame(MbRawData *TransmitData, int Length)
+	void MbTCPMaster::SendFrame(int Length)
 	{
-		FillMBAPHeader(TransmitData, Length);
-		tcpc->Send (TransmitData->Data, Length + MBAP_Header_Size);
+		FillMBAPHeader(Length);
+		tcpc->Send (MbData->Data, Length + MBAP_Header_Size);
 	}
 
-	void MbTCPMaster::ReceiveHeaderData(int timeOut, MbRawData *RxData)
+	void MbTCPMaster::ReceiveHeaderData(int timeOut)
 	{
-		ReadData(ResponseTimeout, RxData, 8);
-		int bytes2read = RxData->CheckEthFrameLength();
+		ReadData(ResponseTimeout, 8);
+		int bytes2read = MbData->CheckEthFrameLength();
 		if (bytes2read > 0) {
-			ReadData(50, RxData, bytes2read);
+			ReadData(50, bytes2read);
 		}
 	}
 
-	void MbTCPMaster::ReadData(int timeOut, MbRawData *RxData, int length)
+	void MbTCPMaster::ReadData(int timeOut, int length)
 	{
 		try {
 			tcpc->SetReceiveTimeout(timeOut);
-			int readed = tcpc->Receive(RxData->GetBuffTail(), length);
-			RxData->EndIdx += readed;
+			int readed = tcpc->Receive(MbData->GetBuffTail(), length);
+			MbData->EndIdx += readed;
 		} catch (int) {
 			throw ErrorCodes::RX_TIMEOUT;
 		}
