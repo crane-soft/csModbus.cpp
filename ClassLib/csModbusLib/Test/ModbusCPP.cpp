@@ -1,6 +1,6 @@
 #include "MbMaster.h"
 #include "MbSlaveStdServer.h"
-#include "MbSlave.h"
+#include "MbSlaveServer.h"
 #include "MbInterface.h"
 #include "MbRTU.h"
 #include "MbASCII.h"

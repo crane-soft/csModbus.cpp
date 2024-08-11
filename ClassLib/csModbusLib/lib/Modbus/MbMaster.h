@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MbBase.h"
-#include "MbFrame.h"
+#include "MBMFrame.h"
 #include "Stopwatch.h"
 
 namespace csModbusLib {

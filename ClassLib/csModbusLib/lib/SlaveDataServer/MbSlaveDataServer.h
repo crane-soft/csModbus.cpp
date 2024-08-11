@@ -1,15 +1,15 @@
 ﻿#pragma once
-#include "MbFrame.h"
+#include "MBSFrame.h"
 
 namespace csModbusLib {
 
     class MbSlaveDataServer {
-        public:
+    public:
 			MbSlaveDataServer *NextDataServer;   
 	private:
 		int gSlaveID;
 	protected: 
-		MBSFrame *Frame;
+		MBSFrame *Frame = 0;
 
 	public: 
 		MbSlaveDataServer()  {
@@ -64,6 +64,7 @@ namespace csModbusLib {
                         if (WriteMultipleRegisters()) return;
                         break;
                     case ModbusCodes::READ_WRITE_MULTIPLE_REGISTERS:
+                        Frame->SaveWritaData();
 						if (ReadHoldingRegisters()) {
 							Frame->GetRwWriteAddress();
 							if (WriteMultipleRegisters()) {

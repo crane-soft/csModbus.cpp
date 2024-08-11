@@ -65,7 +65,7 @@ namespace csModbusLib
 		ModbusCodes FunctionCode;
 		uint16_t DataAddress;
 		uint16_t DataCount;
-		MbRawData RawData = MbRawData(MbBase::MAX_FRAME_LEN);
+		MbRawData RawData = MbRawData();
 		ExceptionCodes ExceptionCode;
 
 		MbFrame();
@@ -89,54 +89,4 @@ namespace csModbusLib
 
 		int ResponseMessageLength();
 	};
-
-	/* -------------------------------------------------------------------------------
-	 * Modbus-Slave Frame
-	 ---------------------------------------------------------------------------------*/
-	class MBSFrame : public MbFrame
-	{
-	public:
-		MBSFrame();
-		int ParseMasterRequest();
-		int ParseDataCount();
-
-		void ReceiveMasterRequest(MbInterface *Interface);
-		void GetRwWriteAddress();
-		int ToMasterResponseMessageLength();
-		bool MatchAddress(int BaseAddr, int Size);
-		uint16_t GetRequestSingleUInt16();
-		coil_t GetRequestSingleBit();
-		void PutResponseBitValues(int BaseAddr, coil_t* SrcBits);
-		void PutResponseValues(int BaseAddr, uint16_t * RegisterArray);
-		void GetRequestBitValues(int BaseAddr, coil_t* DestBits);
-		void GetRequestValues(int BaseAddr, uint16_t *DestArray);
-
-	private:
-		bool WrMultipleData;
-		bool WrSingleData;
-		bool ValidAddressFound;
-		MbRawData *WriteData;
-		int FromMasterRequestMessageLen();
-		void ExceptionResponse(ExceptionCodes ErrorCode);
-	};
-
-	/* ------------------------------------------------------------
-	 * Modbus Frame Master Functions
-	 -------------------------------------------------------------- */
-	class MBMFrame : public MbFrame
-	{
-	public:
-		void SetSlaveID(uint8_t Slave_ID);
-		int BuildRequest(ModbusCodes FuncCode, uint16_t Address, uint16_t DataOrLen);
-		int BuildMultipleWriteRequest(ModbusCodes FuncCode, uint16_t Address, uint16_t Length, void * SrcData, int SrcOffs);
-		int BuildMultipleReadWriteRequest(uint16_t RdAddress, uint16_t RdLength, uint16_t WrAddress, uint16_t WrLength, uint16_t* SrcData, int SrcOffs);
-		void ReceiveSlaveResponse(MbInterface *Interface);
-		void ReadSlaveRegisterValues(uint16_t* DestArray, int DestOffs);
-		void ReadSlaveBitValues(coil_t* DestBits, int DestOffs);
-		uint16_t GetTransactionIdentifier();
-	private:
-		static const int SLAVE_DATA_IDX = MbRawData::ADU_OFFS + 3;
-		uint8_t Current_SlaveID;
-	};
 }
-

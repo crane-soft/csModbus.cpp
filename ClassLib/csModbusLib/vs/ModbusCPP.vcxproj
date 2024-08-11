@@ -20,6 +20,8 @@
     <ClCompile Include="..\lib\Interface\SerialPort.cpp" />
     <ClCompile Include="..\lib\Modbus\MbFrame.cpp" />
     <ClCompile Include="..\lib\Modbus\MbMaster.cpp" />
+    <ClCompile Include="..\lib\Modbus\MBMFrame.cpp" />
+    <ClCompile Include="..\lib\Modbus\MBSFrame.cpp" />
     <ClCompile Include="..\lib\Modbus\MbSlave.cpp" />
     <ClCompile Include="..\lib\Modbus\MbSlaveServer.cpp" />
     <ClCompile Include="..\lib\Modbus\MbSlaveStateMachine.cpp" />
@@ -43,10 +45,6 @@
     <ClInclude Include="..\lib\Interface\MbRTU.h" />
     <ClInclude Include="..\lib\Interface\MbSerial.h" />
     <ClInclude Include="..\lib\Interface\SerialPort.h" />
-    <ClInclude Include="..\lib\Modbus\MbBase.h" />
-    <ClInclude Include="..\lib\Modbus\MbFrame.h" />
-    <ClInclude Include="..\lib\Modbus\MbMaster.h" />
-    <ClInclude Include="..\lib\Modbus\mbslave.h" />
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveData.h" />
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveDataServer.h" />
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveStdServer.h" />
@@ -59,7 +57,6 @@
     <ClInclude Include="..\platform\win32\TcpClient.h" />
     <ClInclude Include="..\platform\win32\TcpListener.h" />
     <ClInclude Include="..\platform\win32\UdpClient.h" />
-    <ClInclude Include="MbSlaveStateMachine.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DC024F3B-42FB-4672-AA09-743F6A777320}</ProjectGuid>

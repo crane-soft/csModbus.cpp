@@ -91,6 +91,12 @@
     <ClCompile Include="..\lib\Modbus\MbSlaveServer.cpp">
       <Filter>lib\Modbus</Filter>
     </ClCompile>
+    <ClCompile Include="..\lib\Modbus\MBMFrame.cpp">
+      <Filter>lib\Modbus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\Modbus\MBSFrame.cpp">
+      <Filter>lib\Modbus</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\lib\Interface\MbASCII.h">
@@ -110,18 +116,6 @@
     </ClInclude>
     <ClInclude Include="..\lib\Interface\SerialPort.h">
       <Filter>lib\Interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lib\Modbus\MbBase.h">
-      <Filter>lib\Modbus</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lib\Modbus\MbFrame.h">
-      <Filter>lib\Modbus</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lib\Modbus\MbMaster.h">
-      <Filter>lib\Modbus</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lib\Modbus\mbslave.h">
-      <Filter>lib\Modbus</Filter>
     </ClInclude>
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveDataServer.h">
       <Filter>lib\SlaveDataServer</Filter>
@@ -165,6 +159,5 @@
     <ClInclude Include="..\platform\win32\NetSocket.h">
       <Filter>platform\Win32</Filter>
     </ClInclude>
-    <ClInclude Include="MbSlaveStateMachine.h" />
   </ItemGroup>
 </Project>

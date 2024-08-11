@@ -40,7 +40,7 @@ namespace csModbusLib
     /// <summary>
     /// Modbus calling codes
     /// </summary>
-	enum ModbusCodes
+	enum class ModbusCodes
 	{
 		READ_COILS = 0x01,
 		READ_DISCRETE_INPUTS = 0x02,

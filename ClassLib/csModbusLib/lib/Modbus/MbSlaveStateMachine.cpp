@@ -96,9 +96,7 @@ namespace csModbusLib {
 						WaitForFrameStart();
 					}
 				}
-
 			}
-
 
 			switch (RxState) {
 			case enRxStates::ReceiveHeader:

@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "MbFrame.h"
+#include "MBSFrame.h"
 namespace csModbusLib {
 
 	class ModbusDataEvents {
