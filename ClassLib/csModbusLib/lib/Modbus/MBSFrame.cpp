@@ -67,12 +67,10 @@ namespace csModbusLib
 	void MBSFrame::SaveWritaData()
 	{
 		int WrDataLen = RawData.Data[REQST_DATA_LEN_IDX + 4];
-		// Create extra RawData for Write request
-		WriteData = new MbRawData(REQST_DATA_IDX + WrDataLen);
 		// Copy Head NodeID and Function Code
-		WriteData->CopyFrom(RawData.Data, 0, REQST_ADDR_IDX);
+		WriteData.CopyFrom(RawData.Data, 0, REQST_ADDR_IDX);
 		// Copy  the write data
-		WriteData->CopyFrom(RawData.Data, REQST_WRADDR_IDX, WrDataLen + 5);
+		WriteData.CopyFrom(RawData.Data, REQST_WRADDR_IDX, WrDataLen + 5);
 
 	}
 	void MBSFrame::ReceiveMasterRequest(MbInterface *Interface)
@@ -92,8 +90,8 @@ namespace csModbusLib
 	void MBSFrame::GetRwWriteAddress()
 	{
 		// Write Address for READ_WRITE_MULTIPLE_REGISTERS
-		DataAddress = WriteData->GetUInt16(REQST_ADDR_IDX);
-		DataCount = WriteData->GetUInt16(REQST_DATA_CNT_IDX);
+		DataAddress = WriteData.GetUInt16(REQST_ADDR_IDX);
+		DataCount = WriteData.GetUInt16(REQST_DATA_CNT_IDX);
 	}
 
 
@@ -137,22 +135,22 @@ namespace csModbusLib
 		return false;
 	}
 
-	uint16_t MBSFrame::GetRequestSingleUInt16()
+	uint16_t MBSFrame::GetSingleUInt16()
 	{
 		return RawData.GetUInt16(REQST_SINGLE_DATA_IDX);
 	}
 
-	coil_t MBSFrame::GetRequestSingleBit()
+	coil_t MBSFrame::GetSingleBit()
 	{
 		return RawData.Data[REQST_SINGLE_DATA_IDX];
 	}
 
-	void MBSFrame::PutResponseBitValues(int BaseAddr, coil_t* SrcBits)
+	void MBSFrame::PutBitValues(int BaseAddr, coil_t* SrcBits)
 	{
 		PutBitData(SrcBits, DataAddress - BaseAddr, RESPNS_DATA_IDX);
 	}
 
-	void MBSFrame::PutResponseValues(int BaseAddr, uint16_t * RegisterArray)
+	void MBSFrame::PutValues(int BaseAddr, uint16_t * RegisterArray)
 	{
 		for (int i = 0; i < DataCount; ++i) {
 			uint16_t Value = RegisterArray[DataAddress - BaseAddr + i];
@@ -162,16 +160,16 @@ namespace csModbusLib
 		RawData.Data[RESPNS_LEN_IDX] = (uint8_t)(DataCount * 2);
 	}
 	
-	void MBSFrame::GetRequestBitValues(int BaseAddr, coil_t* DestBits)
+	void MBSFrame::GetBitValues(int BaseAddr, coil_t* DestBits)
 	{
 		GetBitData(DestBits, DataAddress - BaseAddr, REQST_DATA_IDX);
 	}
 
-	void MBSFrame::GetRequestValues(int BaseAddr, uint16_t *DestArray)
+	void MBSFrame::GetValues(int BaseAddr, uint16_t *DestArray)
 	{
 		MbRawData *SrcData;
 		if (FunctionCode == ModbusCodes::READ_WRITE_MULTIPLE_REGISTERS) {
-			SrcData = WriteData;
+			SrcData = &WriteData;
 		} else {
 			SrcData = &RawData;
 		}

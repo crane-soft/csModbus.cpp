@@ -1,4 +1,4 @@
-﻿#include "MbSlave.h"
+#include "MbSlave.h"
 
 namespace csModbusLib {
 
@@ -32,8 +32,9 @@ namespace csModbusLib {
 		while (running) {
 			try {
 				ReceiveMasterRequestMessage();
-				DataServices();
-				SendResponseMessage();
+				if (DataServices()) {
+					SendResponseMessage();
+				}
 			}
 			catch (ErrorCodes errCode) {
 				if (running) {
@@ -57,13 +58,16 @@ namespace csModbusLib {
 		gInterface->SendFrame(MsgLen);
 	}
 
-	void MbSlave::DataServices()
+	bool MbSlave::DataServices()
 	{
 		MbSlaveDataServer *DataServer = gDataServer;
+		bool ID_matched = false;
+
 		while (DataServer != 0) {
-			DataServer->DataServices(&Frame);
+			ID_matched |= DataServer->DataServices(&Frame);
 			DataServer = DataServer->NextDataServer;
 		}
+		return ID_matched;
 	}
 
 	bool MbSlave::StartListen()

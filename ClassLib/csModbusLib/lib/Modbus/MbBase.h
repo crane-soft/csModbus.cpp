@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include "MbInterface.h"
 
+#define STATIC_MEM
+
 typedef uint8_t coil_t;
 	
 namespace csModbusLib

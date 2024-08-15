@@ -41,13 +41,15 @@ namespace csModbusLib
 	{
 	public:
 		static const int ADU_OFFS = 6;
-		int BuffSize;
+		int DataSize;
 		int EndIdx;
 		uint8_t *Data;
 
-		MbRawData();
-		MbRawData(int Size);
-		void Init(int Size);
+		//MbRawData();
+		//MbRawData(int Size);
+		MbRawData(uint8_t* Data, int Size);
+		void Init(uint8_t* Data, int Size);
+
 		void Clear();
 		void CopyFrom(MbRawData *source);
 		void CopyFrom(uint8_t *source, int srcIdx, int length);
@@ -59,13 +61,22 @@ namespace csModbusLib
 		uint8_t * GetBuffTail();
 	};
 
+	template  <int const BuffSize>
+	class MbRawDataBuff : public MbRawData
+	{
+	public:
+		MbRawDataBuff() : MbRawData(Buffer, BuffSize) {}
+	private:
+		uint8_t Buffer[BuffSize];
+	};
+
 	class MbFrame {
 	public:
 		int SlaveId;
 		ModbusCodes FunctionCode;
 		uint16_t DataAddress;
 		uint16_t DataCount;
-		MbRawData RawData = MbRawData();
+		MbRawDataBuff<MbBase::MAX_FRAME_LEN> RawData;
 		ExceptionCodes ExceptionCode;
 
 		MbFrame();

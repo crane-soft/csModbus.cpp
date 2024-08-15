@@ -14,18 +14,18 @@ namespace csModbusLib
 		void GetRwWriteAddress();
 		int ToMasterResponseMessageLength();
 		bool MatchAddress(int BaseAddr, int Size);
-		uint16_t GetRequestSingleUInt16();
-		coil_t GetRequestSingleBit();
-		void PutResponseBitValues(int BaseAddr, coil_t* SrcBits);
-		void PutResponseValues(int BaseAddr, uint16_t * RegisterArray);
-		void GetRequestBitValues(int BaseAddr, coil_t* DestBits);
-		void GetRequestValues(int BaseAddr, uint16_t *DestArray);
+		uint16_t GetSingleUInt16();
+		coil_t GetSingleBit();
+		void PutBitValues(int BaseAddr, coil_t* SrcBits);
+		void PutValues(int BaseAddr, uint16_t * RegisterArray);
+		void GetBitValues(int BaseAddr, coil_t* DestBits);
+		void GetValues(int BaseAddr, uint16_t *DestArray);
 
 	private:
 		bool WrMultipleData;
 		bool WrSingleData;
 		bool ValidAddressFound;
-		MbRawData *WriteData;
+		MbRawDataBuff<MbBase::MAX_FRAME_LEN> WriteData;
 		int FromMasterRequestMessageLen();
 		void ExceptionResponse(ExceptionCodes ErrorCode);
 	};

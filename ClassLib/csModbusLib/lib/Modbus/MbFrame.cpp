@@ -3,22 +3,30 @@
 
 namespace csModbusLib
 {
+	/*
 	MbRawData::MbRawData()
 	{
-		Init(MbBase::MAX_FRAME_LEN);
+		Init(new uint8_t[MbBase::MAX_FRAME_LEN], MbBase::MAX_FRAME_LEN);
 	}
 
-	MbRawData::MbRawData(int Size)
+	MbRawData::MbRawData( int Size)
 	{
-		Init(Size);
+		Init(new uint8_t[Size], Size);
+	} */
+
+	MbRawData::MbRawData(uint8_t* Data, int Size)
+	{
+		Init(Data, Size);
 	}
-	void MbRawData::Init(int Size)
+
+	void MbRawData::Init(uint8_t* Data, int Size)
 	{
-		BuffSize = Size;
-		Data = new uint8_t[Size];
+		this->Data = Data;
+		DataSize = Size;
 		EndIdx = 0;
 
 	}
+
 	void MbRawData::Clear()
 	{
 		EndIdx = ADU_OFFS;
@@ -32,7 +40,7 @@ namespace csModbusLib
 
 	void MbRawData::CopyFrom(uint8_t *source, int srcIdx, int length)
 	{
-		int maxLength = BuffSize - EndIdx;
+		int maxLength = DataSize - EndIdx;
 		if (length > maxLength) {
 			length = maxLength;
 		}

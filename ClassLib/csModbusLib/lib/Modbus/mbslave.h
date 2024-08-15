@@ -30,6 +30,6 @@ namespace csModbusLib {
 	private:
 		void ReceiveMasterRequestMessage();
 		void SendResponseMessage();
-		void DataServices();
+		bool DataServices();
 	};
 }
