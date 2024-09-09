@@ -9,9 +9,13 @@ namespace csModbusLib
 		MBSFrame();
 		int ParseMasterRequest();
 		int ParseDataCount();
+		void ReceiveMasterRequest(MbInterface* Interface);
+
+#if USE_READ_WRITE_REGS
 		void SaveWritaData();
-		void ReceiveMasterRequest(MbInterface *Interface);
 		void GetRwWriteAddress();
+#endif
+
 		int ToMasterResponseMessageLength();
 		bool MatchAddress(int BaseAddr, int Size);
 		uint16_t GetSingleUInt16();
@@ -25,7 +29,9 @@ namespace csModbusLib
 		bool WrMultipleData;
 		bool WrSingleData;
 		bool ValidAddressFound;
+#if USE_READ_WRITE_REGS
 		MbRawDataBuff<MbBase::MAX_FRAME_LEN> WriteData;
+#endif
 		int FromMasterRequestMessageLen();
 		void ExceptionResponse(ExceptionCodes ErrorCode);
 	};

@@ -3,6 +3,7 @@
 #include "MbInterface.h"
 
 #define STATIC_MEM
+#define USE_READ_WRITE_REGS	0
 
 typedef uint8_t coil_t;
 	

@@ -47,14 +47,8 @@ void TestSlave()
 	printf("CPP Modbus Slave Test\r\n");
 	StdDataServer MyDataServer = StdDataServer(1);
 
-	/* EventClasse übergeben
-	ModbusRegsData *HoldinRegs = new ModbusRegsData(BASE_ADDR, ModbusRegs, NUM_REGS);
-	HoldinRegs->RegisterEvents(&ModbusEvent);
-	*/
-
 	// abgeleitete Daten Klasse
 	MyHoldingRegs.AddData(BASE_ADDR, ModbusRegs, NUM_REGS);
-
 	MyDataServer.AddHoldingRegisters(&MyHoldingRegs);
 
 	uint16_t holding20[5] = {0};
@@ -62,9 +56,11 @@ void TestSlave()
 	coil_t coils10[20] = { 0 };
 	MyDataServer.AddCoils(10, coils10, 20);
 	coil_t inputs20[20] = { 0 };
-	MyDataServer.AddDiscreteInputs(20, inputs20, 20);
+	MyDataServer.AddDiscreteInputs(30, inputs20, 20);
 
-	MbTCPSlave MyInterface = MbTCPSlave(502);
+	// MbTCPSlave MyInterface = MbTCPSlave(502);
+	MbRTU MyInterface = MbRTU("COM2", 19200);
+
 
 	MySlave.StartListen(&MyInterface, &MyDataServer);
 	while (_kbhit() == 0) {

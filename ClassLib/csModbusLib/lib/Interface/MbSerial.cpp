@@ -116,6 +116,10 @@ namespace csModbusLib {
 		}
 	}
 
+	void MbSerial::SendData(const uint8_t* Data, int count)
+	{
+		SendData(Data, 0, count);
+	}
 
 	void MbSerial::SendData(const uint8_t * Data, int offs, int count)
 	{

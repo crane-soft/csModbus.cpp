@@ -77,22 +77,22 @@ namespace csModbusLib
 	void MbASCII::SendFrame(int Length)
 	{
 		uint8_t lrc_value = CalcLRC(MbData->Data, MbRawData::ADU_OFFS, Length);
-
 		MbData->Data[MbRawData::ADU_OFFS + Length] = lrc_value;
 		Length += 1;
 
-		int hexbuff_Length = Length * 2 + 3;
-		uint8_t hexbuff[MbBase::MAX_FRAME_LEN * 2 + 3];
+		uint8_t hexbuff[2];
 		hexbuff[0] = (uint8_t)':';
+		SendData(hexbuff, 1);
 
 		for (int i = 0; i < Length; ++i) {
-			hexbuff[1 + 2 * i] = ByteToHexChar(MbData->Data[MbRawData::ADU_OFFS + i] >> 4);
-			hexbuff[2 + 2 * i] = ByteToHexChar(MbData->Data[MbRawData::ADU_OFFS + i]);
+			hexbuff[0] = ByteToHexChar(MbData->Data[MbRawData::ADU_OFFS + i] >> 4);
+			hexbuff[1] = ByteToHexChar(MbData->Data[MbRawData::ADU_OFFS + i]);
 		}
-		hexbuff[hexbuff_Length - 2] = 0x0d;
-		hexbuff[hexbuff_Length - 1] = 0x0a;
+		SendData(hexbuff, 2);
 
-		SendData(hexbuff, 0, hexbuff_Length);
+		hexbuff[0] = 0x0d;
+		hexbuff[1] = 0x0a;
+		SendData(hexbuff, 2);
 	}
 
 	uint8_t MbASCII::ByteToHexChar(int b)

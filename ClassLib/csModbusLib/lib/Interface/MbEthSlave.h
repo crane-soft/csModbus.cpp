@@ -63,7 +63,7 @@ namespace csModbusLib {
 		void CopyRxData(MbRawData *RxData);
 
 	private:
-		MbRawData FrameBuffer;
+		MbRawDataBuff<MbBase::MAX_FRAME_LEN> FrameBuffer;
 		bool closed;
 		bool NewFrame = false;
 		NetStream *Stream;

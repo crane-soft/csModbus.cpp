@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include "SerialPort.h"
-#define PlatformSerial	SerialSTM32
+#include "stm32f0xx_hal.h"
 
 class SerialSTM32 : public SerialPort {
 
@@ -18,5 +18,11 @@ protected:
 	bool OpenPort();
 	void SetTimeouts();
 private:
+	UART_HandleTypeDef huart;
+	bool mIsOPen;
+	USART_TypeDef *STM_Uart() const;
+	uint32_t STM_DataLen() const;
+	uint32_t STM_Stopbis () const;
+	uint32_t STM_Parity () const;
 
 };

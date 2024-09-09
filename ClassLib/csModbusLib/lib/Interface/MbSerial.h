@@ -34,6 +34,7 @@ namespace csModbusLib {
 
 		virtual bool Check_EndOfFrame() = 0;
 		virtual void ReceiveBytes(uint8_t *RxData, int offset, int count);
+		void SendData(const uint8_t* Data, int count);
 		void SendData(const uint8_t * Data, int offs, int count);
 
 	private:

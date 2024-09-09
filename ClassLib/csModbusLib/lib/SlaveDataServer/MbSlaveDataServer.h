@@ -65,6 +65,7 @@ namespace csModbusLib {
             case ModbusCodes::WRITE_MULTIPLE_REGISTERS:
                 if (WriteMultipleRegisters()) return true;
                 break;
+#if USE_READ_WRITE_REGS
             case ModbusCodes::READ_WRITE_MULTIPLE_REGISTERS:
                 Frame->SaveWritaData();
                 if (ReadHoldingRegisters()) {
@@ -74,6 +75,7 @@ namespace csModbusLib {
                     }
                 }
                 break;
+#endif
             default:
                 Frame->ExceptionCode = ExceptionCodes::ILLEGAL_FUNCTION;
                 return true;
