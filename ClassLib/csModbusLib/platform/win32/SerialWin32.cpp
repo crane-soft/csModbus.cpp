@@ -7,18 +7,16 @@
 // https://docs.microsoft.com/en-us/previous-versions/ff802693(v=msdn.10)?redirectedfrom=MSDN
 
 
-SerialWin32::SerialWin32()
-{
-	comhdle = 0;
-}
-
 
 bool SerialWin32::OpenPort()
 {
 	HANDLE chdle;
 	comhdle = 0;
 
-	chdle = CreateFile(PortName,
+	if (ComPort == 0)
+		return false;
+
+	chdle = CreateFile((char*)ComPort,
 		GENERIC_READ | GENERIC_WRITE,
 		0, NULL, OPEN_EXISTING,
 		FILE_FLAG_SEQUENTIAL_SCAN,

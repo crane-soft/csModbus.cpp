@@ -8,10 +8,7 @@ namespace csModbusLib {
 	class MbASCII : public MbSerial   {
 
 	public:
-		MbASCII() {};
-		MbASCII(const char * port, int baudrate)
-			: MbSerial(port, baudrate) {}
-
+		MbASCII(SerialPort * sp) : MbSerial(sp) {}
 		void SendFrame(int Length);
 		int NumOfSerialBytes(int count);
 		int EndOffFrameLenthth();

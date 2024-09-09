@@ -2,11 +2,21 @@
 
 SerialPort::SerialPort()
 {
+	ComPort = 0;
 }
 
-void SerialPort::SetComParms(const char* _PortName, int _BaudRate, int _DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits)
+SerialPort::SerialPort(const void* _ComPort, int _BaudRate)
 {
-	PortName = _PortName;
+	SetComParms(_ComPort, _BaudRate);
+}
+void SerialPort::SetComParms(const void* _ComPort, int _BaudRate)
+{
+	SetComParms(_ComPort, _BaudRate, 8, Parity::NoParity, StopBits::One);
+}
+
+void SerialPort::SetComParms(const void* _ComPort, int _BaudRate, int _DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits)
+{
+	ComPort = _ComPort;
 	BaudRate = _BaudRate;
 	DataBits = _DataBits;
 	mParity = _Parity;

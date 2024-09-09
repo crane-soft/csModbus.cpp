@@ -1,8 +1,6 @@
 #pragma once
 #include <stdint.h>
 
-#define MAX_RX_BUFF	256
-
 class SerialPort {
 
 public:
@@ -10,7 +8,10 @@ public:
 	enum class StopBits { NoStopBits, One, Two, OnePointFive } ;
 
 	SerialPort();
-	void SetComParms(const char* _PortName, int _BaudRate, int _DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits);
+	SerialPort(const void* _ComPort, int _BaudRate);
+
+	void SetComParms(const void* _ComPort, int _BaudRate);
+	void SetComParms(const void* _ComPort, int _BaudRate, int _DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits);
 	
 	void Open();
 	void SetWriteTimeout(int ms);
@@ -26,7 +27,7 @@ public:
 	virtual int BytesToRead() = 0;
 
 protected:
-	const char *PortName;
+	const void * ComPort;
 	int BaudRate;
 	int DataBits;
 	SerialPort::Parity mParity;

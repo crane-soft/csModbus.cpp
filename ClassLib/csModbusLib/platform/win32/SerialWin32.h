@@ -4,12 +4,13 @@
 #include  <Windows.h>
 
 #include "SerialPort.h"
-#define PlatformSerial	SerialWin32
 
 class SerialWin32 : public SerialPort {
-
 public:
-	SerialWin32();
+	SerialWin32() {}
+	SerialWin32(const void* _ComPort, int _BaudRate)
+		: SerialPort(_ComPort, _BaudRate)	{}
+
 	bool IsOpen();
 	void Close();
 	void DiscardInOut();

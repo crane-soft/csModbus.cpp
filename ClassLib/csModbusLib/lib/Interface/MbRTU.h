@@ -25,8 +25,7 @@ namespace csModbusLib {
     class MbRTU : public MbSerial {
  
 	public: 
-		MbRTU();
-		MbRTU(const char * port, int baudrate);
+		MbRTU(SerialPort * sp);
 		void SendFrame(int Length);
 		int EndOffFrameLenthth();
 

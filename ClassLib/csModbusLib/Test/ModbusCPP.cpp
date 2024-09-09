@@ -59,7 +59,8 @@ void TestSlave()
 	MyDataServer.AddDiscreteInputs(30, inputs20, 20);
 
 	// MbTCPSlave MyInterface = MbTCPSlave(502);
-	MbRTU MyInterface = MbRTU("COM2", 19200);
+	SerialWin32 SerPort ("COM2", 19200);
+	MbRTU MyInterface = MbRTU(&SerPort);
 
 
 	MySlave.StartListen(&MyInterface, &MyDataServer);

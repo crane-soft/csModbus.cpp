@@ -5,8 +5,8 @@ namespace csModbusLib
 {
 	bool MbASCII::StartOfFrameDetected()
     {
-		if (sp.BytesToRead() > 0) {
-			if (sp.ReadByte() == ':') {
+		if (sp->BytesToRead() > 0) {
+			if (sp->ReadByte() == ':') {
 				return true;
 			}
 		}

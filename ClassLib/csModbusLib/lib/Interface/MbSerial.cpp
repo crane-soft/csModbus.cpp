@@ -5,27 +5,14 @@
 namespace csModbusLib {
 
 
-	MbSerial::MbSerial() {}
-
-	MbSerial::MbSerial(const char* PortName, int BaudRate)
+	MbSerial::MbSerial(SerialPort * _sp)
 	{
-		SetComParms(PortName, BaudRate);
+		sp = _sp;
 	}
 
-	void MbSerial::SetComParms(const char*  PortName, int BaudRate)
+	SerialPort* MbSerial::getSerialPort()
 	{
-		SetComParms(PortName, BaudRate, 8, SerialPort::Parity::NoParity, SerialPort::StopBits::One);
-	}
-
-	void MbSerial::SetComParms(const char*  PortName, int BaudRate, int DataBits, SerialPort::Parity parity, SerialPort::StopBits stopbits)
-	{
-		sp.SetComParms(PortName, BaudRate, DataBits, parity, stopbits);
-		oneByteTime_us = sp.SerialByteTime();
-	}
-
-	PlatformSerial* MbSerial::getSerialPort()
-	{
-		return &sp;
+		return sp;
 	}
 
 	int MbSerial::GetTimeOut_ms(int serialBytesCnt)
@@ -41,10 +28,10 @@ namespace csModbusLib {
 		MbInterface::Connect(Data);
 
 		try {
-			sp.Open();
-			if (sp.IsOpen()) {
+			sp->Open();
+			if (sp->IsOpen()) {
 				IsConnected = true;
-				sp.SetWriteTimeout(200);
+				sp->SetWriteTimeout(200);
 			}
 		} catch (int) {
 			IsConnected = false;
@@ -57,7 +44,7 @@ namespace csModbusLib {
 		if (IsConnected) {
 			IsConnected = false;
 			MbSleep(10);
-			sp.Close();
+			sp->Close();
 		}
 	}
 
@@ -87,7 +74,7 @@ namespace csModbusLib {
 
 	void MbSerial::ReceiveBytes(int count)
 	{
-		sp.SetReadTimeout(GetTimeOut_ms(NumOfSerialBytes(count)));
+		sp->SetReadTimeout(GetTimeOut_ms(NumOfSerialBytes(count)));
 		ReceiveBytes(MbData->Data, MbData->EndIdx, count);
 		MbData->EndIdx += count;
 	}
@@ -97,7 +84,7 @@ namespace csModbusLib {
 		try {
 			int bytesRead;
 			while (count > 0) {
-				bytesRead =  sp.Read(RxData, offset, count);
+				bytesRead =  sp->Read(RxData, offset, count);
 				count -= bytesRead;
 				offset += bytesRead;
 			}
@@ -125,8 +112,8 @@ namespace csModbusLib {
 	{
 		try {
 			// DiscardBuffer to resync start of frame
-			sp.DiscardInOut();
-			sp.Write(Data, offs, count);
+			sp->DiscardInOut();
+			sp->Write(Data, offs, count);
 
 		} catch (int) {
 			throw ErrorCodes::TX_TIMEOUT;

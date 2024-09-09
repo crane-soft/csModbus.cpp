@@ -49,24 +49,18 @@ namespace csModbusLib {
 	}
 
 
-	MbRTU::MbRTU() : MbSerial()
+	MbRTU::MbRTU(SerialPort *sp) : MbSerial(sp)
 	{
 		Init();
 	}
-
-	MbRTU::MbRTU(const char * port, int baudrate)
-		: MbSerial(port, baudrate)
-	{
-		Init();
-	}
-
+	
 	void MbRTU::Init()
 	{
 	}
 
 	bool MbRTU::StartOfFrameDetected() 
 	{
-		return (sp.BytesToRead() >= 2);
+		return (sp->BytesToRead() >= 2);
 	}
 
 	int MbRTU::EndOffFrameLenthth()

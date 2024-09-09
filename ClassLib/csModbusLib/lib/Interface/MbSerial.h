@@ -12,12 +12,8 @@ namespace csModbusLib {
 		};
 
 	public:
-		MbSerial();
-		MbSerial(const char* PortName, int BaudRate);
-
-		void SetComParms(const char*  PortName, int BaudRate);
-		void SetComParms(const char*  PortName, int BaudRate, int DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits);
-		PlatformSerial * getSerialPort();
+		MbSerial(SerialPort * _sp);
+		SerialPort * getSerialPort();
 
 		bool Connect(MbRawData* Data);
 		void DisConnect();
@@ -30,7 +26,7 @@ namespace csModbusLib {
 		virtual int GetTimeOut_ms(int NumBytes);
 
 	protected:
-		PlatformSerial sp;
+		SerialPort *sp;
 
 		virtual bool Check_EndOfFrame() = 0;
 		virtual void ReceiveBytes(uint8_t *RxData, int offset, int count);
