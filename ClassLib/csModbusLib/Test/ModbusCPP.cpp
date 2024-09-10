@@ -1,5 +1,6 @@
 #include "MbMaster.h"
 #include "MbSlaveStdServer.h"
+#include "MbSlaveStateMachine.h"
 #include "MbSlaveServer.h"
 #include "MbInterface.h"
 #include "MbRTU.h"
@@ -14,7 +15,8 @@ using namespace csModbusLib;
 
 
 MbMaster MyMaster;
-MbSlaveServer MySlave;
+//MbSlaveServer MySlave;
+MbSlaveStateMachine MySlave;
 
 #define NUM_REGS 8
 #define BASE_ADDR 10
@@ -59,12 +61,11 @@ void TestSlave()
 	MyDataServer.AddDiscreteInputs(30, inputs20, 20);
 
 	// MbTCPSlave MyInterface = MbTCPSlave(502);
-	SerialWin32 SerPort ("COM2", 19200);
-	MbRTU MyInterface = MbRTU(&SerPort);
-
-
+	MbRTU MyInterface = MbRTU(new SerialWin32("COM2", 38400));
 	MySlave.StartListen(&MyInterface, &MyDataServer);
+
 	while (_kbhit() == 0) {
+
 		printf("RdCount %d Regdata %04d,%04d,%04d\r", ReadCount, ModbusRegs[0], ModbusRegs[1], ModbusRegs[2]);
 		for (int i = 0; i < 20; ++i) {
 			inputs20[i] = coils10[i];
@@ -72,7 +73,8 @@ void TestSlave()
 		ModbusRegs[7] += 1;
 		if (ModbusRegs[6] == 42)
 			break;
-		MbSleep(100);
+		MySlave.CheckStatus();
+		//MbSleep(100);
 	}
 	MySlave.StopListen();
 }

@@ -17,12 +17,19 @@ namespace csModbusLib {
 		//TimeoutTimer.Stop()
 	}
 
+	void MbSlaveStateMachine::CheckStatus()
+	{
+		if (RxState != enRxStates::Idle)
+			SerialInterface_DataReceivedEvent();
+	}
+	
+
 	void MbSlaveStateMachine::WaitForFrameStart()
 	{
 		DataBytesNeeded = 0;
 		RxState = enRxStates::StartOfFrame;
 		SetTimeOut(0);
-		SerialInterface_DataReceivedEvent();  // for sure if DataReceived has not yet fired but data allready avaiable
+		SerialInterface_DataReceivedEvent();	// for sure if DataReceived has not yet fired but data allready avaiable
 												// the event funcktuin is called firs
 
 	}
@@ -83,18 +90,16 @@ namespace csModbusLib {
 			}
 		} else {
 
-			if (DataBytesNeeded > 0) {
-				if (sp->BytesToRead() < serialBytesNeeded) {
-					return;
-				}
+			if (sp->BytesToRead() < serialBytesNeeded) {
+				return;
+			}
 
-				if (DataBytesNeeded > 0) {
-					try {
-						SerialInterface->ReceiveBytes(DataBytesNeeded);
-					}
-					catch (ErrorCodes errCode) {
-						WaitForFrameStart();
-					}
+			if (DataBytesNeeded > 0) {
+				try {
+					SerialInterface->ReceiveBytes(DataBytesNeeded);
+				}
+				catch (ErrorCodes errCode) {
+					WaitForFrameStart();
 				}
 			}
 
@@ -121,11 +126,19 @@ namespace csModbusLib {
 				break;
 			}
 		}
-
 	}
+
 	void MbSlaveStateMachine::MasterRequestReceived()
 	{
-
+		// TimeoutTimer.Stop();
+		try {
+			SerialInterface->EndOfFrame();
+			DataServices();
+			SendResponseMessage();
+		}
+		catch (ErrorCodes errCode) {
+			ErrorOcurred (errCode);
+		}
+		WaitForFrameStart();
 	}
-
 }

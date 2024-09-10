@@ -1,8 +1,16 @@
 
 #include "SerialSTM32.h"
 
+SerialSTM32 * modSerial = 0;
+
 
 SerialSTM32::SerialSTM32()
+{
+	mIsOPen = false;
+}
+
+SerialSTM32::SerialSTM32(const void* _ComPort, int _BaudRate)
+	: SerialPort(_ComPort, _BaudRate)
 {
 	mIsOPen = false;
 }
@@ -10,7 +18,10 @@ SerialSTM32::SerialSTM32()
 bool SerialSTM32::OpenPort()
 {
 	mIsOPen = false;
-	huart.Instance = STM_Uart();
+	if (this->ComPort == 0)
+		return false;
+	
+	huart.Instance = (USART_TypeDef*)ComPort;
 	huart.Init.BaudRate = BaudRate;
 	huart.Init.WordLength = STM_DataLen();
 	huart.Init.StopBits = STM_Stopbis ();
@@ -21,12 +32,18 @@ bool SerialSTM32::OpenPort()
 	huart.Init.OverSampling = UART_OVERSAMPLING_16;
 	huart.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
 	huart.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-	if (HAL_RS485Ex_Init(&huart, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK) {
+	if (HAL_UART_Init(&huart) != HAL_OK) {
 		return false;
 	}
+	
+	DiscardInOut();
+	modSerial = this;
+    ATOMIC_SET_BIT(huart.Instance->CR1, USART_CR1_RXNEIE);
+	
 	mIsOPen = true;
 	return true;
 }
+
 
 bool SerialSTM32::IsOpen()
 {
@@ -35,7 +52,8 @@ bool SerialSTM32::IsOpen()
 
 void SerialSTM32::Close()
 {
-	
+    ATOMIC_CLEAR_BIT(huart.Instance->CR1, USART_CR1_RXNEIE);
+	ATOMIC_CLEAR_BIT(huart.Instance->CR1, USART_CR1_TXEIE);
 }
 
 void SerialSTM32::SetTimeouts()
@@ -44,36 +62,39 @@ void SerialSTM32::SetTimeouts()
 
 void SerialSTM32::DiscardInOut()
 {
-
+	RxFifo.Clear();
+	TxFifo.Clear();
+	
 }
 
 void SerialSTM32::Write(const uint8_t * Data, int offs, int count)
 {
-
+	const uint8_t * dptr = Data + offs;
+	for (int i= 0; i < count; ++i) {
+		TxFifo.Write (*dptr++);
+	}
+	ATOMIC_SET_BIT(huart.Instance->CR1, USART_CR1_TXEIE);
 }
 
 int SerialSTM32::Read(uint8_t * Data, int offs, int count)
 {
-	return 0;
+	int BytesAvail = BytesToRead();
+	if (BytesAvail  < count) {
+		count = BytesAvail;
+	}
+	
+	uint8_t * dptr = Data + offs;
+	// Todo Block Read Funktion in Fifo
+	for (int i= 0; i < count; ++i) {
+		*dptr ++ = RxFifo.Read();
+	}
+	return count;
 }
-
 
 int SerialSTM32::BytesToRead()
 {
-	return 0;
+	return RxFifo.Available();
 }; 
-
-USART_TypeDef * SerialSTM32::STM_Uart() const
-{
-	int uart_nr = PortName[0] - 0x30;
-	switch (uart_nr) {
-		case 1:
-			return USART1;
-		case 2:
-			return USART2;
-	}
-	return 0;
-}
 
 
 uint32_t SerialSTM32::STM_DataLen () const
@@ -108,6 +129,53 @@ uint32_t SerialSTM32::STM_Parity () const
 			return UART_PARITY_EVEN;
 		default:
 			return UART_PARITY_NONE;
+	}
+}
+
+
+void SerialSTM32::ByteReceived(uint8_t rxByte)
+{
+	if (RxFifo.FreeLeft() > 0)
+		RxFifo.Write (rxByte);
+}
+
+void SerialSTM32::IRQHandler()
+{
+	uint32_t isrflags   = READ_REG(huart.Instance->ISR);
+	uint32_t cr1its     = READ_REG(huart.Instance->CR1);
+	//uint32_t cr3its     = READ_REG(huart.Instance->CR3);
+	uint32_t errorflags;
+
+	
+	errorflags = (isrflags & (uint32_t)(USART_ISR_PE | USART_ISR_FE | USART_ISR_ORE | USART_ISR_NE | USART_ISR_RTOF));
+	if (errorflags == 0U) {
+		/* UART in mode Receiver ---------------------------------------------------*/
+		if (((isrflags & USART_ISR_RXNE) != 0U) && ((cr1its & USART_CR1_RXNEIE) != 0U)) {
+			uint16_t uhdata = (uint16_t) READ_REG(huart.Instance->RDR);
+			ByteReceived ((uint8_t)uhdata);
+			__HAL_UART_SEND_REQ(&huart, UART_RXDATA_FLUSH_REQUEST);		
+			return;
+		}
+	} else {
+      __HAL_UART_CLEAR_FLAG(&huart, UART_CLEAR_PEF | UART_CLEAR_FEF | UART_CLEAR_NEF | UART_CLEAR_OREF | UART_CLEAR_RTOF);
+	}
+	
+	if (((isrflags & USART_ISR_TXE) != 0U) && ((cr1its & USART_CR1_TXEIE) != 0U)) {
+		if (TxFifo.Available()) {
+			uint32_t TxVal = TxFifo.Read();
+			huart.Instance->TDR = TxVal;
+		} else {
+			// No data to send the disable tx interrupt
+			ATOMIC_CLEAR_BIT(huart.Instance->CR1, USART_CR1_TXEIE);
+		}
+	}
+	
+}
+
+extern "C" void USART2_IRQHandler(void)
+{
+	if (modSerial) {
+		modSerial->IRQHandler();
 	}
 }
 

@@ -107,4 +107,10 @@ namespace csModbusLib {
 		}
 		StopListener();
 	}
+
+	void MbSlave::ErrorOcurred(ErrorCodes errCode)
+	{
+		lastErrorCode = errCode;
+		StopListen();
+	}
 }

@@ -9,6 +9,7 @@ namespace csModbusLib {
         MbSlaveStateMachine() : MbSlave() {}
         MbSlaveStateMachine(MbInterface* Interface) : MbSlave(Interface) {}
         MbSlaveStateMachine(MbInterface* Interface, MbSlaveDataServer* DataServer) : MbSlave(Interface, DataServer) {}
+		void CheckStatus();
 
     protected:
         void StartListener();
@@ -39,5 +40,6 @@ namespace csModbusLib {
         //System.Timers.Timer TimeoutTimer;
         int DataBytesNeeded;
         int serialBytesNeeded;
+
 	};
 }

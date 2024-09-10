@@ -26,7 +26,8 @@ namespace csModbusLib {
 	bool MbSerial::Connect(MbRawData *Data)
 	{
 		MbInterface::Connect(Data);
-
+		if (!sp)
+			return false;
 		try {
 			sp->Open();
 			if (sp->IsOpen()) {

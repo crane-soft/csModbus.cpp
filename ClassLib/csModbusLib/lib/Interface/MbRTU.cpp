@@ -1,6 +1,4 @@
-﻿
-
-#include "MbRTU.h"
+﻿#include "MbRTU.h"
 #include <math.h>
 
 namespace csModbusLib {

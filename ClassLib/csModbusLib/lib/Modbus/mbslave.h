@@ -26,10 +26,11 @@ namespace csModbusLib {
 		MBSFrame Frame = MBSFrame();
 		virtual void StartListener() {}
 		virtual void StopListener() {}
-
+		bool DataServices();
+		void SendResponseMessage();
+		void ErrorOcurred(ErrorCodes errCode);
 	private:
 		void ReceiveMasterRequestMessage();
-		void SendResponseMessage();
-		bool DataServices();
+		ErrorCodes lastErrorCode;
 	};
 }
