@@ -4,3 +4,4 @@
 /ClassLib/csModbusLib/vs/*.opendb
 /ClassLib/csModbusLib/vs/*.user
 *.bak
+/Nucleo-F04K6/STM32CubeIDE/Debug
