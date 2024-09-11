@@ -1,4 +1,6 @@
 ﻿#include "MbRTU.h"
+#include "Modbus/MbFrame.h"
+
 #include <math.h>
 
 namespace csModbusLib {

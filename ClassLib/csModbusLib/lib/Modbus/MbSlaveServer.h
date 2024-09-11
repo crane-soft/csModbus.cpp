@@ -1,6 +1,6 @@
 #pragma once
-#include "MbSlave.h"
-#include "MbSlaveDataServer.h"
+#include "Modbus/MbSlave.h"
+#include "SlaveDataServer/MbSlaveDataServer.h"
 #include <thread>
 
 namespace csModbusLib 

@@ -1,6 +1,6 @@
 #pragma once
-#include "MbBase.h"
-#include "MbSlaveDataServer.h"
+#include "Modbus/MbBase.h"
+#include "SlaveDataServer/MbSlaveDataServer.h"
 
 namespace csModbusLib {
 

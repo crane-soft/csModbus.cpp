@@ -7,7 +7,6 @@
 // https://docs.microsoft.com/en-us/previous-versions/ff802693(v=msdn.10)?redirectedfrom=MSDN
 
 
-
 bool SerialWin32::OpenPort()
 {
 	HANDLE chdle;
@@ -63,6 +62,7 @@ bool SerialWin32::OpenPort()
 		return false;
 
 	comhdle = chdle;
+	StartEventHandler();
 	return true;
 }
 
@@ -73,6 +73,7 @@ bool SerialWin32::IsOpen()
 
 void SerialWin32::Close()
 {
+	StopEventHandler();
 	CloseHandle(comhdle);
 	comhdle = 0;
 }
@@ -127,3 +128,42 @@ int SerialWin32::BytesToRead()
 	return 0;
 }; 
 
+bool SerialWin32::StartEventHandler()
+{
+	if (comhdle != 0) {
+		if ((serialCallBack != 0) && (EventThread == 0)) {
+			EventThread = new std::thread(&SerialWin32::HandleEvents, this);
+		}
+	}
+	return true;
+}
+
+bool SerialWin32::StopEventHandler()
+{
+	if (EventThread != 0) {
+		// Because i do not know how to cancel the WaitCommEvent() in my Thread
+		// I have to make a hard termination here
+		TerminateThread(EventThread->native_handle(), 1);
+		EventThread = 0;
+	}
+	return true;
+}
+
+void SerialWin32::HandleEvents()
+{
+	DWORD dwCommEvent;
+	if (!SetCommMask(comhdle, EV_RXCHAR))
+		return;
+
+	while (1) {
+		dwCommEvent = 0;
+		if (!WaitCommEvent(comhdle, &dwCommEvent, NULL)) {
+			// An error occurred waiting for the event.
+			return;
+		}  
+		if (dwCommEvent == 0)
+			return;
+
+		serialCallBack->DataReceived(BytesToRead());
+	}
+}

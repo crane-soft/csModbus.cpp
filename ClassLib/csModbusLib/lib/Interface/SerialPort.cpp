@@ -1,8 +1,9 @@
-#include "SerialPort.h"
+#include "Interface/SerialPort.h"
 
 SerialPort::SerialPort()
 {
 	ComPort = 0;
+	serialCallBack = 0;
 }
 
 SerialPort::SerialPort(const void* _ComPort, int _BaudRate)
@@ -16,11 +17,18 @@ void SerialPort::SetComParms(const void* _ComPort, int _BaudRate)
 
 void SerialPort::SetComParms(const void* _ComPort, int _BaudRate, int _DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits)
 {
+	serialCallBack = 0;
 	ComPort = _ComPort;
 	BaudRate = _BaudRate;
 	DataBits = _DataBits;
 	mParity = _Parity;
 	mStopBits = _StopBits;
+}
+
+void SerialPort::setCallback(SerialCallBack* callBack)
+{
+	serialCallBack = callBack;
+	StartEventHandler();
 }
 
 void SerialPort::Open()

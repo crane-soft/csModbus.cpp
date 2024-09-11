@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "MbInterface.h"
+#include "Interface/MbInterface.h"
 
 #define STATIC_MEM
 #define USE_READ_WRITE_REGS	0

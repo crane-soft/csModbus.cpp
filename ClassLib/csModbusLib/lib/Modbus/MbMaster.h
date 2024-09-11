@@ -2,7 +2,6 @@
 
 #include "MbBase.h"
 #include "MBMFrame.h"
-#include "Stopwatch.h"
 
 namespace csModbusLib {
 	class MbMasterBase : public MbBase {

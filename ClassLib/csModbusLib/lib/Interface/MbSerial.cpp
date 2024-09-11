@@ -1,6 +1,5 @@
-#include "MbInterface.h"
-#include "MbFrame.h"
-#include "MbSerial.h"
+#include "Modbus/MbFrame.h"
+#include "Interface/MbSerial.h"
 
 namespace csModbusLib {
 

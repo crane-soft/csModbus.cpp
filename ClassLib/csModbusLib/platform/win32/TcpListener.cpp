@@ -1,6 +1,6 @@
 
 #include "platform.h"
-#include "MbSlave.h"
+#include "Modbus/MbSlave.h"
 #include "TcpListener.h"
 
 TcpListener::TcpListener()

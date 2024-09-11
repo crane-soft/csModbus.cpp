@@ -1,6 +1,5 @@
-﻿#include "MbBase.h"
-#include "MbASCII.h"
-
+﻿#include "Interface/MbASCII.h"
+#include "Modbus/MbFrame.h"
 namespace csModbusLib
 {
 	bool MbASCII::StartOfFrameDetected()

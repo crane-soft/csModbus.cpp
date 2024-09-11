@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "platform.h"
-#include "MbInterface.h"
+#include "Interface/MbInterface.h"
 
 namespace csModbusLib {
 

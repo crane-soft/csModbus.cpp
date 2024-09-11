@@ -1,6 +1,5 @@
 ﻿#include "MbEthernet.h"
-#include "MbFrame.h"
-#include "UdpClient.h"
+#include "Modbus/MbFrame.h"
 #include <stdint.h>
 
 

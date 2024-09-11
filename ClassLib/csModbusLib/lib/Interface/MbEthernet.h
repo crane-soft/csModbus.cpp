@@ -1,6 +1,5 @@
 ﻿#pragma once
-#include "MbInterface.h"
-#include "MbFrame.h"
+#include "Interface/MbInterface.h"
 #include "UdpClient.h"
 #include <stdint.h>
 

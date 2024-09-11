@@ -1,12 +1,13 @@
-#include "MbMaster.h"
-#include "MbSlaveStdServer.h"
-#include "MbSlaveStateMachine.h"
-#include "MbSlaveServer.h"
-#include "MbInterface.h"
-#include "MbRTU.h"
-#include "MbASCII.h"
-#include "MbEthMaster.h"
-#include "MbEthSlave.h"
+#include "Interface/MbInterface.h"
+#include "Interface/MbRTU.h"
+#include "Interface/MbASCII.h"
+#include "Interface/MbEthMaster.h"
+#include "Interface/MbEthSlave.h"
+
+#include "Modbus/MbMaster.h"
+#include "Modbus/MbSlaveStateMachine.h"
+#include "Modbus/MbSlaveServer.h"
+#include "SlaveDataServer/MbSlaveStdServer.h"
 
 #include "stdafx.h"
 #include "conio.h"
@@ -73,8 +74,8 @@ void TestSlave()
 		ModbusRegs[7] += 1;
 		if (ModbusRegs[6] == 42)
 			break;
-		MySlave.CheckStatus();
-		//MbSleep(100);
+		//MySlave.CheckStatus();
+		MbSleep(50);
 	}
 	MySlave.StopListen();
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "SerialPort.h"
+#include "Interface/SerialPort.h"
 #include "csFifo.h"
 #include "stm32f0xx_hal.h"
 
@@ -21,6 +21,7 @@ public:
 protected:
 	bool OpenPort();
 	void SetTimeouts();
+
 private:
 	void ByteReceived(uint8_t rxByte);
 	UART_HandleTypeDef huart;

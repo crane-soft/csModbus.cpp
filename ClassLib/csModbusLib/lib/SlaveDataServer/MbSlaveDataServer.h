@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "MBSFrame.h"
+#include "Modbus/MBSFrame.h"
 
 namespace csModbusLib {
 

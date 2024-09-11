@@ -1,6 +1,11 @@
 #pragma once
 #include <stdint.h>
 
+class SerialCallBack {
+public:
+	virtual void DataReceived(int bytesAvailavle) {}
+};
+
 class SerialPort {
 
 public:
@@ -12,7 +17,8 @@ public:
 
 	void SetComParms(const void* _ComPort, int _BaudRate);
 	void SetComParms(const void* _ComPort, int _BaudRate, int _DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits);
-	
+	void setCallback(SerialCallBack* callBack);
+
 	void Open();
 	void SetWriteTimeout(int ms);
 	void SetReadTimeout(int ms);
@@ -28,6 +34,8 @@ public:
 
 protected:
 	const void * ComPort;
+	SerialCallBack* serialCallBack;
+	virtual bool StartEventHandler() { return false; }
 	int BaudRate;
 	int DataBits;
 	SerialPort::Parity mParity;

@@ -1,9 +1,9 @@
 #pragma once
-#include "mbslave.h"
-#include "MbSerial.h"
+#include "Modbus/mbslave.h"
+#include "Interface/MbSerial.h"
 
 namespace csModbusLib {
-	class MbSlaveStateMachine : public MbSlave
+	class MbSlaveStateMachine : public MbSlave , protected SerialCallBack
 	{
 	public:
         MbSlaveStateMachine() : MbSlave() {}
@@ -14,6 +14,10 @@ namespace csModbusLib {
     protected:
         void StartListener();
         void StopListener();
+
+        // Overides SerialCallBack.DataReceived
+        virtual void DataReceived(int bytesAvailavle);
+
     private:
         enum class enRxStates
         {

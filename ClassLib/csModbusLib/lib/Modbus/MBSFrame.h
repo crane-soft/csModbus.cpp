@@ -1,5 +1,5 @@
 #pragma once
-#include "MbFrame.h"
+#include "Modbus/MbFrame.h"
 
 namespace csModbusLib
 {
@@ -22,9 +22,10 @@ namespace csModbusLib
 		coil_t GetSingleBit();
 		void PutBitValues(int BaseAddr, coil_t* SrcBits);
 		void PutValues(int BaseAddr, uint16_t * RegisterArray);
+		bool PutValues(int BaseAddr, int size, uint16_t* RegisterArray);
+
 		void GetBitValues(int BaseAddr, coil_t* DestBits);
 		void GetValues(int BaseAddr, uint16_t *DestArray);
-
 	private:
 		bool WrMultipleData;
 		bool WrSingleData;

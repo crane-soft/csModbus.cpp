@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "MbBase.h"
 #include "MbSlaveData.h"
 #include "MbSlaveDataServer.h"
 

@@ -1,5 +1,5 @@
 ﻿#include "MbEthMaster.h"
-
+#include "Modbus/MbFrame.h"
 namespace csModbusLib {
 
 	// -------------------------------------------------------------------

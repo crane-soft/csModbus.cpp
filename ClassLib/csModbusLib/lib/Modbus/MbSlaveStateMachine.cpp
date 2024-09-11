@@ -1,4 +1,5 @@
-#include "MbSlaveStateMachine.h"
+#include "Modbus/MbSlaveStateMachine.h"
+
 namespace csModbusLib {
 	void MbSlaveStateMachine::StartListener()
 	{
@@ -7,7 +8,7 @@ namespace csModbusLib {
 
 		InitTimeoutTimer();
 		RxState = enRxStates::Idle;
-		//sp->DataReceived += SerialInterface_DataReceivedEvent;
+		sp->setCallback(this);
 		WaitForFrameStart();
 	}
 
@@ -79,6 +80,12 @@ namespace csModbusLib {
 		// Delay and frame Start?
 		//WaitFrameStart();
 	}
+
+	void MbSlaveStateMachine::DataReceived(int bytesAvailavle)
+	{
+		SerialInterface_DataReceivedEvent();
+	}
+
 	void MbSlaveStateMachine::SerialInterface_DataReceivedEvent()
 	{
 		int DataLen;

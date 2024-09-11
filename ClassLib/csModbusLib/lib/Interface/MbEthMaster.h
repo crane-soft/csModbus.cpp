@@ -1,5 +1,4 @@
 ﻿#pragma once
-
 #include "MbEthernet.h"
 #include "TcpClient.h"
 

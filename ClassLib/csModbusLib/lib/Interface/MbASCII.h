@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <stdint.h>
-#include "MbSerial.h"
-#include "MbFrame.h"
+#include "Interface/MbSerial.h"
 
 namespace csModbusLib {
 

@@ -162,6 +162,15 @@ namespace csModbusLib
 		RawData.Data[RESPNS_LEN_IDX] = (uint8_t)(DataCount * 2);
 	}
 	
+	bool MBSFrame::PutValues(int BaseAddr, int size, uint16_t* RegisterArray)
+	{
+		if (MatchAddress(BaseAddr, size)) {
+			PutValues(BaseAddr, RegisterArray);
+			return true;
+		}
+		return false;
+	}
+
 	void MBSFrame::GetBitValues(int BaseAddr, coil_t* DestBits)
 	{
 		GetBitData(DestBits, DataAddress - BaseAddr, REQST_DATA_IDX);

@@ -1,9 +1,9 @@
 #pragma once
 #include <stdint.h>
 #define WIN32_LEAN_AND_MEAN 
-#include  <Windows.h>
-
-#include "SerialPort.h"
+#include <Windows.h>
+#include <thread>
+#include "Interface/SerialPort.h"
 
 class SerialWin32 : public SerialPort {
 public:
@@ -21,6 +21,10 @@ public:
 protected:
 	bool OpenPort();
 	void SetTimeouts();
+	bool StartEventHandler() override;	
+	bool StopEventHandler();
 private:
+	void HandleEvents();
+	std::thread* EventThread = NULL;
 	HANDLE comhdle;
 };

@@ -1,8 +1,7 @@
 ﻿#pragma once
-#include "MbEthernet.h"
-#include "MbFrame.h"
-#include "UdpClient.h"
-#include "TcpClient.h"
+#include "Interface/MbEthernet.h"
+#include "Modbus/MbFrame.h"
+
 #include "TcpListener.h"
 #include "Semaphore.h"
 

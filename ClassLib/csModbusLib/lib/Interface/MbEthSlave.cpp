@@ -1,7 +1,5 @@
 ﻿#include "MbEthSlave.h"
-#include "MbFrame.h"
-#include "UdpClient.h"
-#include "TcpClient.h"
+
 
 namespace csModbusLib {
 

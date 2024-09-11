@@ -1,8 +1,6 @@
 
 #include "SerialSTM32.h"
 
-SerialSTM32 * modSerial = 0;
-
 
 SerialSTM32::SerialSTM32()
 {
@@ -37,7 +35,6 @@ bool SerialSTM32::OpenPort()
 	}
 	
 	DiscardInOut();
-	modSerial = this;
     ATOMIC_SET_BIT(huart.Instance->CR1, USART_CR1_RXNEIE);
 	
 	mIsOPen = true;
@@ -54,6 +51,7 @@ void SerialSTM32::Close()
 {
     ATOMIC_CLEAR_BIT(huart.Instance->CR1, USART_CR1_RXNEIE);
 	ATOMIC_CLEAR_BIT(huart.Instance->CR1, USART_CR1_TXEIE);
+	serialCallBack = 0;
 }
 
 void SerialSTM32::SetTimeouts()
@@ -137,6 +135,8 @@ void SerialSTM32::ByteReceived(uint8_t rxByte)
 {
 	if (RxFifo.FreeLeft() > 0)
 		RxFifo.Write (rxByte);
+	if (serialCallBack)
+		serialCallBack->DataReceived(BytesToRead());
 }
 
 void SerialSTM32::IRQHandler()
@@ -172,10 +172,4 @@ void SerialSTM32::IRQHandler()
 	
 }
 
-extern "C" void USART2_IRQHandler(void)
-{
-	if (modSerial) {
-		modSerial->IRQHandler();
-	}
-}
 
