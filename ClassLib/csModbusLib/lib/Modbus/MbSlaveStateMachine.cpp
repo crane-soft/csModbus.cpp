@@ -24,7 +24,6 @@ namespace csModbusLib {
 			SerialInterface_DataReceivedEvent();
 	}
 	
-
 	void MbSlaveStateMachine::WaitForFrameStart()
 	{
 		DataBytesNeeded = 0;

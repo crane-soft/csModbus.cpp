@@ -1,6 +1,10 @@
 
 #include "SerialSTM32.h"
 
+#define USART_PRIORITY	0
+#define EVENT_PRIORITY	3
+
+#define STM_EVENT_MASK	0x10
 
 SerialSTM32::SerialSTM32()
 {
@@ -35,6 +39,11 @@ bool SerialSTM32::OpenPort()
 	}
 	
 	DiscardInOut();
+	StartEventHandler();
+
+    HAL_NVIC_SetPriority(USART2_IRQn, USART_PRIORITY, 0);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
+
     ATOMIC_SET_BIT(huart.Instance->CR1, USART_CR1_RXNEIE);
 	
 	mIsOPen = true;
@@ -63,6 +72,16 @@ void SerialSTM32::DiscardInOut()
 	RxFifo.Clear();
 	TxFifo.Clear();
 	
+}
+
+bool SerialSTM32::StartEventHandler()
+{
+	EXTI->IMR |= STM_EVENT_MASK;
+	EXTI->EMR |= STM_EVENT_MASK;
+    HAL_NVIC_SetPriority(EXTI4_15_IRQn, EVENT_PRIORITY, 0);
+    HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
+
+	return false;
 }
 
 void SerialSTM32::Write(const uint8_t * Data, int offs, int count)
@@ -135,8 +154,14 @@ void SerialSTM32::ByteReceived(uint8_t rxByte)
 {
 	if (RxFifo.FreeLeft() > 0)
 		RxFifo.Write (rxByte);
+	EXTI->SWIER |= STM_EVENT_MASK;
+}
+
+void SerialSTM32::EventIRQ()
+{
 	if (serialCallBack)
 		serialCallBack->DataReceived(BytesToRead());
+	EXTI->PR = STM_EVENT_MASK;
 }
 
 void SerialSTM32::IRQHandler()
@@ -169,7 +194,7 @@ void SerialSTM32::IRQHandler()
 			ATOMIC_CLEAR_BIT(huart.Instance->CR1, USART_CR1_TXEIE);
 		}
 	}
-	
 }
+
 
 

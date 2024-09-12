@@ -63,11 +63,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>Application/Tools/csFifo.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/Tools/csFifo.cpp</locationURI>
-		</link>
-		<link>
 			<name>Application/Tools/csFifo.h</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/Tools/csFifo.h</locationURI>
@@ -186,6 +181,11 @@
 			<name>Application/Modbus/SlaveDataServer/MbSlaveDataServer.h</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/csModbusLib/lib/SlaveDataServer/MbSlaveDataServer.h</locationURI>
+		</link>
+		<link>
+			<name>Application/Modbus/SlaveDataServer/MbSlaveEmbServer.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/csModbusLib/lib/SlaveDataServer/MbSlaveEmbServer.h</locationURI>
 		</link>
 		<link>
 			<name>Application/Modbus/platform/SerialSTM32.cpp</name>

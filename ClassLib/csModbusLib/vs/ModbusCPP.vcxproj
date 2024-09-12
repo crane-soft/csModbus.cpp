@@ -47,6 +47,7 @@
     <ClInclude Include="..\lib\Interface\SerialPort.h" />
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveData.h" />
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveDataServer.h" />
+    <ClInclude Include="..\lib\SlaveDataServer\MbSlaveEmbServer.h" />
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveStdServer.h" />
     <ClInclude Include="..\platform\boost\SerialBoost.h" />
     <ClInclude Include="..\platform\std\Semaphore.h" />

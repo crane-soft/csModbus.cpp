@@ -80,10 +80,11 @@ namespace csModbusLib
 		ExceptionCodes ExceptionCode;
 
 		MbFrame();
-		void GetBitData(coil_t * DestBits, int DestIdx, int FrameIdx);
-		int PutBitData(coil_t*  SrcBits, int SrcIdx, int FrameIdx);
 
 	protected:
+		void GetBitData(coil_t* DestBits, int DestIdx, int FrameIdx);
+		int PutBitData(coil_t* SrcBits, int SrcIdx, int FrameIdx);
+
 		static const int REQST_UINIT_ID_IDX = MbRawData::ADU_OFFS + 0;
 		static const int REQST_FCODE_IDX = MbRawData::ADU_OFFS + 1;
 		static const int RESPNS_ERR_IDX = MbRawData::ADU_OFFS + 2;

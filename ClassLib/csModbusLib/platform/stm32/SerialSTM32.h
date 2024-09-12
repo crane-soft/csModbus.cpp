@@ -18,10 +18,11 @@ public:
 	int Read(uint8_t * Data, int offs, int count);
 	int BytesToRead();
 	void IRQHandler();
+	void EventIRQ();
 protected:
 	bool OpenPort();
 	void SetTimeouts();
-
+	bool StartEventHandler() override;
 private:
 	void ByteReceived(uint8_t rxByte);
 	UART_HandleTypeDef huart;

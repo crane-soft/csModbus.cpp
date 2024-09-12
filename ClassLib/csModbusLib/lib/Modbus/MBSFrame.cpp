@@ -152,6 +152,11 @@ namespace csModbusLib
 		PutBitData(SrcBits, DataAddress - BaseAddr, RESPNS_DATA_IDX);
 	}
 
+	void MBSFrame::PutBitValues(coil_t* SrcBits)
+	{
+		PutBitData(SrcBits, 0, RESPNS_DATA_IDX);
+	}
+
 	void MBSFrame::PutValues(int BaseAddr, uint16_t * RegisterArray)
 	{
 		for (int i = 0; i < DataCount; ++i) {

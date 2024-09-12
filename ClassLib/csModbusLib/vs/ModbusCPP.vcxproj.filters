@@ -159,5 +159,8 @@
     <ClInclude Include="..\platform\win32\NetSocket.h">
       <Filter>platform\Win32</Filter>
     </ClInclude>
+    <ClInclude Include="..\lib\SlaveDataServer\MbSlaveEmbServer.h">
+      <Filter>lib\SlaveDataServer</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

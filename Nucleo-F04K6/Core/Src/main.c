@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+extern void Init_Modbus();
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,10 +90,10 @@ int main(void)
   MX_GPIO_Init();
   MX_ADC_Init();
   MX_TIM14_Init();
-  MX_USART1_UART_Init();
-  MX_USART2_UART_Init();
+  //MX_USART1_UART_Init();
+  //MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  Init_Modbus();
   /* USER CODE END 2 */
 
   /* Infinite loop */

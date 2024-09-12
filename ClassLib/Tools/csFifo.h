@@ -1,9 +1,9 @@
 #pragma once
 
-/* Dieser Fifo kann ohne zusätzliche Maßnahmen von unterschiedlichen Threads geschrieben und gelesen werden.
-   Nicht aber gleichzeitig von mehreren Threads geschrieben bzw mehreren Threads gelesen werden
-   Er dient in erster Linie dazu Daten von einem Thread zu einem anderen zu übertragen
-   Ein Thread schreibt ein anderer liest.
+/* This FIFO can be written and read by different threads without any additional measures.
+   But it cannot be written or read by multiple threads at the same time.
+   It is primarily used to transfer data from one thread to another.
+   One thread writes, another reads.
 */
 
 class csFifo

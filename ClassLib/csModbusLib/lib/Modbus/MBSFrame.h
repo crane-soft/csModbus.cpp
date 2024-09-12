@@ -21,6 +21,8 @@ namespace csModbusLib
 		uint16_t GetSingleUInt16();
 		coil_t GetSingleBit();
 		void PutBitValues(int BaseAddr, coil_t* SrcBits);
+		void PutBitValues(coil_t* SrcBits);
+
 		void PutValues(int BaseAddr, uint16_t * RegisterArray);
 		bool PutValues(int BaseAddr, int size, uint16_t* RegisterArray);
 
