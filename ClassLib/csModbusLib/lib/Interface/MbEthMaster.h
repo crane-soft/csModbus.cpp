@@ -23,6 +23,8 @@ namespace csModbusLib {
 		void DisConnect();
 		void SendFrame(int Length);
 		void ReceiveHeaderData(int timeOut);
+		ConnectionType getConnectionType() const override { return ConnectionType::UDP_IP; };
+
 	};
 
 	class MbTCPMaster : public MbETHMaster {
@@ -31,6 +33,7 @@ namespace csModbusLib {
 		bool Connect(MbRawData* Data);
 		void DisConnect();
 		void SendFrame(int Length);
+		ConnectionType getConnectionType() const override { return ConnectionType::TCP_IP; };
 
 	protected:
 		void ReceiveHeaderData(int timeOut);

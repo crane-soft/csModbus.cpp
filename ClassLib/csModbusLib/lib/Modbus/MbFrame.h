@@ -53,12 +53,16 @@ namespace csModbusLib
 		void Clear();
 		void CopyFrom(MbRawData *source);
 		void CopyFrom(uint8_t *source, int srcIdx, int length);
-		uint16_t GetUInt16(int ByteOffs);
+		uint16_t GetUInt16(int ByteOffs) const;
 		void PutUInt16(int ByteOffs, uint16_t Value);
 		void CopyUInt16(uint16_t *DestArray, int SrcOffs, int DestOffs, int Length);
 		void FillUInt16(uint16_t *SrcArray, int SrcOffs, int DestOffs, int Length);
-		int CheckEthFrameLength();
-		uint8_t * GetBuffTail();
+		int CheckEthFrameLength() const;
+		
+		uint8_t* DataStart() const;
+		uint8_t * BufferEnd() const;
+		int Length() const;
+		uint8_t LastByte() const;
 	};
 
 	template  <int const BuffSize>

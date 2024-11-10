@@ -24,7 +24,7 @@ namespace csModbusLib
 		int NumDataBytes;
 
 		if (FuncCode == ModbusCodes::WRITE_MULTIPLE_REGISTERS) {
-			NumDataBytes = Length * 2; // TODO überflow
+			NumDataBytes = Length * 2; // TODO overflow
 			RawData.Data[REQST_DATA_LEN_IDX] = (uint8_t)NumDataBytes;
 			RawData.FillUInt16((uint16_t*)SrcData, SrcOffs, REQST_DATA_IDX, Length);
 		} else if (FuncCode == ModbusCodes::WRITE_MULTIPLE_COILS) {
@@ -62,7 +62,7 @@ namespace csModbusLib
 
 		int Bytes2Read;
 		if ((FunctionCode <= ModbusCodes::READ_INPUT_REGISTERS) || (FunctionCode == ModbusCodes::READ_WRITE_MULTIPLE_REGISTERS)) {
-			Interface->ReceiveBytes(1);
+			Interface->ReceiveBytes(1);	// Need num bytes
 			Bytes2Read = RawData.Data[RESPNS_LEN_IDX];
 		} else {
 			Bytes2Read = ResponseMessageLength() - 2;

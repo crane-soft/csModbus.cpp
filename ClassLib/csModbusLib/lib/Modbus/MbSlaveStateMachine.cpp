@@ -1,144 +1,84 @@
 #include "Modbus/MbSlaveStateMachine.h"
+#include "Interface/MbASCII.h"
+
+#include <condition_variable>
+#include <chrono>
+#include <functional>
+#include <thread>
 
 namespace csModbusLib {
+
 	void MbSlaveStateMachine::StartListener()
 	{
 		SerialInterface = (MbSerial*)gInterface;
-		sp = SerialInterface->getSerialPort();
-
-		InitTimeoutTimer();
 		RxState = enRxStates::Idle;
-		sp->setCallback(this);
+		auto callBackFunc = std::bind(&MbSlaveStateMachine::SerialInterface_DataReceivedEvent, this, std::placeholders::_1);
+		SerialInterface->setCallback(callBackFunc);
 		WaitForFrameStart();
 	}
 
 	void MbSlaveStateMachine::StopListener()
 	{
-		//sp->DataReceived -= SerialInterface_DataReceivedEvent;
-		//TimeoutTimer.Stop()
 	}
 
-	void MbSlaveStateMachine::CheckStatus()
-	{
-		if (RxState != enRxStates::Idle)
-			SerialInterface_DataReceivedEvent();
-	}
-	
-	void MbSlaveStateMachine::WaitForFrameStart()
-	{
-		DataBytesNeeded = 0;
-		RxState = enRxStates::StartOfFrame;
-		SetTimeOut(0);
-		SerialInterface_DataReceivedEvent();	// for sure if DataReceived has not yet fired but data allready avaiable
-												// the event funcktuin is called firs
 
+	void MbSlaveStateMachine::ReveiveHeader(int timeout)
+	{
+		Frame.RawData.Clear();
+		ReceiveFrameData(enRxStates::ReceiveHeader, 2, timeout);
 	}
 
-	void MbSlaveStateMachine::WaitFrameEnd()
-	{
-		DataBytesNeeded = 0;
-		serialBytesNeeded = SerialInterface->EndOffFrameLenthth();
-		InitReceiveDataEvent(enRxStates::RcvEndOfFrame);
-	}
-	void MbSlaveStateMachine::WaitFrameData(enRxStates NextState, int DataLen)
-	{
-		DataBytesNeeded = DataLen;
-		serialBytesNeeded = SerialInterface->NumOfSerialBytes(DataLen);
-		InitReceiveDataEvent(NextState);
 
-	}
-	void MbSlaveStateMachine::InitReceiveDataEvent(enRxStates NextState)
-	{
-		SetTimeOut(SerialInterface->GetTimeOut_ms(serialBytesNeeded));
-		RxState = NextState;
-
-		//sp->ReceivedBytesThreshold = serialBytesNeeded;  // all should be initialized now, because if alldata allready available,
-														// changing the tiemout property will raise the DataReceived event now
-		if (RxState == NextState) {
-			SerialInterface_DataReceivedEvent();  // for sure if DataReceived has not yet fired but some allready avaiable
-															// the event funcion ist called once
-		}
-	}
-	void MbSlaveStateMachine::InitTimeoutTimer()
-	{
-		//TimeoutTimer = new System.Timers.Timer();
-		//TimeoutTimer.AutoReset = false;
-		//TimeoutTimer.Elapsed += TimeoutTimer_Elapsed;
-	}
-	void MbSlaveStateMachine::SetTimeOut(int timeOut)
-	{
-		/* TimeoutTimer.Stop();
-		if (timeOut > 0) {
-			TimeoutTimer.Enabled = false;
-			TimeoutTimer.Interval = timeOut;
-			TimeoutTimer.Start();
-		} */
-	}
-	void MbSlaveStateMachine::TimeoutTimer_Elapsed()
-	{
-		// Delay and frame Start?
-		//WaitFrameStart();
-	}
-
-	void MbSlaveStateMachine::DataReceived(int bytesAvailavle)
-	{
-		SerialInterface_DataReceivedEvent();
-	}
-
-	void MbSlaveStateMachine::SerialInterface_DataReceivedEvent()
+	int MbSlaveStateMachine::SerialInterface_DataReceivedEvent(int result)
 	{
 		int DataLen;
+		if (result == -1) {
+			ErrorOcurred(ErrorCodes::CONNECTION_ERROR);
+		}
 
-		if (RxState == enRxStates::StartOfFrame) {
-			if (SerialInterface->StartOfFrameDetected()) {
-				Frame.RawData.Clear();
-				WaitFrameData(enRxStates::ReceiveHeader, 2);
-			}
+		if (RxState == enRxStates::AsciiStartOfFrame) {
+			AsciiCheckStartFrame(result);
+
 		} else {
-
-			if (sp->BytesToRead() < serialBytesNeeded) {
-				return;
+			if (result == 0) {
+				ErrorOcurred(ErrorCodes::RX_TIMEOUT);
 			}
 
-			if (DataBytesNeeded > 0) {
-				try {
-					SerialInterface->ReceiveBytes(DataBytesNeeded);
-				}
-				catch (ErrorCodes errCode) {
-					WaitForFrameStart();
-				}
-			}
+			if (AsciiHexData())
+				return 1;
 
 			switch (RxState) {
 			case enRxStates::ReceiveHeader:
 				DataLen = Frame.ParseMasterRequest();
-				WaitFrameData(enRxStates::RcvMessage, DataLen);
+				ReceiveFrameData(enRxStates::RcvMessage, DataLen);
 				break;
 			case enRxStates::RcvMessage:
 				DataLen = Frame.ParseDataCount();
 				if (DataLen != 0) {
-					WaitFrameData(enRxStates::RcvAdditionalData, DataLen);
+					ReceiveFrameData(enRxStates::RcvAdditionalData, DataLen);
 				} else {
-					WaitFrameEnd();
+					ReceiveFrameEnd();
 				}
 				break;
 			case enRxStates::RcvAdditionalData:
-				WaitFrameEnd();
+				ReceiveFrameEnd();
 				break;
-			case enRxStates::RcvEndOfFrame:
+			case enRxStates::RcvCrLf:
+				AsciiReceiveCrLf();
+				break;
+			case enRxStates::EndOfFrame:
 				MasterRequestReceived();
-				break;
 			default:
 				break;
 			}
 		}
+		return 1;
 	}
 
 	void MbSlaveStateMachine::MasterRequestReceived()
 	{
-		// TimeoutTimer.Stop();
 		try {
-			SerialInterface->EndOfFrame();
+			SerialInterface->Check_EndOfFrame();
 			DataServices();
 			SendResponseMessage();
 		}

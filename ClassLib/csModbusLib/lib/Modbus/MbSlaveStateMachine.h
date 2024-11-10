@@ -1,49 +1,45 @@
 #pragma once
 #include "Modbus/mbslave.h"
 #include "Interface/MbSerial.h"
+#include "Interface/MbASCII.h"
 
 namespace csModbusLib {
-	class MbSlaveStateMachine : public MbSlave , protected SerialCallBack
+	class MbSlaveStateMachine : public MbSlave
 	{
 	public:
         MbSlaveStateMachine() : MbSlave() {}
-        MbSlaveStateMachine(MbInterface* Interface) : MbSlave(Interface) {}
-        MbSlaveStateMachine(MbInterface* Interface, MbSlaveDataServer* DataServer) : MbSlave(Interface, DataServer) {}
-		void CheckStatus();
+        MbSlaveStateMachine(MbSerial* SerialInterface) : MbSlave(SerialInterface) { }
+        MbSlaveStateMachine(MbSerial* SerialInterface, MbSlaveDataServer* DataServer) : MbSlave(SerialInterface, DataServer)  {}
 
     protected:
-        void StartListener();
-        void StopListener();
+        virtual void StartListener() override;
+        void StopListener() override;
 
-        // Overides SerialCallBack.DataReceived
-        virtual void DataReceived(int bytesAvailavle);
-
-    private:
         enum class enRxStates
         {
             Idle,
-            StartOfFrame,
+            AsciiStartOfFrame,
             ReceiveHeader,
             RcvMessage,
             RcvAdditionalData,
-            RcvEndOfFrame
+            RcvCrLf,
+            EndOfFrame,
         };
-        void WaitForFrameStart();
-        void WaitFrameEnd();
-        void WaitFrameData(enRxStates NextState, int DataLen);
-        void InitReceiveDataEvent(enRxStates NextState);
-        void InitTimeoutTimer();
-        void SetTimeOut(int timeOut);
-        void TimeoutTimer_Elapsed();
-        void SerialInterface_DataReceivedEvent();
-        void MasterRequestReceived();
 
+        virtual void WaitForFrameStart() = 0;
+        virtual void ReceiveFrameEnd() = 0;
+        virtual void ReceiveFrameData(enRxStates NextState, int DataLen, int timeout = MbInterface::ByteCountTimeout) = 0;
+
+        virtual void AsciiCheckStartFrame(int result) {}
+        virtual int AsciiHexData() { return 0; }
+        virtual void AsciiReceiveCrLf() {}
+
+        void ReveiveHeader(int timeout = MbInterface::ByteCountTimeout);
         enRxStates RxState = enRxStates::Idle;
-        MbSerial *SerialInterface;
-        SerialPort *sp;
-        //System.Timers.Timer TimeoutTimer;
-        int DataBytesNeeded;
-        int serialBytesNeeded;
 
-	};
+    private:
+        int SerialInterface_DataReceivedEvent(int result);
+        void MasterRequestReceived();
+        MbSerial* SerialInterface;
+    };
 }

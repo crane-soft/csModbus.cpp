@@ -3,7 +3,6 @@
 SerialPort::SerialPort()
 {
 	ComPort = 0;
-	serialCallBack = 0;
 }
 
 SerialPort::SerialPort(const void* _ComPort, int _BaudRate)
@@ -17,7 +16,6 @@ void SerialPort::SetComParms(const void* _ComPort, int _BaudRate)
 
 void SerialPort::SetComParms(const void* _ComPort, int _BaudRate, int _DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits)
 {
-	serialCallBack = 0;
 	ComPort = _ComPort;
 	BaudRate = _BaudRate;
 	DataBits = _DataBits;
@@ -25,10 +23,9 @@ void SerialPort::SetComParms(const void* _ComPort, int _BaudRate, int _DataBits,
 	mStopBits = _StopBits;
 }
 
-void SerialPort::setCallback(SerialCallBack* callBack)
+void SerialPort::setCallback(ReadCallback_t callBack)
 {
-	serialCallBack = callBack;
-	StartEventHandler();
+	ReadCallBack = callBack;
 }
 
 void SerialPort::Open()
@@ -55,8 +52,9 @@ void SerialPort::SetReadTimeout(int ms)
 int SerialPort::ReadByte()
 {
 	uint8_t Data;
-	Read(&Data, 0, 1);
-	return Data;
+	if (Read(&Data, 1) == 1)
+		return Data;
+	return 0;
 }
 
 int SerialPort::SerialByteTime()

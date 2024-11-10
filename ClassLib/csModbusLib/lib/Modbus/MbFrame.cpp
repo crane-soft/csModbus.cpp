@@ -49,7 +49,7 @@ namespace csModbusLib
 		EndIdx += length;
 	}
 
-	uint16_t MbRawData::GetUInt16(int ByteOffs)
+	uint16_t MbRawData::GetUInt16(int ByteOffs)  const
 	{
 		return (uint16_t)((Data[ByteOffs] << 8) | (Data[ByteOffs + 1] & 0x00FF));
 	}
@@ -72,7 +72,7 @@ namespace csModbusLib
 			PutUInt16(DestOffs + i * 2, SrcArray[SrcOffs+i]);
 	}
 
-	int MbRawData::CheckEthFrameLength()
+	int MbRawData::CheckEthFrameLength() const
 	{
 		int frameLength = GetUInt16(ADU_OFFS - 2);
 		int bytesleft = (frameLength + ADU_OFFS) - EndIdx;
@@ -80,8 +80,23 @@ namespace csModbusLib
 
 	}
 
-	uint8_t * MbRawData::GetBuffTail() {
+	uint8_t* MbRawData::DataStart() const
+	{
+		return &Data[MbRawData::ADU_OFFS];
+	}
+
+	uint8_t * MbRawData::BufferEnd() const {
 		return &Data[EndIdx];
+	}
+
+	int MbRawData::Length() const
+	{
+		return (EndIdx - MbRawData::ADU_OFFS);
+	}
+
+	uint8_t MbRawData::LastByte() const
+	{
+		return Data[EndIdx-1];
 	}
 
 	MbFrame::MbFrame()

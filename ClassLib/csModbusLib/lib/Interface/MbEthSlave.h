@@ -24,6 +24,7 @@ namespace csModbusLib {
 		bool Connect(MbRawData *Data);
 		void DisConnect();
 		void ReceiveHeader(int timeOut);
+		ConnectionType getConnectionType() const override { return ConnectionType::UDP_IP; };
 	protected:
 		void SendFrameData(int Length);
 	};
@@ -37,6 +38,8 @@ namespace csModbusLib {
 		bool Connect(MbRawData *Data);
 		void DisConnect();
 		void ReceiveHeader(int timeOut);
+		ConnectionType getConnectionType() const override { return ConnectionType::TCP_IP; };
+
 	protected:
 		void SendFrameData(int Length);
 		void FreeMessage();

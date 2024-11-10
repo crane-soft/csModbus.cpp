@@ -136,8 +136,6 @@ namespace csModbusLib {
 			gInterface->ReceiveHeader(MbInterface::ResponseTimeout);
 			Frame.ReceiveSlaveResponse(gInterface);
 		} catch (ErrorCodes errCode) {
-			//if ((errCode != ErrorCodes::CONNECTION_CLOSED) && (errCode != ErrorCodes::MODBUS_EXCEPTION))
-			//	gInterface->ReConnect();
 			LastError = errCode;
 			return false;
 		}

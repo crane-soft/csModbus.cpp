@@ -71,6 +71,7 @@ namespace csModbusLib
 
 		int AdditionalData = ParseDataCount();
 		if (AdditionalData != 0) {
+			// TODO check if AdditionalData < MAX_FRAME_LEN
 			Interface->ReceiveBytes(AdditionalData);
 		}
 

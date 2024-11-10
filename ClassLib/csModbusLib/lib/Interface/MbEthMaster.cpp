@@ -115,7 +115,7 @@ namespace csModbusLib {
 	{
 		try {
 			tcpc->SetReceiveTimeout(timeOut);
-			int readed = tcpc->Receive(MbData->GetBuffTail(), length);
+			int readed = tcpc->Receive(MbData->BufferEnd(), length);
 			MbData->EndIdx += readed;
 		} catch (int) {
 			throw ErrorCodes::RX_TIMEOUT;

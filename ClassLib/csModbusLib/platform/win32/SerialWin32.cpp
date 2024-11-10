@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include "SerialWin32.h"
-
+#include "platform.h"
 // Serial Communication for WIN32
 // https://www.tetraedre.com/advanced/serial2.php
 // https://docs.microsoft.com/en-us/previous-versions/ff802693(v=msdn.10)?redirectedfrom=MSDN
@@ -62,7 +62,6 @@ bool SerialWin32::OpenPort()
 		return false;
 
 	comhdle = chdle;
-	StartEventHandler();
 	return true;
 }
 
@@ -73,7 +72,9 @@ bool SerialWin32::IsOpen()
 
 void SerialWin32::Close()
 {
-	StopEventHandler();
+	if (ReadPending) {
+		StopReadThread();
+	}
 	CloseHandle(comhdle);
 	comhdle = 0;
 }
@@ -100,24 +101,28 @@ void SerialWin32::DiscardInOut()
 	}
 }
 
-void SerialWin32::Write(const uint8_t * Data, int offs, int count)
+int SerialWin32::Write(const uint8_t * Data, int offs, int count)
 {
 	DWORD lpNumberOfBytesWritten;
-	WriteFile(comhdle, &Data[offs], count, &lpNumberOfBytesWritten, NULL);
-	if ((int)lpNumberOfBytesWritten < count) {
-		throw - 1;
+	if (WriteFile(comhdle, &Data[offs], count, &lpNumberOfBytesWritten, NULL)) {
+		if ((int)lpNumberOfBytesWritten < count) {
+			return 0; // Timeout
+		}
+		return count;
 	}
+	return -1;	// some error use GetLastError here
 }
 
-int SerialWin32::Read(uint8_t * Data, int offs, int count)
+int SerialWin32::Read(uint8_t * Data, int count)
 {
 	DWORD dwRead;
-
-	if (ReadFile(comhdle, &Data[offs], count, &dwRead, NULL))
+	if (ReadFile(comhdle, Data, count, &dwRead, NULL)) {
+		if ((int)dwRead < count)
+			return 0; // Timeout
 		return dwRead;
-	return 0;
+	}
+	return - 1;	// some error use GetLastError here
 }
-
 
 int SerialWin32::BytesToRead()
 {
@@ -128,42 +133,40 @@ int SerialWin32::BytesToRead()
 	return 0;
 }; 
 
-bool SerialWin32::StartEventHandler()
+void SerialWin32::ReadEv(uint8_t* Data,  int count)
 {
-	if (comhdle != 0) {
-		if ((serialCallBack != 0) && (EventThread == 0)) {
-			EventThread = new std::thread(&SerialWin32::HandleEvents, this);
+	RdData = Data;
+	RdCount = count;
+
+	if (ReadPending == false) {
+		if (ReadThread.joinable())
+			ReadThread.join();
+		ReadPending = true;
+		CancelReadThread = false;
+		ReadThread = std::thread{ [this]() { ReadEvFunct(); } };
+	}
+}
+
+void SerialWin32::StopReadThread()
+{
+	CancelReadThread = true;
+	CancelSynchronousIo(ReadThread.native_handle());
+
+	if (ReadThread.joinable())
+		ReadThread.join();
+}
+
+void SerialWin32::ReadEvFunct()
+{
+	int cbResult = 0;
+	do  {
+		int RdResult = Read(RdData, RdCount);
+		if (CancelReadThread)
+			break;
+		if (ReadCallBack) {
+			cbResult = ReadCallBack(RdResult);
 		}
-	}
-	return true;
+	} while (cbResult != 0);
+	ReadPending = false;
 }
 
-bool SerialWin32::StopEventHandler()
-{
-	if (EventThread != 0) {
-		// Because i do not know how to cancel the WaitCommEvent() in my Thread
-		// I have to make a hard termination here
-		TerminateThread(EventThread->native_handle(), 1);
-		EventThread = 0;
-	}
-	return true;
-}
-
-void SerialWin32::HandleEvents()
-{
-	DWORD dwCommEvent;
-	if (!SetCommMask(comhdle, EV_RXCHAR))
-		return;
-
-	while (1) {
-		dwCommEvent = 0;
-		if (!WaitCommEvent(comhdle, &dwCommEvent, NULL)) {
-			// An error occurred waiting for the event.
-			return;
-		}  
-		if (dwCommEvent == 0)
-			return;
-
-		serialCallBack->DataReceived(BytesToRead());
-	}
-}

@@ -1,5 +1,5 @@
 #include "Modbus/MbSlave.h"
-
+#include "platform.h"
 namespace csModbusLib {
 
 	MbSlave::MbSlave() {}
@@ -38,8 +38,7 @@ namespace csModbusLib {
 			}
 			catch (ErrorCodes errCode) {
 				if (running) {
-					//DebugPrint("ModbusException  %d", errCode);
-					//gInterface->ReConnect();
+					ErrorOcurred(errCode);
 				}
 			}
 		}
@@ -72,6 +71,7 @@ namespace csModbusLib {
 
 	bool MbSlave::StartListen()
 	{
+		errCount = 0;
 		if (gInterface != 0) {
 			if (running) {
 				StopListen();
@@ -111,6 +111,14 @@ namespace csModbusLib {
 	void MbSlave::ErrorOcurred(ErrorCodes errCode)
 	{
 		lastErrorCode = errCode;
-		StopListen();
+
+		// If in case of a communication error, the slave does NOT return a response.
+		// The master program eventually processes a timeout condition for the request.
+		DebugPrint("\r\nModbusException  %d\r\n", errCode);
+
+		if (++errCount == 10) {
+			//running = false;
+		}
+		gInterface->DiscardReceived();
 	}
 }

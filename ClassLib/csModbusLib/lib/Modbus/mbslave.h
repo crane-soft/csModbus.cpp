@@ -32,5 +32,6 @@ namespace csModbusLib {
 	private:
 		void ReceiveMasterRequestMessage();
 		ErrorCodes lastErrorCode;
+		int errCount;
 	};
 }

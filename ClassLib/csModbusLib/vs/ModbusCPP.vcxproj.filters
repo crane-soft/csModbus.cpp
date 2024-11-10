@@ -88,14 +88,14 @@
     <ClCompile Include="..\lib\Modbus\MbSlaveStateMachine.cpp">
       <Filter>lib\Modbus</Filter>
     </ClCompile>
-    <ClCompile Include="..\lib\Modbus\MbSlaveServer.cpp">
-      <Filter>lib\Modbus</Filter>
-    </ClCompile>
     <ClCompile Include="..\lib\Modbus\MBMFrame.cpp">
       <Filter>lib\Modbus</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\Modbus\MBSFrame.cpp">
       <Filter>lib\Modbus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\platform\win32\TestTimer.cpp">
+      <Filter>Test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +161,18 @@
     </ClInclude>
     <ClInclude Include="..\lib\SlaveDataServer\MbSlaveEmbServer.h">
       <Filter>lib\SlaveDataServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\platform\win32\Timer.h">
+      <Filter>platform\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Modbus\MbRtuSlaveStm.h">
+      <Filter>lib\Modbus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Modbus\MbAsciiSlaveStm.h">
+      <Filter>lib\Modbus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\Modbus\MbSlaveServer.h">
+      <Filter>lib\Modbus</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

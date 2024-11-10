@@ -1,29 +1,46 @@
 ﻿#include "Interface/MbASCII.h"
 #include "Modbus/MbFrame.h"
+#include "platform.h"
 namespace csModbusLib
 {
-	bool MbASCII::StartOfFrameDetected()
-    {
-		if (sp->BytesToRead() > 0) {
-			if (sp->ReadByte() == ':') {
-				return true;
+
+
+	void  MbASCII::WaitFrameStart(int timeout) 
+	{
+		sp->SetReadTimeout(10);
+		int ch;
+		while ((ch = sp->ReadByte()) != ASCII_START_FRAME) {
+			if (timeout != MbInterface::InfiniteTimeout) {
+				if (ch == 0) {
+					timeout -= 10;
+					if (timeout <= 0) {
+						throw ErrorCodes::RX_TIMEOUT;
+					}
+				}
 			}
-		}
-        return false;
+		} 
 	}
 
-	int MbASCII::NumOfSerialBytes(int count)
+	void MbASCII::ReceiveHeader(int timeOut)
 	{
-		return 2 * count;
+		WaitFrameStart(timeOut);
+		MbData->Clear();
+		MbSerial::ReceiveBytes(2); // Node-ID + Function-Byte
 	}
 
-	void MbASCII::ReceiveBytes(uint8_t* RxData, int offset, int count)
+	void MbASCII::ReceiveData(int count, int timeout)
 	{
-		uint8_t hexchars[2];
 		for (int i = 0; i < count; ++i) {
-			MbSerial::ReceiveBytes(hexchars, 0, 2);
-			RxData[offset + i] = (uint8_t)ASCII2Hex(hexchars);
+			MbSerial::ReceiveData(2, timeout);
+			ASCII2Hex();
 		}
+	}
+
+	void MbASCII::ASCII2Hex()
+	{
+		uint8_t* buffPtr = MbData->BufferEnd() -2;
+		*buffPtr = ASCII2Hex(buffPtr);
+		MbData->EndIdx -= 1;
 	}
 
 	int MbASCII::ASCII2Hex(uint8_t * hexchars)
@@ -45,28 +62,27 @@ namespace csModbusLib
 		}
 	}
 
-	int MbASCII::EndOffFrameLenthth()
-	{
-		return 4;   // 2 chars LRC  + CRLF
-	}
-
-	bool MbASCII::Check_EndOfFrame()
+	void MbASCII::EndOfFrame()
 	{
 		MbSerial::ReceiveBytes(1);   // Read LRC
-
-		uint8_t crlf[2];// Read CR/LF
-		MbSerial::ReceiveBytes(crlf, 0, 2);
-
-		// Check LRC
-		uint8_t calc_lrv = CalcLRC(MbData->Data, MbRawData::ADU_OFFS, MbData->EndIdx - MbRawData::ADU_OFFS);
-		return (calc_lrv == 0);
+		MbSerial::ReceiveData(2);	// Read CR-LF
+		Check_EndOfFrame();
 	}
 
-	uint8_t MbASCII::CalcLRC(uint8_t * buffer, int offset, int length)
+	void MbASCII::Check_EndOfFrame()
+	{
+		// Check LRC
+		MbData->EndIdx -= 2;	// discard crlf point aftr LCR
+		uint8_t calc_lrv = CalcLRC(MbData->DataStart(), MbData->Length());
+		if (calc_lrv != 0)
+			throw ErrorCodes::WRONG_CRC;
+	}
+
+	uint8_t MbASCII::CalcLRC(uint8_t * buffer, int length)
 	{
 		int lrc_result = 0;
 		for (int i = 0; i < length; ++i) {
-			lrc_result += buffer[offset + i];
+			lrc_result += buffer[i];
 			lrc_result &= 0xff;
 		}
 		lrc_result = (-lrc_result) & 0xff;
@@ -75,7 +91,10 @@ namespace csModbusLib
 
 	void MbASCII::SendFrame(int Length)
 	{
-		uint8_t lrc_value = CalcLRC(MbData->Data, MbRawData::ADU_OFFS, Length);
+		// DiscardBuffer to resync start of frame
+		sp->DiscardInOut();
+
+		uint8_t lrc_value = CalcLRC(&MbData->Data[MbRawData::ADU_OFFS], Length);
 		MbData->Data[MbRawData::ADU_OFFS + Length] = lrc_value;
 		Length += 1;
 
@@ -86,8 +105,8 @@ namespace csModbusLib
 		for (int i = 0; i < Length; ++i) {
 			hexbuff[0] = ByteToHexChar(MbData->Data[MbRawData::ADU_OFFS + i] >> 4);
 			hexbuff[1] = ByteToHexChar(MbData->Data[MbRawData::ADU_OFFS + i]);
+			SendData(hexbuff, 2);
 		}
-		SendData(hexbuff, 2);
 
 		hexbuff[0] = 0x0d;
 		hexbuff[1] = 0x0a;

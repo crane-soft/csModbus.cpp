@@ -22,15 +22,6 @@ namespace csModbusLib
 		CONNECTION_CLOSED,
 		MODBUS_EXCEPTION
 	};
- 
-	enum ConnectionType
-	{
-		NO_CONNECTION = 0,
-		SERIAL_RTU = 1,
-		SERIAL_ASCII = 2,
-		TCP_IP = 3,
-		UDP_IP = 4
-	};
 
 	enum DeviceType
 	{

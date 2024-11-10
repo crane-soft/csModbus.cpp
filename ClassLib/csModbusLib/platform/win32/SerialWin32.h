@@ -11,20 +11,29 @@ public:
 	SerialWin32(const void* _ComPort, int _BaudRate)
 		: SerialPort(_ComPort, _BaudRate)	{}
 
-	bool IsOpen();
-	void Close();
-	void DiscardInOut();
-	void Write(const uint8_t * Data, int offs, int count);
-	int Read(uint8_t * Data, int offs, int count);
-	int BytesToRead();
+	bool IsOpen() override;
+	void Close() override;
+	void DiscardInOut() override;
+	int Write(const uint8_t * Data, int offs, int count) override;
+	int Read(uint8_t * Data,  int count) override;
+	void ReadEv(uint8_t* Data,  int count) override;
+
+	int BytesToRead() override;
 
 protected:
-	bool OpenPort();
-	void SetTimeouts();
-	bool StartEventHandler() override;	
-	bool StopEventHandler();
+	bool OpenPort() override;
+	void SetTimeouts() override;
+
 private:
-	void HandleEvents();
-	std::thread* EventThread = NULL;
 	HANDLE comhdle;
+
+	uint8_t* RdData;
+	int RdCount;
+	void ReadEvFunct();
+	void StopReadThread();
+	bool ReadPending = false;
+	bool CancelReadThread = false;
+	std::thread ReadThread;
+
+
 };

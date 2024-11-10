@@ -5,7 +5,8 @@
 #include "Interface/MbEthSlave.h"
 
 #include "Modbus/MbMaster.h"
-#include "Modbus/MbSlaveStateMachine.h"
+#include "Modbus/MbRtuSlaveStm.h"
+#include "Modbus/MbAsciiSlaveStm.h"
 #include "Modbus/MbSlaveServer.h"
 #include "SlaveDataServer/MbSlaveStdServer.h"
 
@@ -14,15 +15,32 @@
 
 using namespace csModbusLib;
 
+const char* ComPort = "COM2";
+const int BdRate = 19200;
+SerialPort *WinPort = new SerialWin32(ComPort, BdRate);
 
 MbMaster MyMaster;
-//MbSlaveServer MySlave;
-MbSlaveStateMachine MySlave;
+MbSlaveServer MySlave;
+MbAsciiSlaveStm MySlaveStm ;
+//MbRtuSlaveStm MySlaveStm ;
+
+
+//MbRTU MyInterface = MbRTU(new SerialWin32(ComPort, BdRate));
+MbASCII MyInterface = MbASCII(new SerialWin32(ComPort, BdRate));
+// MbTCPSlave MyInterface = MbTCPSlave(502);
+//MbTCPMaster MyInterface = MbTCPMaster("127.0.0.1", 502);
+
 
 #define NUM_REGS 8
 #define BASE_ADDR 10
 uint16_t ModbusRegs[NUM_REGS] = { 0 };
+
+uint16_t holding20[5] = { 0 };
+coil_t coils10[20] = { 0 };
+coil_t inputs20[20] = { 0 };
+
 int ReadCount;
+
 class ModbusEventClass : public ModbusDataEvents {
 public:
 	void ValueChangedEvent(int Addr, int Size) {
@@ -47,23 +65,20 @@ protected:
 
 void TestSlave()
 {
-	printf("CPP Modbus Slave Test\r\n");
+	printf("CPP Modbus Slave Test %s %d\r\n",ComPort, BdRate);
 	StdDataServer MyDataServer = StdDataServer(1);
 
 	// abgeleitete Daten Klasse
 	MyHoldingRegs.AddData(BASE_ADDR, ModbusRegs, NUM_REGS);
 	MyDataServer.AddHoldingRegisters(&MyHoldingRegs);
 
-	uint16_t holding20[5] = {0};
+
 	MyDataServer.AddHoldingRegisters(20, holding20, 5);
-	coil_t coils10[20] = { 0 };
 	MyDataServer.AddCoils(10, coils10, 20);
-	coil_t inputs20[20] = { 0 };
 	MyDataServer.AddDiscreteInputs(30, inputs20, 20);
 
-	// MbTCPSlave MyInterface = MbTCPSlave(502);
-	MbRTU MyInterface = MbRTU(new SerialWin32("COM2", 38400));
-	MySlave.StartListen(&MyInterface, &MyDataServer);
+	
+	MySlaveStm.StartListen(WinPort,&MyDataServer);
 
 	while (_kbhit() == 0) {
 
@@ -74,10 +89,9 @@ void TestSlave()
 		ModbusRegs[7] += 1;
 		if (ModbusRegs[6] == 42)
 			break;
-		//MySlave.CheckStatus();
 		MbSleep(50);
 	}
-	MySlave.StopListen();
+	MySlaveStm.StopListen();
 }
 
 
@@ -87,7 +101,6 @@ void TestMaster()
 	uint16_t tstCount = 0;
 	int errCount = 0;
 
-	MbTCPMaster MyInterface = MbTCPMaster("127.0.0.1", 502);
 	MyMaster.Connect(&MyInterface, 1);
 	while (_kbhit() == 0) {
 		int retCode = MyMaster.ReadHoldingRegisters(BASE_ADDR, 3, ModbusRegs, 0);

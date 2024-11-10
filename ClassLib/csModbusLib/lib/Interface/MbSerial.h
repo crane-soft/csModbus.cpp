@@ -12,29 +12,30 @@ namespace csModbusLib {
 		};
 
 	public:
+		MbSerial();
 		MbSerial(SerialPort * _sp);
-		SerialPort * getSerialPort();
+		void setSerialPort(SerialPort* _sp);
+		void setCallback(SerialPort::ReadCallback_t callBack) {	sp->setCallback(callBack);	}
 
-		bool Connect(MbRawData* Data);
-		void DisConnect();
-		void ReceiveHeader(int timeOut);
-		void ReceiveBytes(int count);
-		void EndOfFrame();
-		virtual int NumOfSerialBytes(int count);
-		virtual bool StartOfFrameDetected() = 0;
-		virtual int EndOffFrameLenthth() = 0;
-		virtual int GetTimeOut_ms(int NumBytes);
+		bool Connect(MbRawData* Data) override;
+		void DisConnect() override;
+
+		void ReceiveBytes(int count) override;
+		void ReceiveBytesEv(int count, int timeOut = ByteCountTimeout);
+
+		void DiscardReceived() override;
+		virtual void Check_EndOfFrame() = 0;
 
 	protected:
 		SerialPort *sp;
 
-		virtual bool Check_EndOfFrame() = 0;
-		virtual void ReceiveBytes(uint8_t *RxData, int offset, int count);
+		virtual void WaitFrameStart(int timeout) {}
+		virtual void ReceiveData(int count, int timeout = ByteCountTimeout);
+		void SetReadTimeout(int count, int timeout);
 		void SendData(const uint8_t* Data, int count);
 		void SendData(const uint8_t * Data, int offs, int count);
-
 	private:
-		void WaitFrameStart(int timeout);
+		int GetTimeOut_ms(int NumBytes) const;
 		int oneByteTime_us;
 	};
 }

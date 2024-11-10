@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include <stdint.h>
 
 class SerialCallBack {
@@ -9,6 +10,8 @@ public:
 class SerialPort {
 
 public:
+	using ReadCallback_t = typename std::function<int(int)>;
+
 	enum class Parity { NoParity, Odd, Even } ;
 	enum class StopBits { NoStopBits, One, Two, OnePointFive } ;
 
@@ -17,7 +20,7 @@ public:
 
 	void SetComParms(const void* _ComPort, int _BaudRate);
 	void SetComParms(const void* _ComPort, int _BaudRate, int _DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits);
-	void setCallback(SerialCallBack* callBack);
+	void setCallback(ReadCallback_t callBack);
 
 	void Open();
 	void SetWriteTimeout(int ms);
@@ -28,14 +31,16 @@ public:
 	virtual bool IsOpen() = 0;
 	virtual void Close() = 0;
 	virtual void DiscardInOut() = 0;
-	virtual void Write(const uint8_t * Data, int offs, int count) = 0;
-	virtual int Read(uint8_t * Data, int offs, int count) = 0;
+	virtual int Write(const uint8_t * Data, int offs, int count) = 0;
+	virtual int Read(uint8_t * Data,  int count) = 0;
+	virtual void ReadEv(uint8_t* Data, int count) = 0;
+
 	virtual int BytesToRead() = 0;
 
 protected:
 	const void * ComPort;
-	SerialCallBack* serialCallBack;
-	virtual bool StartEventHandler() { return false; }
+	ReadCallback_t ReadCallBack;
+
 	int BaudRate;
 	int DataBits;
 	SerialPort::Parity mParity;

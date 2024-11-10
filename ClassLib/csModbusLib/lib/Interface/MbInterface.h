@@ -7,7 +7,17 @@ namespace csModbusLib
 	class MbInterface
 	{
 	public:
-		static const int InfiniteTimeout = -1;
+		enum class ConnectionType
+		{
+			NO_CONNECTION = 0,
+			SERIAL_RTU = 1,
+			SERIAL_ASCII = 2,
+			TCP_IP = 3,
+			UDP_IP = 4
+		};
+
+		static const int ByteCountTimeout = -1;
+		static const int InfiniteTimeout = 0;
 		static const int ResponseTimeout = 200;
 
 		MbInterface()	{}
@@ -25,10 +35,10 @@ namespace csModbusLib
 
 		virtual void ReceiveBytes(int count) { }
 		virtual void EndOfFrame() { }
-
+		virtual void DiscardReceived() {}
+		virtual ConnectionType getConnectionType() const { return ConnectionType::NO_CONNECTION; }
 	protected:
 		bool IsConnected = false;
 		MbRawData *MbData;
-
 	};
 }

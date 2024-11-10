@@ -7,22 +7,27 @@ namespace csModbusLib {
 	class MbASCII : public MbSerial   {
 
 	public:
+		MbASCII() {}
 		MbASCII(SerialPort * sp) : MbSerial(sp) {}
-		void SendFrame(int Length);
-		int NumOfSerialBytes(int count);
-		int EndOffFrameLenthth();
-	protected:
-		bool StartOfFrameDetected();
+		ConnectionType getConnectionType() const override { return ConnectionType::SERIAL_ASCII; };
 
-		bool Check_EndOfFrame();
-		void ReceiveBytes(uint8_t *RxData, int offset, int count);
+		void ReceiveHeader(int timeOut) override;
+		void SendFrame(int Length) override;
+		void EndOfFrame() override;
+		void Check_EndOfFrame() override;
+
+		void ASCII2Hex();
+		static const char ASCII_START_FRAME = ':';
+
+	protected:
+		void ReceiveData(int count, int timeOut = ByteCountTimeout) override;
 
 	private:
-		const char ASCII_START_FRAME = ':';
-		int ASCII2Hex(uint8_t * hexchars);
-		int ASCII2nibble(int hexchar);
+		void WaitFrameStart(int timeout);
+		static int ASCII2Hex(uint8_t * hexchars);
+		static int ASCII2nibble(int hexchar);
 
-		static uint8_t CalcLRC(uint8_t * buffer, int offset, int length);
+		static uint8_t CalcLRC(uint8_t * buffer, int length);
 		static uint8_t ByteToHexChar(int b);
 	};
 }

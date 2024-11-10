@@ -3,23 +3,26 @@
 
 namespace csModbusLib {
 
+	MbSerial::MbSerial()
+	{
+	}
 
 	MbSerial::MbSerial(SerialPort * _sp)
+	{
+		setSerialPort(_sp);
+	}
+
+	void MbSerial::setSerialPort(SerialPort* _sp)
 	{
 		sp = _sp;
 	}
 
-	SerialPort* MbSerial::getSerialPort()
-	{
-		return sp;
-	}
-
-	int MbSerial::GetTimeOut_ms(int serialBytesCnt)
+	int MbSerial::GetTimeOut_ms(int serialBytesCnt) const
 	{
 		if (serialBytesCnt == 0)
 			return 0;
 		int timeOut = (serialBytesCnt * oneByteTime_us) / 1000;
-		return timeOut + 50;    // we need more timeout in a Windoww environement
+		return timeOut +  50;    // we need more timeout in a Windoww environement
 	}
 
 	bool MbSerial::Connect(MbRawData *Data)
@@ -32,6 +35,7 @@ namespace csModbusLib {
 			if (sp->IsOpen()) {
 				IsConnected = true;
 				sp->SetWriteTimeout(200);
+				oneByteTime_us = sp->SerialByteTime();
 			}
 		} catch (int) {
 			IsConnected = false;
@@ -48,58 +52,55 @@ namespace csModbusLib {
 		}
 	}
 
-	void MbSerial::WaitFrameStart(int timeout)
-	{
-		while (StartOfFrameDetected() == false) {
-			MbSleep(10);
-			if (timeout != MbInterface::InfiniteTimeout) {
-				timeout -= 10;
-				if (timeout <= 0)
-					throw ErrorCodes::TX_TIMEOUT;
-
-
-			}
-			if (IsConnected == false) {
-				throw ErrorCodes::CONNECTION_CLOSED;
-			}
-		}
-	}
-
-	void MbSerial::ReceiveHeader(int timeOut)
-	{
-		MbData->Clear();
-		WaitFrameStart(timeOut);
-		ReceiveBytes(2); // Node-ID + Function-Byte
-	}
-
 	void MbSerial::ReceiveBytes(int count)
 	{
-		sp->SetReadTimeout(GetTimeOut_ms(NumOfSerialBytes(count)));
-		ReceiveBytes(MbData->Data, MbData->EndIdx, count);
+		ReceiveData(count, ByteCountTimeout);
+	}
+	
+	
+	void MbSerial::ReceiveData(int count, int timeout)
+	{
+		SetReadTimeout(count, timeout);
+		int bytesRead;
+		bytesRead = sp->Read(MbData->BufferEnd(), count);
+		if (bytesRead == count) {
+			MbData->EndIdx += count;
+			return;
+		}
+		if (bytesRead == 0)
+			throw ErrorCodes::RX_TIMEOUT;
+		throw ErrorCodes::CONNECTION_ERROR;
+	}
+
+	void MbSerial::ReceiveBytesEv(int count, int timeOut)
+	{
+		SetReadTimeout(count, timeOut);
+		sp->ReadEv(MbData->BufferEnd(), count);
 		MbData->EndIdx += count;
 	}
 
-	void MbSerial::ReceiveBytes(uint8_t *RxData, int offset, int count)
+	void MbSerial::SetReadTimeout(int count, int timeout)
 	{
-		try {
-			int bytesRead;
-			while (count > 0) {
-				bytesRead =  sp->Read(RxData, offset, count);
-				count -= bytesRead;
-				offset += bytesRead;
-			}
-		}
-		catch (int) {
-			throw ErrorCodes::TX_TIMEOUT;
-		}
+		if (timeout == ByteCountTimeout)
+			timeout = GetTimeOut_ms(count);
+		sp->SetReadTimeout(timeout);
+
 	}
 
-	void MbSerial::EndOfFrame()
+	void MbSerial::DiscardReceived()
 	{
-		if (Check_EndOfFrame() == false) {
-			// If the server receives the request, but detects a communication error (parity, LRC, CRC,  ...),
-			// no response is returned. The client program will eventually process a timeout condition for the request.
-			throw ErrorCodes::WRONG_CRC;
+		sp->DiscardInOut();
+		sp->SetReadTimeout(GetTimeOut_ms(1));
+
+		uint8_t RxData;
+		int RxCount = 0;
+		while (IsConnected) {
+			if (sp->Read(&RxData, 1) <= 0)
+				break;
+			if (++RxCount == MbBase::MAX_FRAME_LEN) {
+				throw ErrorCodes::CONNECTION_ERROR;
+			}
+			DebugPrint(".");
 		}
 	}
 
@@ -110,18 +111,11 @@ namespace csModbusLib {
 
 	void MbSerial::SendData(const uint8_t * Data, int offs, int count)
 	{
-		try {
-			// DiscardBuffer to resync start of frame
-			sp->DiscardInOut();
-			sp->Write(Data, offs, count);
-
-		} catch (int) {
+		int result = sp->Write(Data, offs, count);
+		if (result == count)
+			return;
+		if (result == 0)
 			throw ErrorCodes::TX_TIMEOUT;
-		}
-	}
-
-	int MbSerial::NumOfSerialBytes(int count)
-	{
-		return count;   // Default (RTU) , ASCI will have double of count
+		throw ErrorCodes::CONNECTION_ERROR;
 	}
 }
