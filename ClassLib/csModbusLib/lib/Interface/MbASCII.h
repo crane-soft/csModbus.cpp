@@ -13,8 +13,8 @@ namespace csModbusLib {
 
 		void ReceiveHeader(int timeOut) override;
 		void SendFrame(int Length) override;
-		void EndOfFrame() override;
-		void Check_EndOfFrame() override;
+		bool EndOfFrame() override;
+		bool Check_EndOfFrame() override;
 
 		void ASCII2Hex();
 		static const char ASCII_START_FRAME = ':';

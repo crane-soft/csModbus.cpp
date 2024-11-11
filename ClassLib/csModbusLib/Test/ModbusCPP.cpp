@@ -103,7 +103,7 @@ void TestMaster()
 
 	MyMaster.Connect(&MyInterface, 1);
 	while (_kbhit() == 0) {
-		int retCode = MyMaster.ReadHoldingRegisters(BASE_ADDR, 3, ModbusRegs, 0);
+		ErrorCodes retCode = MyMaster.ReadHoldingRegisters(BASE_ADDR, 3, ModbusRegs, 0);
 		if (retCode == ErrorCodes::MB_NO_ERROR) {
 			printf("RdRegister %04d,%04d,%04d\r", ModbusRegs[0], ModbusRegs[1], ModbusRegs[2]);
 		} else {

@@ -9,7 +9,7 @@ namespace csModbusLib
 		MBSFrame();
 		int ParseMasterRequest();
 		int ParseDataCount();
-		void ReceiveMasterRequest(MbInterface* Interface);
+		ErrorCodes ReceiveMasterRequest(MbInterface* Interface);
 
 #if USE_READ_WRITE_REGS
 		void SaveWritaData();

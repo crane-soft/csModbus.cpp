@@ -1,6 +1,5 @@
 
-#include "Modbus/MbSlaveStateMachine.h"
-#include "Interface/MbRTU.h"
+#include "Modbus/MbRtuSlaveStm.h"
 #include "SlaveDataServer/MbSlaveEmbServer.h"
 #include "Gpio.h"
 
@@ -58,20 +57,25 @@ private:
 	coil_t LD3_Status = 0;
 };
 
-SerialSTM32				ModbusPort 		 = SerialSTM32(USART2,38400);
-MbSlaveStateMachine 	ModbusSlave 	 = MbSlaveStateMachine();
-MbRTU              		ModbusInterface  = MbRTU(&ModbusPort);
+//#define MB_SERVER
+
+SerialSTM32				ModbusPort 		 = SerialSTM32(USART2,9600);
+#ifdef MB_SERVER
+MbRTU					ModbusInterfave  = MbRTU(&ModbusPort);
+MbSlave					ModbusSlave 	 = MbSlave (&ModbusInterfave);
+#else
+MbRtuSlaveStm			ModbusSlave 	 = MbRtuSlaveStm (&ModbusPort);
+#endif
 Nucleo_DataServer		ModbusDataServer = Nucleo_DataServer(SLAVE_ID);
 
 extern "C"  {
 void Init_Modbus()
 {
-	ModbusSlave.StartListen(&ModbusInterface, &ModbusDataServer);
-}
-
-void Handle_Modbus()
-{
-	//ModbusSlave.CheckStatus();
+	ModbusSlave.StartListen(&ModbusDataServer);
+#ifdef MB_SERVER
+	while (1)
+		ModbusSlave.HandleRequestMessages();
+#endif
 }
 
 void USART2_IRQHandler(void)
@@ -82,6 +86,12 @@ void USART2_IRQHandler(void)
 void EXTI4_15_IRQHandler(void)
 {
 	ModbusPort.EventIRQ();
+}
+
+void SysTick_Handler(void)
+{
+	HAL_IncTick();
+	ModbusPort.TimerIRQ();
 }
 
 } // exten "C"

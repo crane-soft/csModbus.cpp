@@ -101,10 +101,10 @@ void SerialWin32::DiscardInOut()
 	}
 }
 
-int SerialWin32::Write(const uint8_t * Data, int offs, int count)
+int SerialWin32::Write(const uint8_t * Data,  int count)
 {
 	DWORD lpNumberOfBytesWritten;
-	if (WriteFile(comhdle, &Data[offs], count, &lpNumberOfBytesWritten, NULL)) {
+	if (WriteFile(comhdle, Data, count, &lpNumberOfBytesWritten, NULL)) {
 		if ((int)lpNumberOfBytesWritten < count) {
 			return 0; // Timeout
 		}

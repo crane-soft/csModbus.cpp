@@ -24,6 +24,7 @@ namespace csModbusLib {
             RcvAdditionalData,
             RcvCrLf,
             EndOfFrame,
+            ErrorOccurred,
         };
 
         virtual void WaitForFrameStart() = 0;
@@ -40,6 +41,8 @@ namespace csModbusLib {
     private:
         int SerialInterface_DataReceivedEvent(int result);
         void MasterRequestReceived();
+        void ErrorOccured(ErrorCodes errCode);
+        ErrorCodes LastError;
         MbSerial* SerialInterface;
     };
 }

@@ -169,7 +169,9 @@ namespace csModbusLib
 		case ModbusCodes::WRITE_MULTIPLE_REGISTERS:
 			return 6;
 		default:
-			throw ErrorCodes::ILLEGAL_FUNCTION_CODE;
+			// Should not happen Function code was 
+			// already acepted in the receive message
+			return 0;
 		}
 	}
 }

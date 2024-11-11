@@ -1,5 +1,7 @@
 #include "Modbus/MbSlave.h"
+#include "Interface/MbInterface.h"
 #include "platform.h"
+
 namespace csModbusLib {
 
 	MbSlave::MbSlave() {}
@@ -24,37 +26,12 @@ namespace csModbusLib {
 	{
 		gDataServer = DataServer;
 	}
-	
-	void MbSlave::HandleRequestMessages()
-	{
-		running = true;
-		stopped = false;
-		while (running) {
-			try {
-				ReceiveMasterRequestMessage();
-				if (DataServices()) {
-					SendResponseMessage();
-				}
-			}
-			catch (ErrorCodes errCode) {
-				if (running) {
-					ErrorOcurred(errCode);
-				}
-			}
-		}
-		stopped = true;
-	}
-
-	void MbSlave::ReceiveMasterRequestMessage()
-	{
-			gInterface->ReceiveHeader(MbInterface::InfiniteTimeout);
-			Frame.ReceiveMasterRequest(gInterface);
-	}
 
 	void MbSlave::SendResponseMessage()
 	{
 		int MsgLen = Frame.ToMasterResponseMessageLength();
-		gInterface->SendFrame(MsgLen);
+		if (MsgLen > 0)
+			gInterface->SendFrame(MsgLen);
 	}
 
 	bool MbSlave::DataServices()
@@ -108,7 +85,7 @@ namespace csModbusLib {
 		StopListener();
 	}
 
-	void MbSlave::ErrorOcurred(ErrorCodes errCode)
+	void MbSlave::ErrorHandler(ErrorCodes errCode)
 	{
 		lastErrorCode = errCode;
 

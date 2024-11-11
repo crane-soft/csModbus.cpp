@@ -1,6 +1,5 @@
 #pragma once
 #include <stdint.h>
-#include "Interface/MbInterface.h"
 
 #define STATIC_MEM
 #define USE_READ_WRITE_REGS	0
@@ -9,7 +8,7 @@ typedef uint8_t coil_t;
 	
 namespace csModbusLib
 {
-	enum ErrorCodes
+	enum class ErrorCodes
 	{
 		MB_NO_ERROR = 0,
 		CONNECTION_ERROR,
@@ -23,7 +22,7 @@ namespace csModbusLib
 		MODBUS_EXCEPTION
 	};
 
-	enum DeviceType
+	enum class DeviceType
 	{
 		NO_TYPE = 0,
 		MASTER = 1,
@@ -60,7 +59,7 @@ namespace csModbusLib
     /// <summary>
     /// Exception Codes
     /// </summary>
-	enum ExceptionCodes
+	enum class ExceptionCodes
 	{
 		NO_EXCEPTION = 0,
 		ILLEGAL_FUNCTION = 1,       // The function code received in the query is not an allowable action for the slave.
@@ -80,7 +79,7 @@ namespace csModbusLib
 		// The master can retry the request, but service may be required on the slave device. 
 	};
   
-
+	class MbInterface;
     class MbBase
     {
 	public:

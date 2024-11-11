@@ -62,20 +62,19 @@ namespace csModbusLib
 		}
 	}
 
-	void MbASCII::EndOfFrame()
+	bool MbASCII::EndOfFrame()
 	{
 		MbSerial::ReceiveBytes(1);   // Read LRC
 		MbSerial::ReceiveData(2);	// Read CR-LF
-		Check_EndOfFrame();
+		return Check_EndOfFrame();
 	}
 
-	void MbASCII::Check_EndOfFrame()
+	bool MbASCII::Check_EndOfFrame()
 	{
 		// Check LRC
 		MbData->EndIdx -= 2;	// discard crlf point aftr LCR
 		uint8_t calc_lrv = CalcLRC(MbData->DataStart(), MbData->Length());
-		if (calc_lrv != 0)
-			throw ErrorCodes::WRONG_CRC;
+		return (calc_lrv == 0);
 	}
 
 	uint8_t MbASCII::CalcLRC(uint8_t * buffer, int length)

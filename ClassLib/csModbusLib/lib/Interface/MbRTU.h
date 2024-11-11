@@ -13,8 +13,8 @@ namespace csModbusLib {
 		void SendFrame(int Length) override;
 		ConnectionType getConnectionType() const override { return ConnectionType::SERIAL_RTU; };
 
-		void EndOfFrame() override;
-		void Check_EndOfFrame() override;
+		bool EndOfFrame() override;
+		bool Check_EndOfFrame() override;
 
 
 	private: 

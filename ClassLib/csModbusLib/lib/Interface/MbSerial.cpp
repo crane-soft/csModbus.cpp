@@ -1,5 +1,6 @@
 #include "Modbus/MbFrame.h"
 #include "Interface/MbSerial.h"
+#include "platform.h"
 
 namespace csModbusLib {
 
@@ -22,23 +23,20 @@ namespace csModbusLib {
 		if (serialBytesCnt == 0)
 			return 0;
 		int timeOut = (serialBytesCnt * oneByteTime_us) / 1000;
-		return timeOut +  50;    // we need more timeout in a Windoww environement
+		return timeOut +  TX_TIMEOUT_OFFS;    // we need more timeout in a Windoww environement
 	}
 
-	bool MbSerial::Connect(MbRawData *Data)
+	bool MbSerial::Connect(MbRawData* Data)
 	{
 		MbInterface::Connect(Data);
 		if (!sp)
 			return false;
-		try {
-			sp->Open();
-			if (sp->IsOpen()) {
-				IsConnected = true;
-				sp->SetWriteTimeout(200);
-				oneByteTime_us = sp->SerialByteTime();
-			}
-		} catch (int) {
-			IsConnected = false;
+
+		sp->Open();
+		if (sp->IsOpen()) {
+			IsConnected = true;
+			sp->SetWriteTimeout(200);
+			oneByteTime_us = sp->SerialByteTime();
 		}
 		return IsConnected;
 	}
@@ -60,6 +58,7 @@ namespace csModbusLib {
 	
 	void MbSerial::ReceiveData(int count, int timeout)
 	{
+#ifndef _STM32
 		SetReadTimeout(count, timeout);
 		int bytesRead;
 		bytesRead = sp->Read(MbData->BufferEnd(), count);
@@ -70,6 +69,7 @@ namespace csModbusLib {
 		if (bytesRead == 0)
 			throw ErrorCodes::RX_TIMEOUT;
 		throw ErrorCodes::CONNECTION_ERROR;
+#endif
 	}
 
 	void MbSerial::ReceiveBytesEv(int count, int timeOut)
@@ -98,24 +98,23 @@ namespace csModbusLib {
 			if (sp->Read(&RxData, 1) <= 0)
 				break;
 			if (++RxCount == MbBase::MAX_FRAME_LEN) {
-				throw ErrorCodes::CONNECTION_ERROR;
+				return;
 			}
-			DebugPrint(".");
 		}
 	}
 
-	void MbSerial::SendData(const uint8_t* Data, int count)
+	void MbSerial::SendData(const uint8_t * Data, int count)
 	{
-		SendData(Data, 0, count);
-	}
-
-	void MbSerial::SendData(const uint8_t * Data, int offs, int count)
-	{
-		int result = sp->Write(Data, offs, count);
+#ifdef _STM32
+		sp->Write(Data, count);
+#else
+		int result = sp->Write(Data, count);
 		if (result == count)
 			return;
 		if (result == 0)
 			throw ErrorCodes::TX_TIMEOUT;
 		throw ErrorCodes::CONNECTION_ERROR;
+
+#endif
 	}
 }

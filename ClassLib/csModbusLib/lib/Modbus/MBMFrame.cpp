@@ -1,4 +1,5 @@
 #include "MBMFrame.h"
+#include "Interface/MbInterface.h"
 
 namespace csModbusLib
 {
@@ -69,7 +70,8 @@ namespace csModbusLib
 		}
 		if (Bytes2Read > 0)
 			Interface->ReceiveBytes(Bytes2Read);
-		Interface->EndOfFrame();
+		if (Interface->EndOfFrame() == false)
+			throw ErrorCodes::WRONG_CRC;
 	}
 
 	void MBMFrame::ReadSlaveRegisterValues(uint16_t* DestArray, int DestOffs)

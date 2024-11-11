@@ -1,4 +1,5 @@
 #pragma once
+#include "platform.h"
 #include "Modbus/MbBase.h"
 
 /* Modbus Format

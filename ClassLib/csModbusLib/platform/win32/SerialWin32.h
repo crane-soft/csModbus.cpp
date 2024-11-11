@@ -14,11 +14,11 @@ public:
 	bool IsOpen() override;
 	void Close() override;
 	void DiscardInOut() override;
-	int Write(const uint8_t * Data, int offs, int count) override;
+	int Write(const uint8_t * Data, int count) override;
 	int Read(uint8_t * Data,  int count) override;
 	void ReadEv(uint8_t* Data,  int count) override;
 
-	int BytesToRead() override;
+	int BytesToRead();	// not used anymore
 
 protected:
 	bool OpenPort() override;

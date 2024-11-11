@@ -23,6 +23,7 @@
     <ClCompile Include="..\lib\Modbus\MBMFrame.cpp" />
     <ClCompile Include="..\lib\Modbus\MBSFrame.cpp" />
     <ClCompile Include="..\lib\Modbus\MbSlave.cpp" />
+    <ClCompile Include="..\lib\Modbus\MbSlaveServer.cpp" />
     <ClCompile Include="..\lib\Modbus\MbSlaveStateMachine.cpp" />
     <ClCompile Include="..\lib\SlaveDataServer\MbSlaveData.cpp" />
     <ClCompile Include="..\platform\boost\SerialBoost.cpp">
@@ -61,6 +62,7 @@
     <ClInclude Include="..\platform\std\Stopwatch.h" />
     <ClInclude Include="..\platform\std\ThreadUtils.h" />
     <ClInclude Include="..\platform\win32\NetSocket.h" />
+    <ClInclude Include="..\platform\win32\platform.h" />
     <ClInclude Include="..\platform\win32\SerialWin32.h" />
     <ClInclude Include="..\platform\win32\TcpClient.h" />
     <ClInclude Include="..\platform\win32\TcpListener.h" />

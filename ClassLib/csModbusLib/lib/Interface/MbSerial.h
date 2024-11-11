@@ -24,16 +24,16 @@ namespace csModbusLib {
 		void ReceiveBytesEv(int count, int timeOut = ByteCountTimeout);
 
 		void DiscardReceived() override;
-		virtual void Check_EndOfFrame() = 0;
+		virtual bool Check_EndOfFrame() = 0;
 
 	protected:
 		SerialPort *sp;
 
 		virtual void WaitFrameStart(int timeout) {}
 		virtual void ReceiveData(int count, int timeout = ByteCountTimeout);
+
 		void SetReadTimeout(int count, int timeout);
 		void SendData(const uint8_t* Data, int count);
-		void SendData(const uint8_t * Data, int offs, int count);
 	private:
 		int GetTimeOut_ms(int NumBytes) const;
 		int oneByteTime_us;

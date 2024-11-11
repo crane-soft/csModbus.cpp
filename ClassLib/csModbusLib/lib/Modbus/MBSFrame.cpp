@@ -1,5 +1,7 @@
 #include "MBSFrame.h"
+#include "Interface/MbInterface.h"
 
+#include "platform.h"
 namespace csModbusLib
 {
 	MBSFrame::MBSFrame()
@@ -28,9 +30,8 @@ namespace csModbusLib
 			WrMultipleData = true;
 			return 9;
 		default:
-			throw ErrorCodes::ILLEGAL_FUNCTION_CODE;
+			return -1;
 		}
-
 	}
 
 	int MBSFrame::ParseMasterRequest()
@@ -38,8 +39,7 @@ namespace csModbusLib
 		ExceptionCode = ExceptionCodes::NO_EXCEPTION;
 		SlaveId = RawData.Data[REQST_UINIT_ID_IDX];
 		FunctionCode = (ModbusCodes)RawData.Data[REQST_FCODE_IDX];
-		int MsgLen = FromMasterRequestMessageLen();
-		return MsgLen;
+		return FromMasterRequestMessageLen();
 	}
 
 	int MBSFrame::ParseDataCount()
@@ -64,9 +64,12 @@ namespace csModbusLib
 
 	}
 
-	void MBSFrame::ReceiveMasterRequest(MbInterface* Interface)
+	ErrorCodes MBSFrame::ReceiveMasterRequest(MbInterface* Interface)
 	{
 		int MsgLen = ParseMasterRequest();
+		if (MsgLen < 0)
+			return ErrorCodes::ILLEGAL_FUNCTION_CODE;
+
 		Interface->ReceiveBytes(MsgLen);
 
 		int AdditionalData = ParseDataCount();
@@ -75,8 +78,9 @@ namespace csModbusLib
 			Interface->ReceiveBytes(AdditionalData);
 		}
 
-		Interface->EndOfFrame();
-
+		if (Interface->EndOfFrame() == false)
+			return ErrorCodes::WRONG_CRC;
+		return ErrorCodes::MB_NO_ERROR;
 	}
 
 #if USE_READ_WRITE_REGS

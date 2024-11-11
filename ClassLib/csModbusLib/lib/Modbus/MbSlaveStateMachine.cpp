@@ -1,5 +1,4 @@
 #include "Modbus/MbSlaveStateMachine.h"
-#include "Interface/MbASCII.h"
 
 #include <condition_variable>
 #include <chrono>
@@ -28,12 +27,24 @@ namespace csModbusLib {
 		ReceiveFrameData(enRxStates::ReceiveHeader, 2, timeout);
 	}
 
+	void MbSlaveStateMachine::ErrorOccured(ErrorCodes errCode)
+	{
+		LastError = errCode;
+		RxState = enRxStates::ErrorOccurred;
+	}
 
 	int MbSlaveStateMachine::SerialInterface_DataReceivedEvent(int result)
 	{
 		int DataLen;
+		if (RxState == enRxStates::ErrorOccurred) {
+			ErrorHandler(LastError);
+			WaitForFrameStart();
+			return 1;
+		}
+
 		if (result == -1) {
-			ErrorOcurred(ErrorCodes::CONNECTION_ERROR);
+			ErrorOccured(ErrorCodes::CONNECTION_ERROR);
+			return 1;
 		}
 
 		if (RxState == enRxStates::AsciiStartOfFrame) {
@@ -41,7 +52,8 @@ namespace csModbusLib {
 
 		} else {
 			if (result == 0) {
-				ErrorOcurred(ErrorCodes::RX_TIMEOUT);
+				ErrorOccured(ErrorCodes::RX_TIMEOUT);
+				return 1;
 			}
 
 			if (AsciiHexData())
@@ -50,7 +62,11 @@ namespace csModbusLib {
 			switch (RxState) {
 			case enRxStates::ReceiveHeader:
 				DataLen = Frame.ParseMasterRequest();
-				ReceiveFrameData(enRxStates::RcvMessage, DataLen);
+				if (DataLen < 0) {
+					ErrorOccured(ErrorCodes::ILLEGAL_FUNCTION_CODE);
+				} else {
+					ReceiveFrameData(enRxStates::RcvMessage, DataLen);
+				}
 				break;
 			case enRxStates::RcvMessage:
 				DataLen = Frame.ParseDataCount();
@@ -68,6 +84,7 @@ namespace csModbusLib {
 				break;
 			case enRxStates::EndOfFrame:
 				MasterRequestReceived();
+				break;
 			default:
 				break;
 			}
@@ -77,14 +94,13 @@ namespace csModbusLib {
 
 	void MbSlaveStateMachine::MasterRequestReceived()
 	{
-		try {
-			SerialInterface->Check_EndOfFrame();
-			DataServices();
-			SendResponseMessage();
+		if (SerialInterface->Check_EndOfFrame() == false) {
+			ErrorOccured(ErrorCodes::WRONG_CRC);
+		} else {
+			if (DataServices()) {
+				SendResponseMessage();
+			}
+			WaitForFrameStart();
 		}
-		catch (ErrorCodes errCode) {
-			ErrorOcurred (errCode);
-		}
-		WaitForFrameStart();
 	}
 }

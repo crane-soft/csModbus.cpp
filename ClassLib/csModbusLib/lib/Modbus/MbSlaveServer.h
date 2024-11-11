@@ -11,29 +11,13 @@ namespace csModbusLib
 		MbSlaveServer() : MbSlave() {}
 		MbSlaveServer(MbInterface *Interface) : MbSlave(Interface) {}
 		MbSlaveServer(MbInterface *Interface, MbSlaveDataServer *DataServer) : MbSlave(Interface, DataServer) {}
+		void HandleRequestMessages();
 
 	protected:
-		void StartListener()
-		{
-			if (ListenThread == 0) {
-				ListenThread = new std::thread(&MbSlave::HandleRequestMessages, this);
-			}
-
-		}
-
-		void StopListener()
-		{
-			if (ListenThread != NULL) {
-				while (stopped == false) {
-					MbSleep(1);
-				}
-				ListenThread->join();
-				ListenThread = NULL;
-			}
-		}
-
-
+		void StartListener();
+		void StopListener();
 	private:
+		void ReceiveMasterRequestMessage();
 		std::thread *ListenThread = NULL;
 	};
 }

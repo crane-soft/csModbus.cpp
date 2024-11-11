@@ -1,5 +1,5 @@
 ﻿#pragma once
-
+#include "Modbus/MbBase.h"
 namespace csModbusLib
 {
 	class MbRawData;
@@ -34,8 +34,8 @@ namespace csModbusLib
 		virtual void SendFrame(int Length) = 0;
 
 		virtual void ReceiveBytes(int count) { }
-		virtual void EndOfFrame() { }
-		virtual void DiscardReceived() {}
+		virtual bool EndOfFrame() { return true; }
+		virtual void DiscardReceived() { }
 		virtual ConnectionType getConnectionType() const { return ConnectionType::NO_CONNECTION; }
 	protected:
 		bool IsConnected = false;

@@ -11,20 +11,24 @@ public:
 	SerialSTM32();
 	SerialSTM32(const void* _ComPort, int _BaudRate);
 
-	bool IsOpen();
-	void Close();
-	void DiscardInOut();
-	void Write(const uint8_t * Data, int offs, int count);
-	int Read(uint8_t * Data, int offs, int count);
-	int BytesToRead();
+	bool IsOpen() override;
+	void Close() override;
+	void DiscardInOut() override;
+	int Write(const uint8_t * Data, int count) override;
+	int Read(uint8_t * Data, int count) override;
+	void ReadEv(uint8_t* Data, int count) override;
+
 	void IRQHandler();
 	void EventIRQ();
+	void TimerIRQ();
 protected:
 	bool OpenPort();
-	void SetTimeouts();
-	bool StartEventHandler() override;
+
 private:
+	void  InitEventHandler();
+	void InvokeReadCallBack(int result);
 	void ByteReceived(uint8_t rxByte);
+
 	UART_HandleTypeDef huart;
 	bool mIsOPen;
 	uint32_t STM_DataLen() const;
@@ -32,4 +36,8 @@ private:
 	uint32_t STM_Parity () const;
 	csFifoBuff<uint8_t, FIFO_SIZE> RxFifo;
 	csFifoBuff<uint8_t, FIFO_SIZE> TxFifo;
+
+	uint8_t *ReadDstPtr;
+	int ReadCount;
+	int RxTimeoutTimer;
 };

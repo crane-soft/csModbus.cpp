@@ -1,4 +1,5 @@
 ﻿#include "MbMaster.h"
+#include "Interface/MbInterface.h"
 
 namespace csModbusLib {
 

@@ -22,20 +22,18 @@ public:
 	void SetComParms(const void* _ComPort, int _BaudRate, int _DataBits, SerialPort::Parity _Parity, SerialPort::StopBits _StopBits);
 	void setCallback(ReadCallback_t callBack);
 
-	void Open();
+	bool Open();
 	void SetWriteTimeout(int ms);
 	void SetReadTimeout(int ms);
 	int ReadByte();
-	int SerialByteTime();
+	int SerialByteTime() const;
 
 	virtual bool IsOpen() = 0;
 	virtual void Close() = 0;
 	virtual void DiscardInOut() = 0;
-	virtual int Write(const uint8_t * Data, int offs, int count) = 0;
+	virtual int Write(const uint8_t * Data, int count) = 0;
 	virtual int Read(uint8_t * Data,  int count) = 0;
 	virtual void ReadEv(uint8_t* Data, int count) = 0;
-
-	virtual int BytesToRead() = 0;
 
 protected:
 	const void * ComPort;
@@ -49,5 +47,5 @@ protected:
 	uint32_t ReadTimeout;
 		
 	virtual bool OpenPort() = 0;
-	virtual void SetTimeouts() = 0;
+	virtual void SetTimeouts() {}
 };

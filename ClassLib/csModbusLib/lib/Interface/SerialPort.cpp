@@ -28,13 +28,14 @@ void SerialPort::setCallback(ReadCallback_t callBack)
 	ReadCallBack = callBack;
 }
 
-void SerialPort::Open()
+bool SerialPort::Open()
 {
 	if (OpenPort() == false)
-		throw - 1;
+		return false;
 	ReadTimeout = 1;
 	WriteTimeout = 200;
 	SetTimeouts();
+	return true;
 }
 
 void SerialPort::SetWriteTimeout(int ms)
@@ -57,7 +58,7 @@ int SerialPort::ReadByte()
 	return 0;
 }
 
-int SerialPort::SerialByteTime()
+int SerialPort::SerialByteTime() const
 {
 	int nbits = 1 + DataBits;
 	nbits += mParity == Parity::NoParity ? 0 : 1;

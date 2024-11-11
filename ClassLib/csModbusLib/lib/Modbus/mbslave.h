@@ -18,19 +18,17 @@ namespace csModbusLib {
 
 		MbSlaveDataServer * Get_DataServer();
 		void Set_DataServer(MbSlaveDataServer *DataServer);
-		void HandleRequestMessages();
 
 	protected:
 		MbSlaveDataServer *gDataServer = 0;
 		bool stopped = false;
-		MBSFrame Frame = MBSFrame();
+		MBSFrame Frame;// = MBSFrame();
 		virtual void StartListener() {}
 		virtual void StopListener() {}
 		bool DataServices();
 		void SendResponseMessage();
-		void ErrorOcurred(ErrorCodes errCode);
+		void ErrorHandler(ErrorCodes errCode);
 	private:
-		void ReceiveMasterRequestMessage();
 		ErrorCodes lastErrorCode;
 		int errCount;
 	};
