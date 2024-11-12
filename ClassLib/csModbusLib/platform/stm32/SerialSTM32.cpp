@@ -1,5 +1,10 @@
 
 #include "SerialSTM32.h"
+#include "platform.h"
+
+#ifdef USE_SETJMP
+jmp_buf global_jmp;
+#endif
 
 #define USART_PRIORITY	0
 #define EVENT_PRIORITY	3
@@ -8,14 +13,21 @@
 
 SerialSTM32::SerialSTM32()
 {
-	mIsOPen = false;
+	Init();
 }
 
 SerialSTM32::SerialSTM32(const void* _ComPort, int _BaudRate)
 	: SerialPort(_ComPort, _BaudRate)
 {
+	Init();
+}
+
+void SerialSTM32::Init()
+{
 	mIsOPen = false;
 	RxTimeoutTimer = 0;
+	ReadCount = 0;
+	ReadReady = false;
 }
 
 bool SerialSTM32::OpenPort()
@@ -127,10 +139,11 @@ int SerialSTM32::Read(uint8_t * Data, int count)
 	uint8_t * dptr = Data;
 	RxTimeoutTimer = ReadTimeout;
 	for (int i= 0; i < count; ++i) {
-		while (RxFifo.Available() == 0)
+		while (RxFifo.Available() == 0) {
 			__WFI();
 			if (RxTimeoutTimer < 0)
 				return 0;
+		}
 		*dptr ++ = RxFifo.Read();
 	}
 	return count;
@@ -149,7 +162,11 @@ void SerialSTM32::ReadEv(uint8_t* Data,  int count)
 	while (Bytes2Read--) {
 		*dptr ++ = RxFifo.Read();
 	}
-	if (BytesLeft > 0) {
+	if (BytesLeft == 0) {
+		ReadTimeout = 0;
+		ReadReady = true;
+		RaiseEvent ();
+	} else {
 		RxTimeoutTimer = ReadTimeout;
 		ReadDstPtr = dptr;
 		ReadCount =  BytesLeft;
@@ -194,21 +211,43 @@ void SerialSTM32::ByteReceived(uint8_t rxByte)
 {
 	if (RxFifo.FreeLeft() > 0)
 		RxFifo.Write (rxByte);
-	// Raise Rx-Event
-	EXTI->SWIER |= STM_EVENT_MASK;
+	RaiseEvent();
 }
 
 
+void SerialSTM32::RaiseEvent()
+{
+	EXTI->SWIER |= STM_EVENT_MASK;
+}
+
 void SerialSTM32::EventIRQ()
 {
-	// Uart RX-Event (not IRQ)
+	// Event for RX-Byte and Tiemout
 	EXTI->PR = STM_EVENT_MASK;
-	while (ReadCount > 0) {
-		if (RxFifo.Available() == 0)
-			break;
-		* ReadDstPtr++ = RxFifo.Read();
-		if (--ReadCount == 0)
-			InvokeReadCallBack (1);
+
+	if (ReadReady) {
+		ReadReady = false;
+		InvokeReadCallBack (1);
+		return;
+	}
+
+	if (RxTimeoutTimer < 0) {
+		RxTimeoutTimer = 0;
+		if (ReadCount > 0) {
+			ReadCount = 0;
+			InvokeReadCallBack (0);
+		}
+
+	} else {
+		while (ReadCount > 0) {
+			if (RxFifo.Available() == 0)
+				break;
+			* ReadDstPtr++ = RxFifo.Read();
+			if (--ReadCount == 0) {
+				RxTimeoutTimer = 0;
+				InvokeReadCallBack (1);
+			}
+		}
 	}
 }
 
@@ -218,10 +257,7 @@ void SerialSTM32::TimerIRQ()
 		if (--RxTimeoutTimer == 0) {
 			RxTimeoutTimer = -1;
 			if (ReadCount > 0) {
-				ReadCount = 0;
-				// TODO you have to leave the timer IRQ here
-				// raise event unstead (same as UART IRQ)
-				InvokeReadCallBack (0);
+				RaiseEvent();
 			}
 		}
 	}

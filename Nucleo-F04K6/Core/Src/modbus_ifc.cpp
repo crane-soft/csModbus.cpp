@@ -1,14 +1,36 @@
 
 #include "Modbus/MbRtuSlaveStm.h"
+#include "Modbus/MbAsciiSlaveStm.h"
 #include "SlaveDataServer/MbSlaveEmbServer.h"
+#include "SerialSTM32.h"
 #include "Gpio.h"
 
 #define SLAVE_ID	1
 using namespace csModbusLib;
 
-#define REGS_BASE_ADDR	10
-#define MAX_REGS	8
-uint16_t mod_registers[MAX_REGS];
+#define BAUD_RATE	115200
+#define MB_SERVER
+//#define STM_RTU
+//#define STM_ASCII
+
+SerialSTM32				ModbusPort 		 = SerialSTM32(USART2,BAUD_RATE);
+
+#ifdef MB_SERVER
+MbRTU				ModbusInterfave  = MbRTU(&ModbusPort);
+MbSlave				ModbusSlave 	 = MbSlave (&ModbusInterfave);
+#else
+#ifdef STM_RTU
+MbRtuSlaveStm		ModbusSlave 	 = MbRtuSlaveStm (&ModbusPort);
+#else
+MbAsciiSlaveStm		ModbusSlave 	 = MbAsciiSlaveStm (&ModbusPort);
+#endif
+#endif
+
+#define HOLDING_REGS_ADDR	10
+#define MAX_HOLDING_REGS	8
+#define INPUS_REGS_ADDR		20
+#define MAX_INPUS_REGS		5
+uint16_t mod_registers[MAX_HOLDING_REGS];
 
 class Nucleo_DataServer : public MbSlaveEmbServer
 {
@@ -16,11 +38,27 @@ public:
 	Nucleo_DataServer(int SlaveID)
 		: MbSlaveEmbServer(SlaveID) {}
 	
-protected:			
+protected:
+
+    bool ReadInputRegisters() override
+    {
+		if (Frame->MatchAddress (INPUS_REGS_ADDR, MAX_INPUS_REGS)) {
+			Frame->PutValue(0,HAL_GetTick());
+			Frame->PutValue(1,ModbusSlave.GetLastError());
+			Frame->PutValue(2,ModbusSlave.GetErrorCount());
+			Frame->PutValue(3,0);
+			Frame->PutValue(4,0);
+
+			return true;
+		}
+		return false;
+    }
+
     bool ReadHoldingRegisters() override
 	{ 
-		if (Frame->PutValues (REGS_BASE_ADDR, MAX_REGS, mod_registers)) {
+		if (Frame->PutValues (HOLDING_REGS_ADDR, MAX_HOLDING_REGS, mod_registers)) {
 			++mod_registers[0];
+			//mod_registers[3] = ModbusSlave.SerialInterface->TimeOutOffs;
 			return true; 
 		}
 		return false;
@@ -28,9 +66,10 @@ protected:
 
 	bool WriteSingleRegister() override
 	{ 
-		if (Frame->MatchAddress (REGS_BASE_ADDR, MAX_REGS)) {
-			mod_registers[Frame->DataAddress - REGS_BASE_ADDR] = Frame->GetSingleUInt16();
+		if (Frame->MatchAddress (HOLDING_REGS_ADDR, MAX_HOLDING_REGS)) {
+			mod_registers[Frame->DataAddress - HOLDING_REGS_ADDR] = Frame->GetSingleUInt16();
 			++mod_registers[1];
+			//ModbusSlave.SerialInterface->TimeOutOffs = mod_registers[3];
 			return true; 
 		}
 		return false;
@@ -57,15 +96,6 @@ private:
 	coil_t LD3_Status = 0;
 };
 
-//#define MB_SERVER
-
-SerialSTM32				ModbusPort 		 = SerialSTM32(USART2,9600);
-#ifdef MB_SERVER
-MbRTU					ModbusInterfave  = MbRTU(&ModbusPort);
-MbSlave					ModbusSlave 	 = MbSlave (&ModbusInterfave);
-#else
-MbRtuSlaveStm			ModbusSlave 	 = MbRtuSlaveStm (&ModbusPort);
-#endif
 Nucleo_DataServer		ModbusDataServer = Nucleo_DataServer(SLAVE_ID);
 
 extern "C"  {

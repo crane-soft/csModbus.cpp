@@ -21,33 +21,4 @@ namespace csModbusLib
 			ListenThread = NULL;
 		}
 	}
-
-	void MbSlaveServer::HandleRequestMessages()
-	{
-		running = true;
-		stopped = false;
-		while (running) {
-			try {
-				ReceiveMasterRequestMessage();
-				if (DataServices()) {
-					SendResponseMessage();
-				}
-			}
-			catch (ErrorCodes errCode) {
-				if (running) {
-					ErrorHandler(errCode);
-				}
-			}
-		}
-		stopped = true;
-	}
-
-	void MbSlaveServer::ReceiveMasterRequestMessage()
-	{
-		gInterface->ReceiveHeader(MbInterface::InfiniteTimeout);
-		ErrorCodes errCode = Frame.ReceiveMasterRequest(gInterface);
-		if (errCode != ErrorCodes::MB_NO_ERROR)
-			throw errCode;
-	}
-
 }

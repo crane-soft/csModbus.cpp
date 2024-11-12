@@ -85,7 +85,35 @@ namespace csModbusLib {
 		StopListener();
 	}
 
-	void MbSlave::ErrorHandler(ErrorCodes errCode)
+	void MbSlave::HandleRequestMessages()
+	{
+		running = true;
+		stopped = false;
+		while (running) {
+			TRY {
+				ReceiveMasterRequestMessage();
+				if (DataServices()) {
+					SendResponseMessage();
+				}
+			}
+			CATCH (exCode) {
+				if (running) {
+					ErrorHandler(exCode);
+				}
+			}
+		}
+		stopped = true;
+	}
+
+	void MbSlave::ReceiveMasterRequestMessage()
+	{
+		gInterface->ReceiveHeader(MbInterface::InfiniteTimeout);
+		ErrorCodes errCode = Frame.ReceiveMasterRequest(gInterface);
+		if (errCode != ErrorCodes::MB_NO_ERROR)
+			ThrowException(errCode);
+	}
+
+	void MbSlave::ErrorHandler(int errCode)
 	{
 		lastErrorCode = errCode;
 

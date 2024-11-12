@@ -9,27 +9,30 @@
 #include "Modbus/MbAsciiSlaveStm.h"
 #include "Modbus/MbSlaveServer.h"
 #include "SlaveDataServer/MbSlaveStdServer.h"
+#include "SerialWin32.h"
 
 #include "stdafx.h"
 #include "conio.h"
 
 using namespace csModbusLib;
 
+//MbTCPMaster MyInterface = MbTCPMaster("127.0.0.1", 502);
+MbMaster MyMaster;
+
 const char* ComPort = "COM2";
 const int BdRate = 19200;
-SerialPort *WinPort = new SerialWin32(ComPort, BdRate);
 
-MbMaster MyMaster;
-MbSlaveServer MySlave;
-MbAsciiSlaveStm MySlaveStm ;
-//MbRtuSlaveStm MySlaveStm ;
+SerialPort *WinPort = new SerialWin32(ComPort, BdRate);
 
 
 //MbRTU MyInterface = MbRTU(new SerialWin32(ComPort, BdRate));
-MbASCII MyInterface = MbASCII(new SerialWin32(ComPort, BdRate));
+MbASCII MyInterface = MbASCII(WinPort);
 // MbTCPSlave MyInterface = MbTCPSlave(502);
-//MbTCPMaster MyInterface = MbTCPMaster("127.0.0.1", 502);
 
+
+//MbSlaveServer MySlave = MbSlaveServer(&MyInterface);
+MbAsciiSlaveStm MySlave = MbAsciiSlaveStm (WinPort);
+//MbRtuSlaveStm MySlave = MbRtuSlaveStm (WinPort);
 
 #define NUM_REGS 8
 #define BASE_ADDR 10
@@ -77,8 +80,7 @@ void TestSlave()
 	MyDataServer.AddCoils(10, coils10, 20);
 	MyDataServer.AddDiscreteInputs(30, inputs20, 20);
 
-	
-	MySlaveStm.StartListen(WinPort,&MyDataServer);
+	MySlave.StartListen(&MyDataServer);
 
 	while (_kbhit() == 0) {
 
@@ -91,7 +93,7 @@ void TestSlave()
 			break;
 		MbSleep(50);
 	}
-	MySlaveStm.StopListen();
+	MySlave.StopListen();
 }
 
 

@@ -2,6 +2,10 @@
 #include <string>
 #include "SerialWin32.h"
 #include "platform.h"
+
+#define WIN32_LEAN_AND_MEAN 
+#include <Windows.h>
+
 // Serial Communication for WIN32
 // https://www.tetraedre.com/advanced/serial2.php
 // https://docs.microsoft.com/en-us/previous-versions/ff802693(v=msdn.10)?redirectedfrom=MSDN

@@ -123,6 +123,7 @@ namespace csModbusLib
 		}
 
 		if ((FunctionCode <= ModbusCodes::READ_INPUT_REGISTERS) || (FunctionCode == ModbusCodes::READ_WRITE_MULTIPLE_REGISTERS)) {
+			RawData.Data[RESPNS_LEN_IDX] = (uint8_t)(DataCount * 2);
 			return 3 + RawData.Data[RESPNS_LEN_IDX];
 		} else {
 			return ResponseMessageLength();
@@ -162,14 +163,17 @@ namespace csModbusLib
 		PutBitData(SrcBits, 0, RESPNS_DATA_IDX);
 	}
 
+	void MBSFrame::PutValue(int idx, uint16_t Value)
+	{
+		RawData.PutUInt16(RESPNS_DATA_IDX + idx * 2, Value);
+	}
+
 	void MBSFrame::PutValues(int BaseAddr, uint16_t * RegisterArray)
 	{
 		for (int i = 0; i < DataCount; ++i) {
 			uint16_t Value = RegisterArray[DataAddress - BaseAddr + i];
 			RawData.PutUInt16(RESPNS_DATA_IDX + i * 2, Value);
-
 		}
-		RawData.Data[RESPNS_LEN_IDX] = (uint8_t)(DataCount * 2);
 	}
 	
 	bool MBSFrame::PutValues(int BaseAddr, int size, uint16_t* RegisterArray)

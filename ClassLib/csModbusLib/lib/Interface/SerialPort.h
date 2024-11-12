@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <stdint.h>
+#include "platform.h"
 
 class SerialCallBack {
 public:
@@ -27,6 +28,7 @@ public:
 	void SetReadTimeout(int ms);
 	int ReadByte();
 	int SerialByteTime() const;
+	int TimeoutOffs() const { return RX_TIMEOUT_OFFS; }
 
 	virtual bool IsOpen() = 0;
 	virtual void Close() = 0;
@@ -35,10 +37,10 @@ public:
 	virtual int Read(uint8_t * Data,  int count) = 0;
 	virtual void ReadEv(uint8_t* Data, int count) = 0;
 
+
 protected:
 	const void * ComPort;
 	ReadCallback_t ReadCallBack;
-
 	int BaudRate;
 	int DataBits;
 	SerialPort::Parity mParity;

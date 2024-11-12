@@ -20,7 +20,6 @@ namespace csModbusLib {
 	{
 	}
 
-
 	void MbSlaveStateMachine::ReveiveHeader(int timeout)
 	{
 		Frame.RawData.Clear();
@@ -30,17 +29,13 @@ namespace csModbusLib {
 	void MbSlaveStateMachine::ErrorOccured(ErrorCodes errCode)
 	{
 		LastError = errCode;
-		RxState = enRxStates::ErrorOccurred;
+		ErrorHandler((int)LastError);
+		WaitForFrameStart();
 	}
 
 	int MbSlaveStateMachine::SerialInterface_DataReceivedEvent(int result)
 	{
 		int DataLen;
-		if (RxState == enRxStates::ErrorOccurred) {
-			ErrorHandler(LastError);
-			WaitForFrameStart();
-			return 1;
-		}
 
 		if (result == -1) {
 			ErrorOccured(ErrorCodes::CONNECTION_ERROR);

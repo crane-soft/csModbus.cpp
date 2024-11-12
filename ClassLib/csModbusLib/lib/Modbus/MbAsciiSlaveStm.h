@@ -6,10 +6,12 @@ namespace csModbusLib {
 	class MbAsciiSlaveStm : public MbSlaveStateMachine
 	{
 	public:
-        bool StartListen(SerialPort* sp, MbSlaveDataServer* DataServer)
-        {
+        MbAsciiSlaveStm(SerialPort* sp) : MbSlaveStateMachine(&AsciiInterface)  {
             AsciiInterface.setSerialPort(sp);
-            return MbSlave::StartListen(&AsciiInterface, DataServer);
+        }
+
+        MbAsciiSlaveStm(SerialPort* sp, MbSlaveDataServer* DataServer) : MbSlaveStateMachine(&AsciiInterface, DataServer)  {
+            AsciiInterface.setSerialPort(sp);
         }
 
     protected:

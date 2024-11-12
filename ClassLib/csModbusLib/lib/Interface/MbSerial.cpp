@@ -23,7 +23,7 @@ namespace csModbusLib {
 		if (serialBytesCnt == 0)
 			return 0;
 		int timeOut = (serialBytesCnt * oneByteTime_us) / 1000;
-		return timeOut +  TX_TIMEOUT_OFFS;    // we need more timeout in a Windoww environement
+		return timeOut + TimeOutOffs;
 	}
 
 	bool MbSerial::Connect(MbRawData* Data)
@@ -37,6 +37,7 @@ namespace csModbusLib {
 			IsConnected = true;
 			sp->SetWriteTimeout(200);
 			oneByteTime_us = sp->SerialByteTime();
+			TimeOutOffs = sp->TimeoutOffs();
 		}
 		return IsConnected;
 	}
@@ -58,7 +59,6 @@ namespace csModbusLib {
 	
 	void MbSerial::ReceiveData(int count, int timeout)
 	{
-#ifndef _STM32
 		SetReadTimeout(count, timeout);
 		int bytesRead;
 		bytesRead = sp->Read(MbData->BufferEnd(), count);
@@ -67,9 +67,8 @@ namespace csModbusLib {
 			return;
 		}
 		if (bytesRead == 0)
-			throw ErrorCodes::RX_TIMEOUT;
-		throw ErrorCodes::CONNECTION_ERROR;
-#endif
+			ThrowException(ErrorCodes::RX_TIMEOUT);
+		ThrowException (ErrorCodes::CONNECTION_ERROR);
 	}
 
 	void MbSerial::ReceiveBytesEv(int count, int timeOut)
@@ -84,7 +83,6 @@ namespace csModbusLib {
 		if (timeout == ByteCountTimeout)
 			timeout = GetTimeOut_ms(count);
 		sp->SetReadTimeout(timeout);
-
 	}
 
 	void MbSerial::DiscardReceived()
@@ -105,16 +103,12 @@ namespace csModbusLib {
 
 	void MbSerial::SendData(const uint8_t * Data, int count)
 	{
-#ifdef _STM32
 		sp->Write(Data, count);
-#else
 		int result = sp->Write(Data, count);
 		if (result == count)
 			return;
 		if (result == 0)
-			throw ErrorCodes::TX_TIMEOUT;
-		throw ErrorCodes::CONNECTION_ERROR;
-
-#endif
+			ThrowException(ErrorCodes::TX_TIMEOUT);
+		ThrowException (ErrorCodes::CONNECTION_ERROR);
 	}
 }

@@ -1,7 +1,5 @@
 #pragma once
 #include <stdint.h>
-#define WIN32_LEAN_AND_MEAN 
-#include <Windows.h>
 #include <thread>
 #include "Interface/SerialPort.h"
 
@@ -25,7 +23,7 @@ protected:
 	void SetTimeouts() override;
 
 private:
-	HANDLE comhdle;
+	void * comhdle;
 
 	uint8_t* RdData;
 	int RdCount;
@@ -34,6 +32,4 @@ private:
 	bool ReadPending = false;
 	bool CancelReadThread = false;
 	std::thread ReadThread;
-
-
 };

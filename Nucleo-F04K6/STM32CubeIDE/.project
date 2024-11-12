@@ -138,6 +138,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart_ex.c</locationURI>
 		</link>
 		<link>
+			<name>Application/Modbus/Interface/MbASCII.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/csModbusLib/lib/Interface/MbASCII.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/Modbus/Interface/MbInterface.h</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/csModbusLib/lib/Interface/MbInterface.h</locationURI>
@@ -163,9 +168,19 @@
 			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/csModbusLib/lib/Modbus/MBSFrame.cpp</locationURI>
 		</link>
 		<link>
+			<name>Application/Modbus/Modbus/MbAsciiSlaveStm.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/csModbusLib/lib/Modbus/MbAsciiSlaveStm.h</locationURI>
+		</link>
+		<link>
 			<name>Application/Modbus/Modbus/MbFrame.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/csModbusLib/lib/Modbus/MbFrame.cpp</locationURI>
+		</link>
+		<link>
+			<name>Application/Modbus/Modbus/MbRtuSlaveStm.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/csModbusLib/lib/Modbus/MbRtuSlaveStm.h</locationURI>
 		</link>
 		<link>
 			<name>Application/Modbus/Modbus/MbSlave.cpp</name>

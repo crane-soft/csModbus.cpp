@@ -26,12 +26,14 @@ namespace csModbusLib
             return WriteSingleCoil(Frame->DataAddress, Frame->GetSingleBit());
         }
 
+
         bool WriteSingleRegister() override
         {
             return WriteSingleRegister(Frame->DataAddress, Frame->GetSingleUInt16());
         }
 
         virtual coil_t* ReadCoils(uint16_t Address, int Size) { return 0; }
+        virtual uint16_t* ReadInputRegisters(uint16_t Address, int Size) { return 0; }
 
         virtual bool WriteSingleCoil(uint16_t Address, coil_t Bit) { return false; }
         virtual bool WriteSingleRegister(uint16_t Address, uint16_t Value) { return false; }

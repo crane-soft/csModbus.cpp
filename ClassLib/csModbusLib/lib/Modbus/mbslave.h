@@ -1,6 +1,7 @@
 #pragma once
 #include "Modbus/MbBase.h"
 #include "SlaveDataServer/MbSlaveDataServer.h"
+#include "platform.h"
 
 namespace csModbusLib {
 
@@ -16,8 +17,12 @@ namespace csModbusLib {
 		bool StartListen(MbInterface* Interface, MbSlaveDataServer* DataServer);
 		void StopListen();
 
+		void HandleRequestMessages();
+
 		MbSlaveDataServer * Get_DataServer();
 		void Set_DataServer(MbSlaveDataServer *DataServer);
+		int GetLastError() { return (int)lastErrorCode; }
+		int GetErrorCount() { return errCount; }
 
 	protected:
 		MbSlaveDataServer *gDataServer = 0;
@@ -27,9 +32,10 @@ namespace csModbusLib {
 		virtual void StopListener() {}
 		bool DataServices();
 		void SendResponseMessage();
-		void ErrorHandler(ErrorCodes errCode);
+		void ErrorHandler(int errCode);
 	private:
-		ErrorCodes lastErrorCode;
+		void ReceiveMasterRequestMessage();
+		int lastErrorCode;
 		int errCount;
 	};
 }

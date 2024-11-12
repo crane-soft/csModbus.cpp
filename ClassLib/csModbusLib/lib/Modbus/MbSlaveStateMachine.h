@@ -24,7 +24,6 @@ namespace csModbusLib {
             RcvAdditionalData,
             RcvCrLf,
             EndOfFrame,
-            ErrorOccurred,
         };
 
         virtual void WaitForFrameStart() = 0;

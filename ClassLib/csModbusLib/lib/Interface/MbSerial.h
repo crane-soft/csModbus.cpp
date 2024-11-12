@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "platform.h"
 #include "Interface/MbInterface.h"
-
+#include "SerialPort.h"
 namespace csModbusLib {
 
 	class MbSerial : public MbInterface {
@@ -25,15 +25,13 @@ namespace csModbusLib {
 
 		void DiscardReceived() override;
 		virtual bool Check_EndOfFrame() = 0;
-
+		int TimeOutOffs;
 	protected:
-		SerialPort *sp;
-
-		virtual void WaitFrameStart(int timeout) {}
 		virtual void ReceiveData(int count, int timeout = ByteCountTimeout);
-
 		void SetReadTimeout(int count, int timeout);
 		void SendData(const uint8_t* Data, int count);
+		SerialPort* sp;
+
 	private:
 		int GetTimeOut_ms(int NumBytes) const;
 		int oneByteTime_us;

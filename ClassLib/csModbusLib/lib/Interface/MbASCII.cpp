@@ -1,10 +1,9 @@
 ﻿#include "Interface/MbASCII.h"
 #include "Modbus/MbFrame.h"
 #include "platform.h"
+
 namespace csModbusLib
 {
-
-
 	void  MbASCII::WaitFrameStart(int timeout) 
 	{
 		sp->SetReadTimeout(10);
@@ -14,11 +13,12 @@ namespace csModbusLib
 				if (ch == 0) {
 					timeout -= 10;
 					if (timeout <= 0) {
-						throw ErrorCodes::RX_TIMEOUT;
+						ThrowException(ErrorCodes::RX_TIMEOUT);
 					}
 				}
 			}
-		} 
+		}
+
 	}
 
 	void MbASCII::ReceiveHeader(int timeOut)
@@ -27,7 +27,7 @@ namespace csModbusLib
 		MbData->Clear();
 		MbSerial::ReceiveBytes(2); // Node-ID + Function-Byte
 	}
-
+	
 	void MbASCII::ReceiveData(int count, int timeout)
 	{
 		for (int i = 0; i < count; ++i) {
