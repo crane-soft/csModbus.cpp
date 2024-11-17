@@ -2,10 +2,6 @@
 #include "SerialSTM32.h"
 #include "platform.h"
 
-#ifdef USE_SETJMP
-jmp_buf global_jmp;
-#endif
-
 #define USART_PRIORITY	0
 #define EVENT_PRIORITY	3
 
@@ -28,6 +24,7 @@ void SerialSTM32::Init()
 	RxTimeoutTimer = 0;
 	ReadCount = 0;
 	ReadReady = false;
+	EventUsed = false;
 }
 
 bool SerialSTM32::OpenPort()
@@ -52,7 +49,6 @@ bool SerialSTM32::OpenPort()
 	}
 	
 	DiscardInOut();
-	InitEventHandler();
 
     HAL_NVIC_SetPriority(USART2_IRQn, USART_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(USART2_IRQn);
@@ -116,12 +112,13 @@ void SerialSTM32::DiscardInOut()
 	TxFifo.Clear();
 }
 
-void SerialSTM32::InitEventHandler()
+void SerialSTM32::InitCallBack()
 {
 	EXTI->IMR |= STM_EVENT_MASK;
 	EXTI->EMR |= STM_EVENT_MASK;
-    HAL_NVIC_SetPriority(EXTI4_15_IRQn, EVENT_PRIORITY, 0);
-    HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
+	HAL_NVIC_SetPriority(EXTI4_15_IRQn, EVENT_PRIORITY, 0);
+	HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
+	EventUsed = true;
 }
 
 int SerialSTM32::Write(const uint8_t * Data, int count)
@@ -211,9 +208,9 @@ void SerialSTM32::ByteReceived(uint8_t rxByte)
 {
 	if (RxFifo.FreeLeft() > 0)
 		RxFifo.Write (rxByte);
-	RaiseEvent();
+	if (EventUsed)
+		RaiseEvent();
 }
-
 
 void SerialSTM32::RaiseEvent()
 {

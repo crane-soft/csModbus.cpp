@@ -13,7 +13,7 @@ namespace csModbusLib
 				if (ch == 0) {
 					timeout -= 10;
 					if (timeout <= 0) {
-						ThrowException(ErrorCodes::RX_TIMEOUT);
+						THROW(ErrorCodes::RX_TIMEOUT);
 					}
 				}
 			}
@@ -21,13 +21,21 @@ namespace csModbusLib
 
 	}
 
+
 	void MbASCII::ReceiveHeader(int timeOut)
 	{
 		WaitFrameStart(timeOut);
 		MbData->Clear();
 		MbSerial::ReceiveBytes(2); // Node-ID + Function-Byte
 	}
-	
+
+	bool MbASCII::EndOfFrame()
+	{
+		MbSerial::ReceiveBytes(1);   // Read LRC
+		MbSerial::ReceiveData(2);	// Read CR-LF
+		return Check_EndOfFrame();
+	}
+
 	void MbASCII::ReceiveData(int count, int timeout)
 	{
 		for (int i = 0; i < count; ++i) {
@@ -62,12 +70,6 @@ namespace csModbusLib
 		}
 	}
 
-	bool MbASCII::EndOfFrame()
-	{
-		MbSerial::ReceiveBytes(1);   // Read LRC
-		MbSerial::ReceiveData(2);	// Read CR-LF
-		return Check_EndOfFrame();
-	}
 
 	bool MbASCII::Check_EndOfFrame()
 	{

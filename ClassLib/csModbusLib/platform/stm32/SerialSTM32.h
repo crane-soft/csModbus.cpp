@@ -4,7 +4,9 @@
 #include "csFifo.h"
 #include "stm32f0xx_hal.h"
 
-#define FIFO_SIZE	260
+#define RX_FIFO_SIZE	16
+#define TX_FIFO_SIZE	64
+
 class SerialSTM32 : public SerialPort {
 
 public:
@@ -22,11 +24,11 @@ public:
 	void EventIRQ();
 	void TimerIRQ();
 protected:
-	bool OpenPort();
+	bool OpenPort() override;
+	void InitCallBack() override;
 
 private:
 	void Init();
-	void  InitEventHandler();
 	void InvokeReadCallBack(int result);
 	void ByteReceived(uint8_t rxByte);
 	void RaiseEvent();
@@ -34,12 +36,13 @@ private:
 	uint32_t STM_DataLen() const;
 	uint32_t STM_Stopbis () const;
 	uint32_t STM_Parity () const;
-	csFifoBuff<uint8_t, FIFO_SIZE> RxFifo;
-	csFifoBuff<uint8_t, FIFO_SIZE> TxFifo;
+	csFifoBuff<uint8_t, RX_FIFO_SIZE> RxFifo;
+	csFifoBuff<uint8_t, TX_FIFO_SIZE> TxFifo;
 
 	UART_HandleTypeDef huart;
 	bool mIsOPen;
 	uint8_t *ReadDstPtr;
+	bool EventUsed;
 	int ReadCount;
 	int RxTimeoutTimer;
 	bool ReadReady;

@@ -26,6 +26,7 @@ void SerialPort::SetComParms(const void* _ComPort, int _BaudRate, int _DataBits,
 void SerialPort::setCallback(ReadCallback_t callBack)
 {
 	ReadCallBack = callBack;
+	InitCallBack();
 }
 
 bool SerialPort::Open()

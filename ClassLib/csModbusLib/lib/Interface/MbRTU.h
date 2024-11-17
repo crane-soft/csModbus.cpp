@@ -10,10 +10,11 @@ namespace csModbusLib {
 		MbRTU() {}
 		MbRTU(SerialPort * sp);
 		void ReceiveHeader(int timeOut) override;
+		bool EndOfFrame() override;
+
 		void SendFrame(int Length) override;
 		ConnectionType getConnectionType() const override { return ConnectionType::SERIAL_RTU; };
 
-		bool EndOfFrame() override;
 		bool Check_EndOfFrame() override;
 
 

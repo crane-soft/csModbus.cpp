@@ -10,19 +10,23 @@ using namespace csModbusLib;
 
 #define BAUD_RATE	115200
 #define MB_SERVER
-//#define STM_RTU
-//#define STM_ASCII
+#define MB_ASCII
 
+//--------------------------------------------------------------------------------------
 SerialSTM32				ModbusPort 		 = SerialSTM32(USART2,BAUD_RATE);
-
 #ifdef MB_SERVER
+#ifdef MB_ASCII
+
+MbASCII				ModbusInterfave  = MbASCII(&ModbusPort);
+#else // RTU
 MbRTU				ModbusInterfave  = MbRTU(&ModbusPort);
+#endif
 MbSlave				ModbusSlave 	 = MbSlave (&ModbusInterfave);
-#else
-#ifdef STM_RTU
-MbRtuSlaveStm		ModbusSlave 	 = MbRtuSlaveStm (&ModbusPort);
-#else
+#else // STATE-Machin
+#ifdef MB_ASCII
 MbAsciiSlaveStm		ModbusSlave 	 = MbAsciiSlaveStm (&ModbusPort);
+#else
+MbRtuSlaveStm		ModbusSlave 	 = MbRtuSlaveStm (&ModbusPort);
 #endif
 #endif
 

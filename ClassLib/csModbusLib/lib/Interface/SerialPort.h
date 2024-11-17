@@ -12,7 +12,6 @@ class SerialPort {
 
 public:
 	using ReadCallback_t = typename std::function<int(int)>;
-
 	enum class Parity { NoParity, Odd, Even } ;
 	enum class StopBits { NoStopBits, One, Two, OnePointFive } ;
 
@@ -37,7 +36,6 @@ public:
 	virtual int Read(uint8_t * Data,  int count) = 0;
 	virtual void ReadEv(uint8_t* Data, int count) = 0;
 
-
 protected:
 	const void * ComPort;
 	ReadCallback_t ReadCallBack;
@@ -50,4 +48,5 @@ protected:
 		
 	virtual bool OpenPort() = 0;
 	virtual void SetTimeouts() {}
+	virtual void InitCallBack() {};
 };

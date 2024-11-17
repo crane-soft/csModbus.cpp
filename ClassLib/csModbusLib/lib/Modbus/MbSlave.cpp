@@ -110,7 +110,7 @@ namespace csModbusLib {
 		gInterface->ReceiveHeader(MbInterface::InfiniteTimeout);
 		ErrorCodes errCode = Frame.ReceiveMasterRequest(gInterface);
 		if (errCode != ErrorCodes::MB_NO_ERROR)
-			ThrowException(errCode);
+			THROW(errCode);
 	}
 
 	void MbSlave::ErrorHandler(int errCode)

@@ -56,7 +56,6 @@ namespace csModbusLib {
 		ReceiveData(count, ByteCountTimeout);
 	}
 	
-	
 	void MbSerial::ReceiveData(int count, int timeout)
 	{
 		SetReadTimeout(count, timeout);
@@ -67,8 +66,8 @@ namespace csModbusLib {
 			return;
 		}
 		if (bytesRead == 0)
-			ThrowException(ErrorCodes::RX_TIMEOUT);
-		ThrowException (ErrorCodes::CONNECTION_ERROR);
+			THROW(ErrorCodes::RX_TIMEOUT);
+		THROW (ErrorCodes::CONNECTION_ERROR);
 	}
 
 	void MbSerial::ReceiveBytesEv(int count, int timeOut)
@@ -103,12 +102,15 @@ namespace csModbusLib {
 
 	void MbSerial::SendData(const uint8_t * Data, int count)
 	{
-		sp->Write(Data, count);
 		int result = sp->Write(Data, count);
 		if (result == count)
 			return;
+
+#ifdef USE_EXECPTION
 		if (result == 0)
-			ThrowException(ErrorCodes::TX_TIMEOUT);
-		ThrowException (ErrorCodes::CONNECTION_ERROR);
+			THROW(ErrorCodes::TX_TIMEOUT);
+		THROW (ErrorCodes::CONNECTION_ERROR);
+#endif
 	}
 }
+

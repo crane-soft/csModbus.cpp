@@ -213,6 +213,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/csModbusLib/platform/stm32/SerialSTM32.h</locationURI>
 		</link>
 		<link>
+			<name>Application/Modbus/platform/exception.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/csModbusLib/platform/stm32/exception.cpp</locationURI>
+		</link>
+		<link>
 			<name>Application/Modbus/platform/platform.h</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/ClassLib/csModbusLib/platform/stm32/platform.h</locationURI>

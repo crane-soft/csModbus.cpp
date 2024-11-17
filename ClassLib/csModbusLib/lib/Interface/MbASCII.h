@@ -10,10 +10,9 @@ namespace csModbusLib {
 		MbASCII() {}
 		MbASCII(SerialPort * sp) : MbSerial(sp) {}
 		ConnectionType getConnectionType() const override { return ConnectionType::SERIAL_ASCII; };
-
 		void ReceiveHeader(int timeOut) override;
-		void SendFrame(int Length) override;
 		bool EndOfFrame() override;
+		void SendFrame(int Length) override;
 		bool Check_EndOfFrame() override;
 
 		void ASCII2Hex();
