@@ -12,7 +12,7 @@ namespace csModbusLib {
 
 	void MbETHSlave::SendFrame(int Length)
 	{
-		MbData->PutUInt16(4, (uint16_t)Length);
+		FrameData.PutUInt16(4, (uint16_t)Length);
 		try {
 			SendFrameData(Length + MBAP_Header_Size);
 			FreeMessage();
@@ -26,9 +26,9 @@ namespace csModbusLib {
 	// -------------------------------------------------------------------
 	MbUDPSlave::MbUDPSlave(int port) : MbETHSlave(port) { }
 
-	bool MbUDPSlave::Connect(MbRawData* Data)
+	bool MbUDPSlave::Connect()
 	{
-		MbInterface::Connect(Data);
+		MbInterface::Connect();
 		try {
 			mUdpClient = new UdpClient(0, remote_port);
 			IsConnected = true;
@@ -57,7 +57,7 @@ namespace csModbusLib {
 
 	void MbUDPSlave::SendFrameData(int Length)
 	{
-		mUdpClient->SendResponse(MbData->Data, Length);
+		mUdpClient->SendResponse(FrameData.Data, Length);
 	}
 
 	// -------------------------------------------------------------------
@@ -68,9 +68,9 @@ namespace csModbusLib {
 		ConnectionContext = 0;
 	}
 
-	bool MbTCPSlave::Connect(MbRawData *Data)
+	bool MbTCPSlave::Connect()
 	{
-		MbInterface::Connect(Data);
+		MbInterface::Connect();
 		smRxProcess->TryRelease();
 
 		try {
@@ -98,12 +98,12 @@ namespace csModbusLib {
 		smRxDataAvail->Wait();
 		if (IsConnected == false)
 			throw ErrorCodes::CONNECTION_CLOSED;
-		ConnectionContext->CopyRxData(MbData);
+		ConnectionContext->CopyRxData(&FrameData);
 	}
 
 	void MbTCPSlave::SendFrameData(int Length)
 	{
-		ConnectionContext->SendFrame(MbData->Data, Length);
+		ConnectionContext->SendFrame(FrameData.Data, Length);
 
 	}
 

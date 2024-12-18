@@ -22,7 +22,7 @@ namespace csModbusLib {
 
 	void MbSlaveStateMachine::ReveiveHeader(int timeout)
 	{
-		Frame.RawData.Clear();
+		Frame.RawData->Clear();
 		ReceiveFrameData(enRxStates::ReceiveHeader, 2, timeout);
 	}
 

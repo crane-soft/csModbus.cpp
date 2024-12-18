@@ -21,7 +21,7 @@ namespace csModbusLib {
 	class MbUDPSlave : public MbETHSlave {
 	public:
 		MbUDPSlave(int port);
-		bool Connect(MbRawData *Data);
+		bool Connect() override;
 		void DisConnect();
 		void ReceiveHeader(int timeOut);
 		ConnectionType getConnectionType() const override { return ConnectionType::UDP_IP; };
@@ -35,7 +35,7 @@ namespace csModbusLib {
 	public:
 		MbTCPSlave(int port);
 		
-		bool Connect(MbRawData *Data);
+		bool Connect()  override;
 		void DisConnect();
 		void ReceiveHeader(int timeOut);
 		ConnectionType getConnectionType() const override { return ConnectionType::TCP_IP; };

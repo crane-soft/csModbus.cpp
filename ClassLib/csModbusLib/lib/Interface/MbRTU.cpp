@@ -49,7 +49,7 @@ namespace csModbusLib {
 
 	void MbRTU::ReceiveHeader(int timeOut)
 	{
-		MbData->Clear();
+		FrameData.Clear();
 		ReceiveData(2, timeOut); // Node-ID + Function-Byte
 	}
 
@@ -61,11 +61,11 @@ namespace csModbusLib {
 
 	bool  MbRTU::Check_EndOfFrame()
 	{
-		int crc_idx = MbData->EndIdx-2;
+		int crc_idx = FrameData.EndIdx-2;
 
 		// Check CRC
-		uint16_t msg_crc = MbData->GetUInt16(crc_idx);
-		uint16_t calc_crc = CalcCRC16(&MbData->Data[MbRawData::ADU_OFFS], crc_idx - MbRawData::ADU_OFFS);
+		uint16_t msg_crc = FrameData.GetUInt16(crc_idx);
+		uint16_t calc_crc = CalcCRC16(FrameData.DataStart(), crc_idx - MbRawData::ADU_OFFS);
 		return (msg_crc == calc_crc);
 		// If the server receives the request, but detects a communication error (parity, LRC, CRC,  ...),
 		// no response is returned. The client program will eventually process a timeout condition for the request.
@@ -76,10 +76,10 @@ namespace csModbusLib {
 		// DiscardBuffer to resync start of frame
 		sp->DiscardInOut();
 
-		uint16_t calc_crc = CalcCRC16(&MbData->Data[MbRawData::ADU_OFFS], Length);
-		MbData->PutUInt16(MbRawData::ADU_OFFS + Length, calc_crc);
+		uint16_t calc_crc = CalcCRC16(FrameData.DataStart(), Length);
+		FrameData.PutUInt16(MbRawData::ADU_OFFS + Length, calc_crc);
 		Length += 2;
-		SendData(&MbData->Data[MbRawData::ADU_OFFS], Length);
+		SendData(&FrameData.Data[MbRawData::ADU_OFFS], Length);
 	}
 
 	uint16_t MbRTU::UpdateCRC16(uint16_t crc, uint8_t bt) const

@@ -26,9 +26,9 @@ namespace csModbusLib {
 		return timeOut + TimeOutOffs;
 	}
 
-	bool MbSerial::Connect(MbRawData* Data)
+	bool MbSerial::Connect()
 	{
-		MbInterface::Connect(Data);
+		MbInterface::Connect();
 		if (!sp)
 			return false;
 
@@ -60,9 +60,9 @@ namespace csModbusLib {
 	{
 		SetReadTimeout(count, timeout);
 		int bytesRead;
-		bytesRead = sp->Read(MbData->BufferEnd(), count);
+		bytesRead = sp->Read(FrameData.BufferEnd(), count);
 		if (bytesRead == count) {
-			MbData->EndIdx += count;
+			FrameData.EndIdx += count;
 			return;
 		}
 		if (bytesRead == 0)
@@ -73,8 +73,8 @@ namespace csModbusLib {
 	void MbSerial::ReceiveBytesEv(int count, int timeOut)
 	{
 		SetReadTimeout(count, timeOut);
-		sp->ReadEv(MbData->BufferEnd(), count);
-		MbData->EndIdx += count;
+		sp->ReadEv(FrameData.BufferEnd(), count);
+		FrameData.EndIdx += count;
 	}
 
 	void MbSerial::SetReadTimeout(int count, int timeout)

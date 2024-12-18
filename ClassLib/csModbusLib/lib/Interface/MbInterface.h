@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include "Modbus/MbBase.h"
+#include "Modbus/MbRawData.h"
+
 namespace csModbusLib
 {
-	class MbRawData;
-
 	class MbInterface
 	{
 	public:
@@ -22,9 +22,8 @@ namespace csModbusLib
 
 		MbInterface()	{}
 
-		virtual bool Connect(MbRawData* Data)
+		virtual bool Connect()
 		{
-			this->MbData = Data;
 			IsConnected = false;
 			return IsConnected;
 		}
@@ -36,8 +35,9 @@ namespace csModbusLib
 		virtual void SendFrame(int Length) = 0;
 		virtual void DiscardReceived() { }
 		virtual ConnectionType getConnectionType() const { return ConnectionType::NO_CONNECTION; }
+		MbRawData* getFrameData() { return &FrameData; }
 	protected:
 		bool IsConnected = false;
-		MbRawData *MbData;
+		MbRawDataBuff<MbBase::MAX_FRAME_LEN> FrameData;
 	};
 }

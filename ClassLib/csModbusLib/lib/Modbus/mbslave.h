@@ -34,6 +34,7 @@ namespace csModbusLib {
 		void SendResponseMessage();
 		void ErrorHandler(int errCode);
 	private:
+		void InitInterface(MbInterface* Interface);
 		void ReceiveMasterRequestMessage();
 		int lastErrorCode;
 		int errCount;

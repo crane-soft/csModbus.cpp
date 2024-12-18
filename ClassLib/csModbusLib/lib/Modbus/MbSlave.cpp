@@ -22,6 +22,12 @@ namespace csModbusLib {
 		return gDataServer;
 	}
 
+	void MbSlave::InitInterface(MbInterface* Interface)
+	{
+		gInterface = Interface;
+		Frame.RawData = gInterface->getFrameData();
+	}
+
 	void MbSlave::Set_DataServer(MbSlaveDataServer *DataServer)
 	{
 		gDataServer = DataServer;
@@ -54,7 +60,7 @@ namespace csModbusLib {
 				StopListen();
 			}
 
-			if (gInterface->Connect(&Frame.RawData)) {
+			if (gInterface->Connect()) {
 				StartListener();
 				return true;
 			}

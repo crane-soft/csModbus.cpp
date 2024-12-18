@@ -21,6 +21,7 @@
     <ClCompile Include="..\lib\Modbus\MbFrame.cpp" />
     <ClCompile Include="..\lib\Modbus\MbMaster.cpp" />
     <ClCompile Include="..\lib\Modbus\MBMFrame.cpp" />
+    <ClCompile Include="..\lib\Modbus\MbRawData.cpp" />
     <ClCompile Include="..\lib\Modbus\MBSFrame.cpp" />
     <ClCompile Include="..\lib\Modbus\MbSlave.cpp" />
     <ClCompile Include="..\lib\Modbus\MbSlaveServer.cpp" />

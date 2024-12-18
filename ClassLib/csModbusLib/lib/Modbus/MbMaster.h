@@ -32,6 +32,7 @@ namespace csModbusLib {
 		bool ReceiveSlaveResponse();
 
 	private:
+		void InitInterface(MbInterface* Interface);
 		MBMFrame Frame = MBMFrame();
 		uint8_t Current_SlaveID;
 

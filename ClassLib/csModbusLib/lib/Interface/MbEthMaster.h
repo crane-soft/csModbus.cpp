@@ -19,7 +19,7 @@ namespace csModbusLib {
 	class MbUDPMaster : public MbETHMaster {
 	public:
 		MbUDPMaster(const char * host_name, int port);
-		bool Connect(MbRawData *Data);
+		bool Connect() override;
 		void DisConnect();
 		void SendFrame(int Length);
 		void ReceiveHeaderData(int timeOut);
@@ -30,7 +30,7 @@ namespace csModbusLib {
 	class MbTCPMaster : public MbETHMaster {
 	public:
 		MbTCPMaster(const char * host_name, int port);
-		bool Connect(MbRawData* Data);
+		bool Connect() override;
 		void DisConnect();
 		void SendFrame(int Length);
 		ConnectionType getConnectionType() const override { return ConnectionType::TCP_IP; };

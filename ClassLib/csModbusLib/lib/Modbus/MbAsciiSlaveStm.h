@@ -36,7 +36,7 @@ namespace csModbusLib {
 
         void AsciiCheckStartFrame(int result) override
         {
-            if ((result > 0) && (Frame.RawData.LastByte() == MbASCII::ASCII_START_FRAME)) {
+            if ((result > 0) && (Frame.RawData->LastByte() == MbASCII::ASCII_START_FRAME)) {
                 ReveiveHeader();
             } else {
                 AsciiReceiveStart();
@@ -66,7 +66,7 @@ namespace csModbusLib {
     private:
         void AsciiReceiveStart()
         {
-            Frame.RawData.Clear();
+            Frame.RawData->Clear();
             AsciiInterface.ReceiveBytesEv(1, 10);
         }
 

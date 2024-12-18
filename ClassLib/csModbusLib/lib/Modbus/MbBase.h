@@ -87,10 +87,6 @@ namespace csModbusLib
 		MbBase()  {}
 
 	protected:
-		void InitInterface(MbInterface * Interface)	{
-			gInterface = Interface;
-		}
-
 		MbInterface * gInterface = 0;
 		bool running = false;
 	};

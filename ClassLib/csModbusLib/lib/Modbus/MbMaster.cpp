@@ -23,7 +23,6 @@ namespace csModbusLib {
 	void  MbMasterBase::Set_SlaveID(uint8_t value){
 		Current_SlaveID = value;
 		Frame.SetSlaveID(value);
-
 	}
 
 	ErrorCodes MbMasterBase::Get_ErrorCode()
@@ -42,7 +41,7 @@ namespace csModbusLib {
 			if (running) {
 				Close();
 			}
-			if (gInterface->Connect(&Frame.RawData)) {
+			if (gInterface->Connect()) {
 				running = true;
 				return true;
 			}
@@ -61,6 +60,12 @@ namespace csModbusLib {
 		InitInterface(Interface);
 		Set_SlaveID(newSlaveID);
 		return Connect();
+	}
+
+	void MbMasterBase::InitInterface(MbInterface* Interface)
+	{
+		gInterface = Interface;
+		Frame.RawData = gInterface->getFrameData();
 	}
 
 	void MbMasterBase::Close()

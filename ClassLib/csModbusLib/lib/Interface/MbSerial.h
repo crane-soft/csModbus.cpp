@@ -17,7 +17,7 @@ namespace csModbusLib {
 		void setSerialPort(SerialPort* _sp);
 		void setCallback(SerialPort::ReadCallback_t callBack) {	sp->setCallback(callBack);	}
 
-		bool Connect(MbRawData* Data) override;
+		bool Connect() override;
 		void DisConnect() override;
 
 		void ReceiveBytes(int count) override;

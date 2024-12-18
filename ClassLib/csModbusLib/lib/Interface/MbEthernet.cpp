@@ -18,14 +18,14 @@ namespace csModbusLib {
 	void MbEthernet::FillMBAPHeader(int Length)
 	{
 		++TransactionIdentifier;
-		MbData->PutUInt16(0, TransactionIdentifier);
-		MbData->PutUInt16(2, 0);
-		MbData->PutUInt16(4, (uint16_t)Length);
+		FrameData.PutUInt16(0, TransactionIdentifier);
+		FrameData.PutUInt16(2, 0);
+		FrameData.PutUInt16(4, (uint16_t)Length);
 	}
 
 	void MbEthernet::CheckTransactionIdentifier()
 	{
-		uint16_t RxIdentifier = MbData->GetUInt16(0);
+		uint16_t RxIdentifier = FrameData.GetUInt16(0);
 		if (RxIdentifier != TransactionIdentifier) {
 			throw  ErrorCodes::WRONG_IDENTIFIER;
 		}
@@ -34,13 +34,13 @@ namespace csModbusLib {
 
 	void MbEthernet::UdpReceiveHeaderData(int timeOut)
 	{
-		MbData->EndIdx = 0;
+		FrameData.EndIdx = 0;
 		mUdpClient->SetReceiveTimeout(timeOut);
 		try {
-			int readed = mUdpClient->Receive(MbData->Data, MbBase::MAX_FRAME_LEN);
-			MbData->EndIdx = readed;
+			int readed = mUdpClient->Receive(FrameData.Data, MbBase::MAX_FRAME_LEN);
+			FrameData.EndIdx = readed;
 
-			if (MbData->CheckEthFrameLength() > 0) {
+			if (FrameData.CheckEthFrameLength() > 0) {
 				// we assume all framedata in one datagram
 				throw  ErrorCodes::MESSAGE_INCOMPLETE;
 			}

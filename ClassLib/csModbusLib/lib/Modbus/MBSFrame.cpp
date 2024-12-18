@@ -37,26 +37,26 @@ namespace csModbusLib
 	int MBSFrame::ParseMasterRequest()
 	{
 		ExceptionCode = ExceptionCodes::NO_EXCEPTION;
-		SlaveId = RawData.Data[REQST_UINIT_ID_IDX];
-		FunctionCode = (ModbusCodes)RawData.Data[REQST_FCODE_IDX];
+		SlaveId = RawData->Data[REQST_UINIT_ID_IDX];
+		FunctionCode = (ModbusCodes)RawData->Data[REQST_FCODE_IDX];
 		return FromMasterRequestMessageLen();
 	}
 
 	int MBSFrame::ParseDataCount()
 	{
-		DataAddress = RawData.GetUInt16(REQST_ADDR_IDX);
+		DataAddress = RawData->GetUInt16(REQST_ADDR_IDX);
 
 		int AdditionalData = 0;
 
 		if (WrSingleData == true) {
 			DataCount = 1;
 		} else {
-			DataCount = RawData.GetUInt16(REQST_DATA_CNT_IDX);
+			DataCount = RawData->GetUInt16(REQST_DATA_CNT_IDX);
 			if (WrMultipleData) {
 				if (FunctionCode == ModbusCodes::READ_WRITE_MULTIPLE_REGISTERS) {
-					AdditionalData = RawData.Data[REQST_DATA_LEN_IDX + 4];
+					AdditionalData = RawData->Data[REQST_DATA_LEN_IDX + 4];
 				} else {
-					AdditionalData = RawData.Data[REQST_DATA_LEN_IDX];
+					AdditionalData = RawData->Data[REQST_DATA_LEN_IDX];
 				}
 			}
 		}
@@ -86,11 +86,11 @@ namespace csModbusLib
 #if USE_READ_WRITE_REGS
 	void MBSFrame::SaveWritaData()
 	{
-		int WrDataLen = RawData.Data[REQST_DATA_LEN_IDX + 4];
+		int WrDataLen = RawData->Data[REQST_DATA_LEN_IDX + 4];
 		// Copy Head NodeID and Function Code
-		WriteData.CopyFrom(RawData.Data, 0, REQST_ADDR_IDX);
+		WriteData.CopyFrom(RawData->Data, 0, REQST_ADDR_IDX);
 		// Copy  the write data
-		WriteData.CopyFrom(RawData.Data, REQST_WRADDR_IDX, WrDataLen + 5);
+		WriteData.CopyFrom(RawData->Data, REQST_WRADDR_IDX, WrDataLen + 5);
 
 	}
 
@@ -104,8 +104,8 @@ namespace csModbusLib
 
 	void MBSFrame::ExceptionResponse(ExceptionCodes ErrorCode)
 	{
-		RawData.Data[REQST_FCODE_IDX] |= 0x80;
-		RawData.Data[RESPNS_ERR_IDX] = (uint8_t)ErrorCode;
+		RawData->Data[REQST_FCODE_IDX] |= 0x80;
+		RawData->Data[RESPNS_ERR_IDX] = (uint8_t)ErrorCode;
 	}
 
 
@@ -123,8 +123,8 @@ namespace csModbusLib
 		}
 
 		if ((FunctionCode <= ModbusCodes::READ_INPUT_REGISTERS) || (FunctionCode == ModbusCodes::READ_WRITE_MULTIPLE_REGISTERS)) {
-			RawData.Data[RESPNS_LEN_IDX] = (uint8_t)(DataCount * 2);
-			return 3 + RawData.Data[RESPNS_LEN_IDX];
+			RawData->Data[RESPNS_LEN_IDX] = (uint8_t)(DataCount * 2);
+			return 3 + RawData->Data[RESPNS_LEN_IDX];
 		} else {
 			return ResponseMessageLength();
 		}
@@ -145,12 +145,12 @@ namespace csModbusLib
 
 	uint16_t MBSFrame::GetSingleUInt16()
 	{
-		return RawData.GetUInt16(REQST_SINGLE_DATA_IDX);
+		return RawData->GetUInt16(REQST_SINGLE_DATA_IDX);
 	}
 
 	coil_t MBSFrame::GetSingleBit()
 	{
-		return RawData.Data[REQST_SINGLE_DATA_IDX];
+		return RawData->Data[REQST_SINGLE_DATA_IDX];
 	}
 
 	void MBSFrame::PutBitValues(int BaseAddr, coil_t* SrcBits)
@@ -165,14 +165,14 @@ namespace csModbusLib
 
 	void MBSFrame::PutValue(int idx, uint16_t Value)
 	{
-		RawData.PutUInt16(RESPNS_DATA_IDX + idx * 2, Value);
+		RawData->PutUInt16(RESPNS_DATA_IDX + idx * 2, Value);
 	}
 
 	void MBSFrame::PutValues(int BaseAddr, uint16_t * RegisterArray)
 	{
 		for (int i = 0; i < DataCount; ++i) {
 			uint16_t Value = RegisterArray[DataAddress - BaseAddr + i];
-			RawData.PutUInt16(RESPNS_DATA_IDX + i * 2, Value);
+			RawData->PutUInt16(RESPNS_DATA_IDX + i * 2, Value);
 		}
 	}
 	
@@ -201,7 +201,7 @@ namespace csModbusLib
 		}
 		SrcData->CopyUInt16(DestArray, REQST_DATA_IDX, DataAddress - BaseAddr, DataCount);
 #else
-		RawData.CopyUInt16(DestArray, REQST_DATA_IDX, DataAddress - BaseAddr, DataCount);
+		RawData->CopyUInt16(DestArray, REQST_DATA_IDX, DataAddress - BaseAddr, DataCount);
 #endif
 	}
 }
