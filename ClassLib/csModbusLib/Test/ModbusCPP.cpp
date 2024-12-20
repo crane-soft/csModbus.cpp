@@ -16,23 +16,58 @@
 
 using namespace csModbusLib;
 
-//MbTCPMaster MyInterface = MbTCPMaster("127.0.0.1", 502);
-MbMaster MyMaster;
+#define ASCII
+#define SLAVE
+#define SLAVE_STM
 
 const char* ComPort = "COM2";
 const int BdRate = 19200;
+SerialPort* WinPort = new SerialWin32(ComPort, BdRate);
 
-SerialPort *WinPort = new SerialWin32(ComPort, BdRate);
+#ifdef RTU
+#define IFC_STRING "RTU %s %d",ComPort, BdRate
+MbRTU MyInterface = MbRTU(new SerialWin32(ComPort, BdRate));
+#endif
 
-
-//MbRTU MyInterface = MbRTU(new SerialWin32(ComPort, BdRate));
+#ifdef ASCII
+#define IFC_STRING "ASCII %s %d",ComPort, BdRate
 MbASCII MyInterface = MbASCII(WinPort);
-// MbTCPSlave MyInterface = MbTCPSlave(502);
+#endif
+
+#ifdef TCP
+#define IFC_STRING "TCP"
+#ifdef MASTER
+MbTCPMaster MyInterface = MbTCPMaster("127.0.0.1", 502);
+#endif
+#ifdef SLAVE
+MbTCPSlave MyInterface = MbTCPSlave(502);
+#endif
+#endif
+
+#ifdef UDP
+#define IFC_STRING "UDP"
+#ifdef MASTER
+MbUDPMaster MyInterface = MbUDPMaster("127.0.0.1", 502);
+
+#endif
+#ifdef SLAVE
+MbUDPSlave MyInterface = MbUDPSlave(502);
+#endif
+#endif
+
+MbMaster MyMaster = MbMaster(&MyInterface);
 
 
-//MbSlaveServer MySlave = MbSlaveServer(&MyInterface);
+#ifdef SLAVE_STM
+#ifdef ASCII
 MbAsciiSlaveStm MySlave = MbAsciiSlaveStm (WinPort);
-//MbRtuSlaveStm MySlave = MbRtuSlaveStm (WinPort);
+#endif
+#ifdef RTU
+MbRtuSlaveStm MySlave = MbRtuSlaveStm (WinPort);
+#endif
+#else
+MbSlaveServer MySlave = MbSlaveServer(&MyInterface);
+#endif
 
 #define NUM_REGS 8
 #define BASE_ADDR 10
@@ -66,9 +101,16 @@ protected:
 	}
 } MyHoldingRegs;
 
+
 void TestSlave()
 {
-	printf("CPP Modbus Slave Test %s %d\r\n",ComPort, BdRate);
+	printf("CPP Modbus Slave Test\r\n");
+#ifdef SLAVE_STM
+	printf("Using SlaveSTM\r\n");
+#endif
+	printf(IFC_STRING);
+	printf("\r\n");
+
 	StdDataServer MyDataServer = StdDataServer(1);
 
 	// abgeleitete Daten Klasse
@@ -96,23 +138,35 @@ void TestSlave()
 	MySlave.StopListen();
 }
 
+int errCount = 0;
 
+bool CheckError(ErrorCodes errCode)
+{
+	if (errCode != ErrorCodes::MB_NO_ERROR) {
+		++errCount;
+		printf("Error:%d, count:%d\r", errCode, errCount);
+		return true;
+	}
+	return false;
+}
 void TestMaster()
 {
 	printf("CPP Modbus Master Test\r\n");
+	printf(IFC_STRING);
+	printf("\r\n");
 	uint16_t tstCount = 0;
-	int errCount = 0;
 
 	MyMaster.Connect(&MyInterface, 1);
 	while (_kbhit() == 0) {
 		ErrorCodes retCode = MyMaster.ReadHoldingRegisters(BASE_ADDR, 3, ModbusRegs, 0);
-		if (retCode == ErrorCodes::MB_NO_ERROR) {
+		if (CheckError (retCode) == false) {
 			printf("RdRegister %04d,%04d,%04d\r", ModbusRegs[0], ModbusRegs[1], ModbusRegs[2]);
-		} else {
-			++errCount;
-			printf("Error:%d, count:%d\r", retCode,errCount);
 		}
-		MyMaster.WriteSingleRegister(12, tstCount++);
+		CheckError(MyMaster.WriteSingleRegister(12, tstCount++));
+
+		coil_t Coils[24];
+		CheckError (MyMaster.ReadDiscreteInputs(30, 20, Coils));
+		CheckError(MyMaster.WriteMultipleCoils(10, 20, Coils));
 		MbSleep(100);
 
 	}
@@ -122,8 +176,12 @@ void TestMaster()
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//TestMaster();
+#ifdef MASTER
+	TestMaster();
+#endif
+#ifdef SLAVE
 	TestSlave();
+#endif
 	return 0;
 }
 

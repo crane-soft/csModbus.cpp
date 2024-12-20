@@ -83,7 +83,7 @@ namespace csModbusLib
     class MbBase
     {
 	public:
-		static const uint16_t MAX_FRAME_LEN = 256 + 6;
+		static const uint16_t MAX_FRAME_LEN = 256;
 		MbBase()  {}
 
 	protected:

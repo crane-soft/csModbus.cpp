@@ -35,9 +35,8 @@ namespace csModbusLib
 		virtual void SendFrame(int Length) = 0;
 		virtual void DiscardReceived() { }
 		virtual ConnectionType getConnectionType() const { return ConnectionType::NO_CONNECTION; }
-		MbRawData* getFrameData() { return &FrameData; }
+		virtual MbRawData* getFrameData() = 0;
 	protected:
 		bool IsConnected = false;
-		MbRawDataBuff<MbBase::MAX_FRAME_LEN> FrameData;
 	};
 }

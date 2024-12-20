@@ -17,15 +17,12 @@ namespace csModbusLib {
 
 	protected:
 		void SetPort(int port);
-		void FillMBAPHeader(int Length);
-		void CheckTransactionIdentifier();
 		virtual void ReceiveHeaderData(int timeOut) {}
 		void UdpReceiveHeaderData(int timeOut);
+		MbRawData* getFrameData() override 	{return &FrameData;	}
 
 		int remote_port;
 		UdpClient *mUdpClient = NULL;
-
-	private:
-		uint16_t TransactionIdentifier;
+		MbEthDataBuff<MbBase::MAX_FRAME_LEN> FrameData;
 	};
 }

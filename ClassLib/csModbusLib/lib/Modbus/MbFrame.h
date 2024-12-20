@@ -55,19 +55,21 @@ namespace csModbusLib
 		void GetBitData(coil_t* DestBits, int DestIdx, int FrameIdx);
 		int PutBitData(coil_t* SrcBits, int SrcIdx, int FrameIdx);
 
-		static const int REQST_UINIT_ID_IDX = MbRawData::ADU_OFFS + 0;
-		static const int REQST_FCODE_IDX = MbRawData::ADU_OFFS + 1;
-		static const int RESPNS_ERR_IDX = MbRawData::ADU_OFFS + 2;
+		static const int REQST_UINIT_ID_IDX = 0;
+		static const int REQST_FCODE_IDX = 1;
+		static const int RESPNS_ERR_IDX = 2;
 
-		static const int REQST_ADDR_IDX = MbRawData::ADU_OFFS + 2;
-		static const int REQST_SINGLE_DATA_IDX = MbRawData::ADU_OFFS + 4;
-		static const int REQST_DATA_CNT_IDX = MbRawData::ADU_OFFS + 4;   // Request for Single Write Functions
-		static const int REQST_DATA_LEN_IDX = MbRawData::ADU_OFFS + 6;
-		static const int REQST_WRADDR_IDX = MbRawData::ADU_OFFS + 6;
+		static const int REQST_ADDR_IDX = 2;
+		static const int REQST_SINGLE_DATA_IDX = 4;
+		static const int REQST_DATA_CNT_IDX = 4;   // Request for Single Write Functions
+		static const int REQST_DATA_LEN_IDX = 6;
+		static const int REQST_WRADDR_IDX = 6;
 
-		static const int REQST_DATA_IDX = MbRawData::ADU_OFFS + 7;      // 
-		static const int RESPNS_DATA_IDX = MbRawData::ADU_OFFS + 3;           // Response for Read Functions
-		static const int RESPNS_LEN_IDX = MbRawData::ADU_OFFS + 2;
+		static const int REQST_DATA_IDX = 7;      // 
+		static const int RESPNS_DATA_IDX = 3;           // Response for Read Functions
+		static const int RESPNS_LEN_IDX = 2;
+
+		static const int SLAVE_DATA_IDX = 3;
 
 		int ResponseMessageLength();
 	};

@@ -8,24 +8,18 @@ namespace csModbusLib {
 
 	MbSlave::MbSlave(MbInterface *Interface)
 	{
-		InitInterface(Interface);
+		gInterface = Interface;
 	}
 
 	MbSlave::MbSlave(MbInterface *Interface, MbSlaveDataServer *DataServer)
 	{
-		InitInterface(Interface);
+		gInterface = Interface;
 		gDataServer = DataServer;
 	}
 
 	MbSlaveDataServer * MbSlave::Get_DataServer()
 	{
 		return gDataServer;
-	}
-
-	void MbSlave::InitInterface(MbInterface* Interface)
-	{
-		gInterface = Interface;
-		Frame.RawData = gInterface->getFrameData();
 	}
 
 	void MbSlave::Set_DataServer(MbSlaveDataServer *DataServer)
@@ -54,6 +48,7 @@ namespace csModbusLib {
 
 	bool MbSlave::StartListen()
 	{
+		Frame.RawData = gInterface->getFrameData();
 		errCount = 0;
 		if (gInterface != 0) {
 			if (running) {
@@ -76,7 +71,7 @@ namespace csModbusLib {
 
 	bool MbSlave::StartListen(MbInterface *Interface, MbSlaveDataServer *DataServer)
 	{
-		InitInterface(Interface);
+		gInterface = Interface;
 		gDataServer = DataServer;
 		return StartListen();
 	}

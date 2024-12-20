@@ -6,7 +6,6 @@
 namespace csModbusLib {
 	MbEthernet::MbEthernet() 
 	{
-		TransactionIdentifier = 0;
 		mUdpClient = NULL;
 	}
 
@@ -15,36 +14,17 @@ namespace csModbusLib {
 		remote_port = port;
 	}
 
-	void MbEthernet::FillMBAPHeader(int Length)
-	{
-		++TransactionIdentifier;
-		FrameData.PutUInt16(0, TransactionIdentifier);
-		FrameData.PutUInt16(2, 0);
-		FrameData.PutUInt16(4, (uint16_t)Length);
-	}
-
-	void MbEthernet::CheckTransactionIdentifier()
-	{
-		uint16_t RxIdentifier = FrameData.GetUInt16(0);
-		if (RxIdentifier != TransactionIdentifier) {
-			throw  ErrorCodes::WRONG_IDENTIFIER;
-		}
-	}
-
-
 	void MbEthernet::UdpReceiveHeaderData(int timeOut)
 	{
-		FrameData.EndIdx = 0;
 		mUdpClient->SetReceiveTimeout(timeOut);
 		try {
-			int readed = mUdpClient->Receive(FrameData.Data, MbBase::MAX_FRAME_LEN);
-			FrameData.EndIdx = readed;
+			int readed = mUdpClient->Receive(FrameData.EthData, FrameData.EthSize);
 
-			if (FrameData.CheckEthFrameLength() > 0) {
+			if (FrameData.CheckEthFrameLength(readed) > 0) {
 				// we assume all framedata in one datagram
 				throw  ErrorCodes::MESSAGE_INCOMPLETE;
 			}
-
+			FrameData.Length = readed-6;
 		} catch (int errCode) {
 			throw errCode;
 		}

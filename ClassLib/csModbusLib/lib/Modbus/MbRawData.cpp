@@ -1,41 +1,36 @@
 #include "Modbus/MbRawData.h"
 #include <cstring>
 
+const int ADU_OFFS = 6;
+
 namespace csModbusLib
 {
-	MbRawData::MbRawData(uint8_t* Data, int Size)
+	MbRawData::MbRawData(uint8_t* Buffer, int Size)
 	{
-		Init(Data, Size);
+		Init(Buffer, Size);
 	}
 
-	void MbRawData::Init(uint8_t* Data, int Size)
+	void MbRawData::Init(uint8_t* Buffer, int Size)
 	{
-		this->Data = Data;
+		Data = Buffer;
 		DataSize = Size;
-		EndIdx = 0;
-
+		Length = 0;
 	}
 
 	void MbRawData::Clear()
 	{
-		EndIdx = ADU_OFFS;
-	}
-
-	void MbRawData::CopyFrom(MbRawData *source)
-	{
-		memcpy(Data, source->Data, source->EndIdx);
-		EndIdx = source->EndIdx;
+		Length = 0;
 	}
 
 	void MbRawData::CopyFrom(uint8_t *source, int srcIdx, int length)
 	{
-		int maxLength = DataSize - EndIdx;
+		int maxLength = DataSize - Length;
 		if (length > maxLength) {
 			length = maxLength;
 		}
 
-		memcpy(&Data[EndIdx], &source[srcIdx], length);
-		EndIdx += length;
+		memcpy(&Data[Length], &source[srcIdx], length);
+		Length += length;
 	}
 
 	uint16_t MbRawData::GetUInt16(int ByteOffs)  const
@@ -61,30 +56,45 @@ namespace csModbusLib
 			PutUInt16(DestOffs + i * 2, SrcArray[SrcOffs+i]);
 	}
 
-	int MbRawData::CheckEthFrameLength() const
+	uint8_t* MbRawData::BuffStart() const
 	{
-		int frameLength = GetUInt16(ADU_OFFS - 2);
-		int bytesleft = (frameLength + ADU_OFFS) - EndIdx;
-		return bytesleft;
-
-	}
-
-	uint8_t* MbRawData::DataStart() const
-	{
-		return &Data[MbRawData::ADU_OFFS];
+		return Data;
 	}
 
 	uint8_t * MbRawData::BufferEnd() const {
-		return &Data[EndIdx];
-	}
-
-	int MbRawData::Length() const
-	{
-		return (EndIdx - MbRawData::ADU_OFFS);
+		return &Data[Length];
 	}
 
 	uint8_t MbRawData::LastByte() const
 	{
-		return Data[EndIdx-1];
+		return Data[Length-1];
+	}
+
+
+	MbEthData::MbEthData(uint8_t* Buffer, int Size)
+		: MbRawData (Buffer+6,Size-6)
+	{
+		EthData = Buffer;
+		EthSize = Size;
+	}
+
+	int MbEthData::CheckEthFrameLength(int readed)
+	{
+		int frameLength = GetUInt16(-2);
+		int bytesleft = (frameLength + 6) - readed;
+		return bytesleft;
+	}
+
+	void MbEthData::FillMBAPHeader(int Length, uint16_t TransactionIdentifier)
+	{
+		PutUInt16(-6, TransactionIdentifier);
+		PutUInt16(-4, 0);
+		PutUInt16(-2, (uint16_t)Length);
+	}
+
+	void MbEthData::CopyFrom(MbEthData* source)
+	{
+		memcpy(EthData, source->EthData, source->Length);
+		Length = source->Length;
 	}
 }

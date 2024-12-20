@@ -48,7 +48,7 @@ namespace csModbusLib
 	{
 		uint8_t* buffPtr = FrameData.BufferEnd() -2;
 		*buffPtr = ASCII2Hex(buffPtr);
-		FrameData.EndIdx -= 1;
+		FrameData.Length -= 1;
 	}
 
 	int MbASCII::ASCII2Hex(uint8_t * hexchars)
@@ -74,8 +74,8 @@ namespace csModbusLib
 	bool MbASCII::Check_EndOfFrame()
 	{
 		// Check LRC
-		FrameData.EndIdx -= 2;	// discard crlf point aftr LCR
-		uint8_t calc_lrv = CalcLRC(FrameData.DataStart(), FrameData.Length());
+		FrameData.Length -= 2;	// discard crlf point aftr LCR
+		uint8_t calc_lrv = CalcLRC(FrameData.BuffStart(), FrameData.Length);
 		return (calc_lrv == 0);
 	}
 
@@ -95,8 +95,8 @@ namespace csModbusLib
 		// DiscardBuffer to resync start of frame
 		sp->DiscardInOut();
 
-		uint8_t lrc_value = CalcLRC(FrameData.DataStart(), Length);
-		FrameData.Data[MbRawData::ADU_OFFS + Length] = lrc_value;
+		uint8_t lrc_value = CalcLRC(FrameData.BuffStart(), Length);
+		FrameData.Data[Length] = lrc_value;
 		Length += 1;
 
 		uint8_t hexbuff[2];
@@ -104,8 +104,8 @@ namespace csModbusLib
 		SendData(hexbuff, 1);
 
 		for (int i = 0; i < Length; ++i) {
-			hexbuff[0] = ByteToHexChar(FrameData.Data[MbRawData::ADU_OFFS + i] >> 4);
-			hexbuff[1] = ByteToHexChar(FrameData.Data[MbRawData::ADU_OFFS + i]);
+			hexbuff[0] = ByteToHexChar(FrameData.Data[i] >> 4);
+			hexbuff[1] = ByteToHexChar(FrameData.Data[i]);
 			SendData(hexbuff, 2);
 		}
 

@@ -61,11 +61,11 @@ namespace csModbusLib {
 
 	bool  MbRTU::Check_EndOfFrame()
 	{
-		int crc_idx = FrameData.EndIdx-2;
+		int crc_idx = FrameData.Length-2;
 
 		// Check CRC
 		uint16_t msg_crc = FrameData.GetUInt16(crc_idx);
-		uint16_t calc_crc = CalcCRC16(FrameData.DataStart(), crc_idx - MbRawData::ADU_OFFS);
+		uint16_t calc_crc = CalcCRC16(FrameData.BuffStart(), crc_idx);
 		return (msg_crc == calc_crc);
 		// If the server receives the request, but detects a communication error (parity, LRC, CRC,  ...),
 		// no response is returned. The client program will eventually process a timeout condition for the request.
@@ -76,10 +76,10 @@ namespace csModbusLib {
 		// DiscardBuffer to resync start of frame
 		sp->DiscardInOut();
 
-		uint16_t calc_crc = CalcCRC16(FrameData.DataStart(), Length);
-		FrameData.PutUInt16(MbRawData::ADU_OFFS + Length, calc_crc);
+		uint16_t calc_crc = CalcCRC16(FrameData.BuffStart(), Length);
+		FrameData.PutUInt16(Length, calc_crc);
 		Length += 2;
-		SendData(&FrameData.Data[MbRawData::ADU_OFFS], Length);
+		SendData(FrameData.BuffStart(), Length);
 	}
 
 	uint16_t MbRTU::UpdateCRC16(uint16_t crc, uint8_t bt) const

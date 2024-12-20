@@ -12,7 +12,7 @@ namespace csModbusLib {
 
 	void MbETHSlave::SendFrame(int Length)
 	{
-		FrameData.PutUInt16(4, (uint16_t)Length);
+		FrameData.PutUInt16(-2, (uint16_t)Length);
 		try {
 			SendFrameData(Length + MBAP_Header_Size);
 			FreeMessage();
@@ -57,7 +57,7 @@ namespace csModbusLib {
 
 	void MbUDPSlave::SendFrameData(int Length)
 	{
-		mUdpClient->SendResponse(FrameData.Data, Length);
+		mUdpClient->SendResponse(FrameData.EthData, Length);
 	}
 
 	// -------------------------------------------------------------------
@@ -103,7 +103,7 @@ namespace csModbusLib {
 
 	void MbTCPSlave::SendFrameData(int Length)
 	{
-		ConnectionContext->SendFrame(FrameData.Data, Length);
+		ConnectionContext->SendFrame(FrameData.EthData, Length);
 
 	}
 
@@ -163,7 +163,7 @@ namespace csModbusLib {
 	void TcpContext::BeginReadFrameData()
 	{
 		if (closed == false)
-			Stream->BeginRcv(&FrameBuffer.Data[ReadIndex], Bytes2Read,this);
+			Stream->BeginRcv(&CtxFrameBuff.EthData[ReadIndex], Bytes2Read,this);
 	}
 
 	bool TcpContext::EndReceive()
@@ -181,17 +181,18 @@ namespace csModbusLib {
 			return false;
 		}
 
-		FrameBuffer.EndIdx = ReadIndex;
 		if (NewFrame) {
-			Bytes2Read = FrameBuffer.CheckEthFrameLength();
+			Bytes2Read = CtxFrameBuff.CheckEthFrameLength(ReadIndex);
 			NewFrame = false;
 			return false;
 		}
+		CtxFrameBuff.Length = ReadIndex;
 		return true;
 	}
 
-	void TcpContext::CopyRxData(MbRawData *RxData)
+	void TcpContext::CopyRxData(MbEthData *RxData)
 	{
-		RxData->CopyFrom(&FrameBuffer);
+		RxData->CopyFrom(&CtxFrameBuff);
+		RxData->Length = CtxFrameBuff.Length - 6;
 	}
 }

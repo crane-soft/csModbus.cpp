@@ -62,7 +62,7 @@ namespace csModbusLib {
 		int bytesRead;
 		bytesRead = sp->Read(FrameData.BufferEnd(), count);
 		if (bytesRead == count) {
-			FrameData.EndIdx += count;
+			FrameData.Length += count;
 			return;
 		}
 		if (bytesRead == 0)
@@ -74,7 +74,7 @@ namespace csModbusLib {
 	{
 		SetReadTimeout(count, timeOut);
 		sp->ReadEv(FrameData.BufferEnd(), count);
-		FrameData.EndIdx += count;
+		FrameData.Length += count;
 	}
 
 	void MbSerial::SetReadTimeout(int count, int timeout)

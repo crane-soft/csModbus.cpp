@@ -10,10 +10,12 @@ namespace csModbusLib {
 	public:
 		MbETHMaster(const char * host_name, int port);
 		void ReceiveHeader(int timeOut);
+		void FillMBAPHeader(int Length);
+		void CheckTransactionIdentifier();
 
 	protected:
 		const char *remote_host;
-
+		uint16_t TransactionIdentifier;
 	};
 
 	class MbUDPMaster : public MbETHMaster {
@@ -37,7 +39,7 @@ namespace csModbusLib {
 
 	protected:
 		void ReceiveHeaderData(int timeOut);
-		void ReadData(int timeOut, int length);
+		int ReadData(int timeOut,int offs, int length);
 	private:
 		TcpClient *tcpc = NULL;
 	};

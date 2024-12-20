@@ -62,10 +62,10 @@ namespace csModbusLib {
 		void BeginNewFrame();
 		void BeginReadFrameData();
 		bool EndReceive();
-		void CopyRxData(MbRawData *RxData);
+		void CopyRxData(MbEthData *RxData);
 
 	private:
-		MbRawDataBuff<MbBase::MAX_FRAME_LEN> FrameBuffer;
+		MbEthDataBuff<MbBase::MAX_FRAME_LEN> CtxFrameBuff;
 		bool closed;
 		bool NewFrame = false;
 		NetStream *Stream;

@@ -16,6 +16,8 @@ namespace csModbusLib {
 		MbSerial(SerialPort * _sp);
 		void setSerialPort(SerialPort* _sp);
 		void setCallback(SerialPort::ReadCallback_t callBack) {	sp->setCallback(callBack);	}
+		MbRawData* getFrameData() override
+			{ return &FrameData; }
 
 		bool Connect() override;
 		void DisConnect() override;
@@ -31,6 +33,7 @@ namespace csModbusLib {
 		void SetReadTimeout(int count, int timeout);
 		void SendData(const uint8_t* Data, int count);
 		SerialPort* sp;
+		MbRawDataBuff<MbBase::MAX_FRAME_LEN> FrameData;
 
 	private:
 		int GetTimeOut_ms(int NumBytes) const;

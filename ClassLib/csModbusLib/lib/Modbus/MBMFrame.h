@@ -15,7 +15,6 @@ namespace csModbusLib
 		void ReadSlaveBitValues(coil_t* DestBits, int DestOffs);
 		uint16_t GetTransactionIdentifier();
 	private:
-		static const int SLAVE_DATA_IDX = MbRawData::ADU_OFFS + 3;
 		uint8_t Current_SlaveID;
 	};
 }
